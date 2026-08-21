@@ -15,8 +15,19 @@ type Store = {
 
 const globalForStore = globalThis as unknown as { __oportunaStore?: Store };
 
+function withOrigem(item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl"> & Partial<Oportunidade>): Oportunidade {
+  return {
+    ...item,
+    origem: item.origem ?? "manual",
+    fonteId: item.fonteId ?? null,
+    fonteUrl: item.fonteUrl ?? null,
+  };
+}
+
 function createStore(): Store {
-  return { items: new Map(SEED.map((item) => [item.id, { ...item }])) };
+  return {
+    items: new Map(SEED.map((item) => [item.id, withOrigem(item)])),
+  };
 }
 
 function getStore(): Store {
@@ -79,6 +90,8 @@ export function listOportunidades(
     pais,
     status = "abertas",
     ordenar = "prazo",
+    fonteId,
+    origem,
     page = 1,
     limit = 20,
   } = filtros;
@@ -91,6 +104,8 @@ export function listOportunidades(
     if (nivel && item.nivel !== nivel) return false;
     if (modalidade && item.modalidade !== modalidade) return false;
     if (pais && item.pais !== pais) return false;
+    if (fonteId && item.fonteId !== fonteId) return false;
+    if (origem && item.origem !== origem) return false;
     if (status === "abertas" && !isOpen(item)) return false;
     if (status === "encerradas" && isOpen(item)) return false;
     if (!matchesQuery(item, q)) return false;
@@ -128,6 +143,9 @@ export function createOportunidade(input: NovaOportunidade): Oportunidade {
   const now = new Date().toISOString();
   const item: Oportunidade = {
     ...input,
+    origem: input.origem ?? "manual",
+    fonteId: input.fonteId ?? null,
+    fonteUrl: input.fonteUrl ?? null,
     id: uniqueId(input.titulo),
     criadoEm: now,
     atualizadoEm: now,
@@ -155,6 +173,32 @@ export function updateOportunidade(
 
 export function deleteOportunidade(id: string) {
   return getStore().items.delete(id);
+}
+
+export function findByUrlInscricao(url: string) {
+  return [...getStore().items.values()].find((item) => item.urlInscricao === url) ?? null;
+}
+
+export function upsertColetada(input: NovaOportunidade): Oportunidade {
+  const existing = findByUrlInscricao(input.urlInscricao);
+  if (existing) {
+    return (
+      updateOportunidade(existing.id, {
+        ...input,
+        origem: "coleta",
+        fonteId: input.fonteId,
+        fonteUrl: input.fonteUrl,
+      }) ?? existing
+    );
+  }
+  return createOportunidade({ ...input, origem: "coleta" });
+}
+
+export function deleteByFonte(fonteId: string) {
+  const store = getStore();
+  for (const item of store.items.values()) {
+    if (item.fonteId === fonteId) store.items.delete(item.id);
+  }
 }
 
 export function taxonomia() {

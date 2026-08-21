@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 
+import { AddSourceForm } from "@/components/add-source-form";
 import { OpportunityCatalog } from "@/components/opportunity-catalog";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,21 +12,24 @@ export default function HomePage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 sm:py-14">
       <section className="max-w-3xl">
         <p className="text-sm font-medium tracking-wide text-primary uppercase">
-          Catálogo + API REST
+          Você manda o link. A Oportuna acompanha.
         </p>
         <h1 className="mt-2 font-heading text-4xl leading-tight tracking-tight text-balance sm:text-5xl">
-          A próxima bolsa, o próximo evento, o próximo passo.
+          Fontes de bolsas e editais, sempre atualizadas.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Oportuna reúne editais de estudo — bolsas, cursos, estágios, intercâmbios e
-          concursos — numa API simples e num catálogo que dá para filtrar de verdade.
+          Cole a URL de um site, RSS ou página de editais. A cada 30 minutos a coleta
+          roda de novo e o catálogo fica com o que ainda está aberto.
         </p>
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Link href="/docs" className={cn(buttonVariants({ variant: "outline" }))}>
-            Ver a API
+        <div className="mt-6 max-w-2xl">
+          <AddSourceForm />
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/fontes" className={cn(buttonVariants({ variant: "outline" }))}>
+            Gerenciar fontes
           </Link>
-          <Link href="/cadastrar" className={cn(buttonVariants())}>
-            Cadastrar um edital
+          <Link href="/docs" className={cn(buttonVariants({ variant: "ghost" }))}>
+            API
           </Link>
         </div>
       </section>

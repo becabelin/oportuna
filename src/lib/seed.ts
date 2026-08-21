@@ -1,6 +1,6 @@
 import type { Oportunidade } from "./types";
 
-export const SEED: Oportunidade[] = [
+export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl">> = [
   {
     id: "pibic-cnpq-2026",
     titulo: "PIBIC — Bolsa de Iniciação Científica CNPq",

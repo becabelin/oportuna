@@ -44,6 +44,9 @@ export default async function OpportunityPage({ params }: PageProps) {
       <div className="mt-4 flex flex-wrap gap-2">
         <TipoBadge tipo={item.tipo} />
         <PrazoBadge prazoInscricao={item.prazoInscricao} />
+        {item.origem === "coleta" ? (
+          <span className="text-sm text-muted-foreground">coletada de fonte</span>
+        ) : null}
       </div>
 
       <h1 className="mt-4 font-heading text-3xl leading-tight tracking-tight text-balance sm:text-4xl">
@@ -138,6 +141,11 @@ export default async function OpportunityPage({ params }: PageProps) {
         <Link href={`/api/oportunidades/${item.id}`} className={cn(buttonVariants({ variant: "outline" }))}>
           Ver JSON
         </Link>
+        {item.fonteId ? (
+          <Link href={`/?fonteId=${item.fonteId}`} className={cn(buttonVariants({ variant: "ghost" }))}>
+            Outras desta fonte
+          </Link>
+        ) : null}
       </div>
     </article>
   );

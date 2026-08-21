@@ -86,8 +86,13 @@ export function OpportunityCatalog() {
       }
     }
     load();
+    const onUpdate = () => {
+      if (!cancelled) void load();
+    };
+    window.addEventListener("oportuna:atualizou", onUpdate);
     return () => {
       cancelled = true;
+      window.removeEventListener("oportuna:atualizou", onUpdate);
     };
   }, [query]);
 
@@ -104,7 +109,7 @@ export function OpportunityCatalog() {
 
   const selectedTipo = searchParams.get("tipo") ?? "";
   const activeFilters = useMemo(() => {
-    const keys = ["q", "tipo", "area", "nivel", "modalidade", "pais", "status", "ordenar"];
+    const keys = ["q", "tipo", "area", "nivel", "modalidade", "pais", "status", "ordenar", "origem", "fonteId"];
     return keys.filter((key) => {
       const value = searchParams.get(key);
       if (!value) return false;
@@ -244,6 +249,18 @@ export function OpportunityCatalog() {
             <option value="prazo">Prazo mais próximo</option>
             <option value="recentes">Atualizadas recentemente</option>
             <option value="titulo">Título A–Z</option>
+          </NativeSelect>
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="origem">Origem</Label>
+          <NativeSelect
+            id="origem"
+            value={searchParams.get("origem") ?? ""}
+            onChange={(value) => updateParams({ origem: value || null })}
+          >
+            <option value="">Todas</option>
+            <option value="coleta">Coletadas de links</option>
+            <option value="manual">Catálogo inicial</option>
           </NativeSelect>
         </div>
       </div>

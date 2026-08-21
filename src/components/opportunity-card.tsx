@@ -61,6 +61,11 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />
           <PrazoBadge prazoInscricao={item.prazoInscricao} />
+          {item.origem === "coleta" ? (
+            <Badge variant="outline" className="border-primary/20 text-primary">
+              coletada
+            </Badge>
+          ) : null}
         </div>
         <CardTitle className="text-lg leading-snug">
           <Link

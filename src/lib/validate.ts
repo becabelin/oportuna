@@ -7,7 +7,7 @@ import type {
 } from "./types";
 import { MODALIDADES, NIVEIS, TIPOS } from "./types";
 
-function isTipo(value: unknown): value is TipoOportunidade {
+export function isTipo(value: unknown): value is TipoOportunidade {
   return typeof value === "string" && (TIPOS as readonly string[]).includes(value);
 }
 
@@ -173,6 +173,9 @@ export function validateOportunidade(
     requisitos: asStringArray(input.requisitos) ?? [],
     tags: asStringArray(input.tags) ?? [],
     vagas: typeof input.vagas === "number" ? input.vagas : null,
+    origem: input.origem === "coleta" ? "coleta" : "manual",
+    fonteId: typeof input.fonteId === "string" ? input.fonteId : null,
+    fonteUrl: typeof input.fonteUrl === "string" ? input.fonteUrl : null,
   };
 
   return { ok: true, data };
@@ -191,6 +194,7 @@ export function parseListQuery(searchParams: URLSearchParams): FiltrosOportunida
   const pais = searchParams.get("pais") ?? undefined;
   const statusRaw = searchParams.get("status");
   const ordenarRaw = searchParams.get("ordenar");
+  const origemRaw = searchParams.get("origem");
   const page = Number(searchParams.get("page") ?? "1");
   const limit = Number(searchParams.get("limit") ?? "20");
 
@@ -212,5 +216,7 @@ export function parseListQuery(searchParams: URLSearchParams): FiltrosOportunida
     page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1,
     limit:
       Number.isFinite(limit) && limit > 0 ? Math.min(100, Math.floor(limit)) : 20,
+    fonteId: searchParams.get("fonteId")?.trim() || undefined,
+    origem: origemRaw === "coleta" || origemRaw === "manual" ? origemRaw : undefined,
   };
 }

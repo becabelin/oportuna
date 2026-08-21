@@ -12,13 +12,18 @@ export function GET() {
     name: "Oportuna API",
     version: "1.0.0",
     description:
-      "API pública de oportunidades de estudo: bolsas, eventos, cursos, estágios, intercâmbios e concursos.",
+      "Você envia links de editais. A Oportuna coleta e mantém as oportunidades ainda abertas.",
     endpoints: {
       "GET /api": "Este índice",
       "GET /api/taxonomia": "Tipos, áreas, níveis, modalidades e países com contagem",
+      "GET /api/fontes": "Fontes monitoradas (URLs que você cadastrou)",
+      "POST /api/fontes": "Adiciona uma URL e coleta na hora. Corpo: { url, tipo? }",
+      "POST /api/fontes/:id/coletar": "Coleta de novo uma fonte",
+      "DELETE /api/fontes/:id": "Remove a fonte e as oportunidades coletadas dela",
+      "GET|POST /api/coletar": "Atualiza todas as fontes",
       "GET /api/oportunidades":
-        "Lista paginada. Query: q, tipo, area, nivel, modalidade, pais, status, ordenar, page, limit",
-      "POST /api/oportunidades": "Cadastra uma oportunidade",
+        "Lista paginada. Query: q, tipo, area, nivel, modalidade, pais, status, origem, fonteId, ordenar, page, limit",
+      "POST /api/oportunidades": "Cadastra uma oportunidade na mão",
       "GET /api/oportunidades/:id": "Detalhe",
       "PATCH /api/oportunidades/:id": "Atualização parcial",
       "DELETE /api/oportunidades/:id": "Remove",

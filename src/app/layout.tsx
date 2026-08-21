@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Oportuna",
   },
   description:
-    "API e catálogo de oportunidades de estudo: bolsas, eventos, cursos, estágios, intercâmbios e concursos.",
+    "Cole links de bolsas e editais. A Oportuna coleta e mantém as oportunidades ainda abertas.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

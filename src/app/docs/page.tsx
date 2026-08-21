@@ -22,6 +22,26 @@ const endpoints = [
   },
   {
     method: "GET",
+    path: "/api/fontes",
+    desc: "Lista as URLs monitoradas e o status da última coleta.",
+  },
+  {
+    method: "POST",
+    path: "/api/fontes",
+    desc: "Adiciona um link e coleta na hora. Corpo: { url, tipo? }.",
+  },
+  {
+    method: "POST",
+    path: "/api/fontes/:id/coletar",
+    desc: "Roda a coleta de novo numa fonte.",
+  },
+  {
+    method: "GET ou POST",
+    path: "/api/coletar",
+    desc: "Atualiza todas as fontes. Útil como cron a cada 30 minutos.",
+  },
+  {
+    method: "GET",
     path: "/api/oportunidades",
     desc: "Lista paginada. Aceita filtros por query string.",
   },
@@ -55,6 +75,8 @@ const queryParams = [
   ["modalidade", "presencial, remoto ou hibrido."],
   ["pais", "Brasil, Alemanha, Estados Unidos…"],
   ["status", "abertas (padrão), encerradas ou todas."],
+  ["origem", "coleta (veio de um link) ou manual."],
+  ["fonteId", "Só oportunidades de uma fonte."],
   ["ordenar", "prazo (padrão), recentes ou titulo."],
   ["page", "Página, a partir de 1."],
   ["limit", "Itens por página (máximo 100, padrão 20)."],
@@ -87,8 +109,9 @@ export default function DocsPage() {
       <h1 className="mt-2 font-heading text-4xl tracking-tight">API Oportuna</h1>
       <p className="mt-3 text-muted-foreground">
         CORS liberado para qualquer origem. JSON em UTF-8. Datas no formato{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>. Os dados
-        ficam em memória neste processo — reiniciar o servidor volta ao catálogo inicial.
+        <code className="rounded bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>. O
+        fluxo principal é cadastrar fontes (URLs); a coleta periódica preenche o
+        catálogo. Os dados ficam em memória neste processo.
       </p>
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href="/api" className={cn(buttonVariants())}>
@@ -140,7 +163,16 @@ export default function DocsPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl">Exemplo de cadastro</h2>
+        <h2 className="font-heading text-2xl">Adicionar uma fonte</h2>
+        <pre className="mt-4 overflow-x-auto rounded-2xl border bg-card p-4 text-sm leading-relaxed">
+          <code>{`curl -X POST http://localhost:3847/api/fontes \\
+  -H "Content-Type: application/json" \\
+  -d '{"url":"https://www.scholars4dev.com/feed/"}'`}</code>
+        </pre>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-heading text-2xl">Exemplo de cadastro manual</h2>
         <pre className="mt-4 overflow-x-auto rounded-2xl border bg-card p-4 text-sm leading-relaxed">
           <code>{`curl -X POST http://localhost:3847/api/oportunidades \\
   -H "Content-Type: application/json" \\

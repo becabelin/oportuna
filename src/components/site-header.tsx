@@ -31,16 +31,22 @@ export function SiteHeader() {
             Catálogo
           </Link>
           <Link
+            href="/fontes"
+            className="hidden rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:inline"
+          >
+            Fontes
+          </Link>
+          <Link
             href="/docs"
             className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             API
           </Link>
           <Link
-            href="/cadastrar"
+            href="/fontes"
             className={cn(buttonVariants({ size: "sm" }), "ml-1")}
           >
-            Cadastrar edital
+            Adicionar fonte
           </Link>
         </nav>
       </div>
