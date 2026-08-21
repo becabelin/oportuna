@@ -9,13 +9,13 @@ const globalForFontes = globalThis as unknown as { __oportunaFontes?: FontesStor
 
 export const SEED_FONTES: Array<Pick<Fonte, "url" | "titulo" | "tipoSugerido">> = [
   {
-    url: "https://www.scholars4dev.com/feed/",
-    titulo: "Scholars4Dev",
+    url: "https://www.scholarshipregion.com/feed/",
+    titulo: "Scholarship Region",
     tipoSugerido: "bolsa",
   },
   {
-    url: "https://www.chevening.org/scholarships/",
-    titulo: "Chevening Scholarships",
+    url: "https://www.scholars4dev.com/",
+    titulo: "Scholars4Dev",
     tipoSugerido: "bolsa",
   },
   {

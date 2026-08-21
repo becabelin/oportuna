@@ -275,12 +275,27 @@ export async function coletarFonte(fonteId: string) {
   }
 
   try {
-    const pagina = await fetchPublicPage(fonte.url);
+    let pagina = await fetchPublicPage(fonte.url);
     const $ = cheerio.load(pagina.body, { xml: isFeed(pagina.contentType, pagina.body) });
 
     let candidatos: Candidato[] = [];
     if (isFeed(pagina.contentType, pagina.body)) {
       candidatos = parseFeed($, fonte.tipoSugerido);
+      if (candidatos.length === 0) {
+        const siteLink = cleanText($("channel > link").first().text());
+        if (siteLink && siteLink !== fonte.url) {
+          try {
+            pagina = await fetchPublicPage(siteLink);
+            const $site = cheerio.load(pagina.body);
+            candidatos = [
+              ...parseJsonLd($site, fonte.tipoSugerido),
+              ...parseHtmlLinks($site, pagina.finalUrl, fonte.tipoSugerido),
+            ];
+          } catch {
+            candidatos = [];
+          }
+        }
+      }
     } else {
       const feedUrl = discoverFeed($, pagina.finalUrl);
       if (feedUrl) {
