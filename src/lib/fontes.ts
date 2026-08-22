@@ -95,6 +95,78 @@ export const SEED_FONTES: Array<
     tipoSugerido: "curso",
     areaSugerida: "UX e Produto",
   },
+  {
+    url: "https://eventos.uxfor.com.br/",
+    titulo: "UXFor Events Hub",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.listadeeventos.com.br/evento/dexconf-2026-conferencia-design-ux-sao-paulo",
+    titulo: "DEXConf / Mergo",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.uxconf.com.br/",
+    titulo: "UXConf BR",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://linkfestival.me/",
+    titulo: "Link Festival",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.mulheresdeproduto.com/",
+    titulo: "Mulheres de Produto",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.productcamp.com.br/",
+    titulo: "Product Camp",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://worldusabilityday.org/",
+    titulo: "World Usability Day",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.floripadesigndays.com/",
+    titulo: "Floripa Design Days",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://tech.ifood.com.br/",
+    titulo: "iFood Camp / iFood Tech",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://nubank.com.br/nu-design-day",
+    titulo: "Nu Design Day",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://designday.olx.com.br/",
+    titulo: "Design Day OLX",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.lovableday.com.br/",
+    titulo: "Lovable Day",
+    tipoSugerido: "evento",
+    areaSugerida: "UX e Produto",
+  },
 ];
 
 function createStore(): FontesStore {

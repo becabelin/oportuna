@@ -329,7 +329,7 @@ export async function coletarFonte(fonteId: string) {
 
   try {
     let pagina = await fetchPublicPage(fonte.url);
-    const modoBlog = fonte.tipoSugerido === "curso";
+    const modoBlog = fonte.tipoSugerido === "curso" || fonte.tipoSugerido === "evento";
     let candidatos: Candidato[] = [];
     let page$ = cheerio.load("");
 

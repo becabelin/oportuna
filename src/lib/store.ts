@@ -40,6 +40,14 @@ function createStore(): Store {
 function getStore(): Store {
   if (!globalForStore.__oportunaStore) {
     globalForStore.__oportunaStore = createStore();
+    let added = false;
+    for (const item of SEED) {
+      if (!globalForStore.__oportunaStore.items.has(item.id)) {
+        globalForStore.__oportunaStore.items.set(item.id, withOrigem(item));
+        added = true;
+      }
+    }
+    if (added) persistOportunidades([...globalForStore.__oportunaStore.items.values()]);
   }
   return globalForStore.__oportunaStore;
 }
