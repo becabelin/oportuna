@@ -8,28 +8,106 @@ type FontesStore = {
 
 const globalForFontes = globalThis as unknown as { __oportunaFontes?: FontesStore };
 
-export const SEED_FONTES: Array<Pick<Fonte, "url" | "titulo" | "tipoSugerido">> = [
+export const SEED_FONTES: Array<
+  Pick<Fonte, "url" | "titulo" | "tipoSugerido"> & { areaSugerida?: string }
+> = [
   {
     url: "https://www.scholarshipregion.com/feed/",
     titulo: "Scholarship Region",
     tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
   },
   {
     url: "https://www.scholars4dev.com/",
     titulo: "Scholars4Dev",
     tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
   },
   {
     url: "https://www.gov.br/cnpq/pt-br",
     titulo: "CNPq",
     tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://uxdesign.cc/feed",
+    titulo: "UX Collective",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://uxplanet.org/feed",
+    titulo: "UX Planet",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://uxmag.com/feed",
+    titulo: "UX Magazine",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.nngroup.com/articles/",
+    titulo: "Nielsen Norman Group",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.interaction-design.org/literature/article",
+    titulo: "Interaction Design Foundation",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://uxdesignweekly.com/feed",
+    titulo: "UX Design Weekly",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.figma.com/blog/feed/feed.json",
+    titulo: "Figma Blog",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://miro.com/blog/",
+    titulo: "Miro Blog",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.notion.com/blog",
+    titulo: "Notion Blog",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://www.framer.com/blog",
+    titulo: "Framer Blog",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
+  },
+  {
+    url: "https://claude.com/blog",
+    titulo: "Claude Blog",
+    tipoSugerido: "curso",
+    areaSugerida: "UX e Produto",
   },
 ];
 
 function createStore(): FontesStore {
   const snapshot = readSnapshot();
   if (snapshot && snapshot.fontes.length > 0) {
-    return { items: new Map(snapshot.fontes.map((fonte) => [fonte.id, fonte])) };
+    return {
+      items: new Map(
+        snapshot.fontes.map((fonte) => [
+          fonte.id,
+          { ...fonte, areaSugerida: fonte.areaSugerida ?? null },
+        ])
+      ),
+    };
   }
   const items = new Map<string, Fonte>();
   const now = new Date().toISOString();
@@ -40,6 +118,7 @@ function createStore(): FontesStore {
       url: seed.url,
       titulo: seed.titulo,
       tipoSugerido: seed.tipoSugerido,
+      areaSugerida: seed.areaSugerida ?? null,
       status: "pendente",
       ultimaColeta: null,
       itensEncontrados: 0,
@@ -54,6 +133,7 @@ function createStore(): FontesStore {
 function getStore() {
   if (!globalForFontes.__oportunaFontes) {
     globalForFontes.__oportunaFontes = createStore();
+    ensureSeedFontes();
   }
   return globalForFontes.__oportunaFontes;
 }
@@ -90,6 +170,7 @@ export function createFonte(input: {
   url: string;
   titulo?: string | null;
   tipoSugerido?: TipoOportunidade | null;
+  areaSugerida?: string | null;
 }): Fonte {
   const existing = findFonteByUrl(input.url);
   if (existing) return existing;
@@ -101,6 +182,7 @@ export function createFonte(input: {
     url: input.url,
     titulo: input.titulo?.trim() || null,
     tipoSugerido: input.tipoSugerido ?? null,
+    areaSugerida: input.areaSugerida?.trim() || null,
     status: "pendente",
     ultimaColeta: null,
     itensEncontrados: 0,
@@ -111,6 +193,17 @@ export function createFonte(input: {
   getStore().items.set(id, fonte);
   touch();
   return fonte;
+}
+
+export function ensureSeedFontes() {
+  for (const seed of SEED_FONTES) {
+    createFonte({
+      url: seed.url,
+      titulo: seed.titulo,
+      tipoSugerido: seed.tipoSugerido,
+      areaSugerida: seed.areaSugerida ?? null,
+    });
+  }
 }
 
 export function updateFonte(id: string, patch: Partial<Fonte>) {

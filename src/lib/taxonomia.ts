@@ -30,6 +30,7 @@ export const AREAS = [
   "Ciências Exatas",
   "Negócios",
   "Artes e Design",
+  "UX e Produto",
   "Meio Ambiente",
   "Multidisciplinar",
 ] as const;

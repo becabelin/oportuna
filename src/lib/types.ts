@@ -55,6 +55,7 @@ export type Fonte = {
   url: string;
   titulo: string | null;
   tipoSugerido: TipoOportunidade | null;
+  areaSugerida: string | null;
   status: FonteStatus;
   ultimaColeta: string | null;
   itensEncontrados: number;

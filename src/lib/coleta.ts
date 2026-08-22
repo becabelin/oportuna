@@ -5,6 +5,7 @@ import { isOpen } from "./format";
 import {
   createFonte,
   deleteFonte,
+  ensureSeedFontes,
   getFonte,
   listFontes,
   updateFonte,
@@ -19,11 +20,11 @@ import type { Fonte, NovaOportunidade, TipoOportunidade } from "./types";
 
 const USER_AGENT =
   "OportunaBot/1.0 (agregador educacional; +https://github.com/oportuna)";
-const MAX_BYTES = 1_500_000;
+const MAX_BYTES = 3_000_000;
 const MAX_ITEMS = 30;
 
 const KEYWORD =
-  /bolsa|bolsas|scholarship|fellow|edital|inscri[cç]|prazo|grant|internship|est[aá]gio|interc[aâ]mbio|exchange|hackathon|congresso|confer[eê]ncia|summer school|postdoc|doutorado|mestrado|\bphd\b|call for|concurso|olimp[ií]ada|mobilidade|funding|fellowship/i;
+  /bolsa|bolsas|scholarship|fellow|edital|inscri[cç]|prazo|grant|internship|est[aá]gio|interc[aâ]mbio|exchange|hackathon|congresso|confer[eê]ncia|summer school|postdoc|doutorado|mestrado|\bphd\b|call for|concurso|olimp[ií]ada|mobilidade|funding|fellowship|workshop|webinar|bootcamp|tutorial|curso|course|guide|ux|ui design|product design/i;
 
 const SKIP_HREF =
   /login|signup|cart|facebook|twitter|instagram|linkedin|whatsapp|mailto:|javascript:|privacy|cookie|termos|wp-admin|#/i;
@@ -54,8 +55,12 @@ export function inferTipo(text: string, fallback: TipoOportunidade | null): Tipo
   const value = text.toLowerCase();
   if (/est[aá]gio|internship/.test(value)) return "estagio";
   if (/interc[aâ]mbio|exchange|erasmus|mobilidade/.test(value)) return "intercambio";
-  if (/hackathon|congresso|confer[eê]ncia|evento|summit|workshop/.test(value)) return "evento";
-  if (/curso|certificate|mooc|bootcamp/.test(value)) return "curso";
+  if (/hackathon|congresso|confer[eê]ncia|evento|summit|workshop|webinar/i.test(value)) {
+    return "evento";
+  }
+  if (/curso|certificate|mooc|bootcamp|tutorial|guide|artigo|article|newsletter/i.test(value)) {
+    return "curso";
+  }
   if (/concurso|olimp[ií]ada|prize/.test(value)) return "concurso";
   if (/bolsa|scholarship|fellow|grant|funding|edital/.test(value)) return "bolsa";
   return fallback ?? "bolsa";
@@ -175,10 +180,47 @@ function parseJsonLd($: cheerio.CheerioAPI, fallbackTipo: TipoOportunidade | nul
   return candidatos;
 }
 
+function parseJsonFeed(body: string, fallbackTipo: TipoOportunidade | null): Candidato[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return [];
+  }
+  if (!parsed || typeof parsed !== "object") return [];
+  const record = parsed as Record<string, unknown>;
+  const items = Array.isArray(record.items) ? record.items : [];
+  const candidatos: Candidato[] = [];
+  for (const raw of items.slice(0, MAX_ITEMS)) {
+    if (!raw || typeof raw !== "object") continue;
+    const item = raw as Record<string, unknown>;
+    const titulo = String(item.title ?? "").trim();
+    const url = String(item.url ?? item.external_url ?? "").trim();
+    if (!titulo || !url) continue;
+    const descricao = decodeSnippet(
+      String(item.content_text ?? item.summary ?? item.content_html ?? titulo)
+    );
+    candidatos.push({
+      titulo: titulo.slice(0, 140),
+      descricao: descricao.slice(0, 800),
+      url,
+      prazo: pickDeadline(`${titulo}\n${descricao}\n${String(item.date_published ?? "")}`),
+      tipo: inferTipo(`${titulo} ${descricao}`, fallbackTipo),
+    });
+  }
+  return candidatos;
+}
+
+function isJsonFeed(contentType: string, body: string) {
+  if (/json/i.test(contentType) && !/html/i.test(contentType)) return true;
+  const trimmed = body.trim();
+  return trimmed.startsWith("{") && /"items"\s*:/.test(trimmed.slice(0, 400));
+}
 function parseHtmlLinks(
   $: cheerio.CheerioAPI,
   baseUrl: string,
-  fallbackTipo: TipoOportunidade | null
+  fallbackTipo: TipoOportunidade | null,
+  modoBlog = false
 ): Candidato[] {
   const scored = new Map<string, { score: number; candidato: Candidato }>();
 
@@ -195,13 +237,22 @@ function parseHtmlLinks(
     if (url.protocol !== "http:" && url.protocol !== "https:") return;
     const titulo = cleanText(el.text());
     if (titulo.length < 12 || titulo.length > 180) return;
-    const context = cleanText(el.closest("article, li, tr, .post, .card").text() || titulo);
+    if (
+      modoBlog &&
+      /^(ui\/ux design|brand guidelines|tutorials?|blog|stories|updates|product|pricing|docs|home|features)$/i.test(
+        titulo
+      )
+    ) {
+      return;
+    }
+    const context = cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || titulo);
     const blob = `${titulo} ${url.pathname} ${context}`;
-    if (!KEYWORD.test(blob)) return;
+    const inArticle = el.closest("article, .post, h2, h3").length > 0;
+    if (!KEYWORD.test(blob) && !(modoBlog && inArticle)) return;
     const score =
       (KEYWORD.test(titulo) ? 4 : 0) +
       (KEYWORD.test(url.pathname) ? 2 : 0) +
-      (el.closest("article, .post").length ? 3 : 0);
+      (inArticle ? 3 : 0);
     const current = scored.get(url.toString());
     if (current && current.score >= score) return;
     scored.set(url.toString(), {
@@ -226,6 +277,7 @@ function discoverFeed($: cheerio.CheerioAPI, baseUrl: string) {
   const href =
     $('link[rel="alternate"][type*="rss"]').attr("href") ||
     $('link[rel="alternate"][type*="atom"]').attr("href") ||
+    $('link[rel="alternate"][type*="json"]').attr("href") ||
     $('link[rel="alternate"][type*="xml"]').attr("href");
   if (!href) return null;
   try {
@@ -244,7 +296,7 @@ function toOportunidade(
     tipo: fonte.tipoSugerido ?? candidato.tipo,
     organizacao: fonte.titulo || hostnameLabel(fonte.url),
     descricao: candidato.descricao,
-    area: "Multidisciplinar",
+    area: fonte.areaSugerida || "Multidisciplinar",
     nivel: "todos",
     modalidade: "remoto",
     pais: "Internacional",
@@ -255,7 +307,7 @@ function toOportunidade(
     dataFim: null,
     urlInscricao: candidato.url,
     requisitos: [],
-    tags: ["coletada"],
+    tags: ["coletada", fonte.titulo ?? hostnameLabel(fonte.url)],
     vagas: null,
     origem: "coleta",
     fonteId: fonte.id,
@@ -277,42 +329,53 @@ export async function coletarFonte(fonteId: string) {
 
   try {
     let pagina = await fetchPublicPage(fonte.url);
-    const $ = cheerio.load(pagina.body, { xml: isFeed(pagina.contentType, pagina.body) });
-
+    const modoBlog = fonte.tipoSugerido === "curso";
     let candidatos: Candidato[] = [];
-    if (isFeed(pagina.contentType, pagina.body)) {
-      candidatos = parseFeed($, fonte.tipoSugerido);
-      if (candidatos.length === 0) {
-        const siteLink = cleanText($("channel > link").first().text());
-        if (siteLink && siteLink !== fonte.url) {
+    let page$ = cheerio.load("");
+
+    if (isJsonFeed(pagina.contentType, pagina.body)) {
+      candidatos = parseJsonFeed(pagina.body, fonte.tipoSugerido);
+    } else {
+      page$ = cheerio.load(pagina.body, { xml: isFeed(pagina.contentType, pagina.body) });
+
+      if (isFeed(pagina.contentType, pagina.body)) {
+        candidatos = parseFeed(page$, fonte.tipoSugerido);
+        if (candidatos.length === 0) {
+          const siteLink = cleanText(page$("channel > link").first().text());
+          if (siteLink && siteLink !== fonte.url) {
+            try {
+              pagina = await fetchPublicPage(siteLink);
+              page$ = cheerio.load(pagina.body);
+              candidatos = [
+                ...parseJsonLd(page$, fonte.tipoSugerido),
+                ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
+              ];
+            } catch {
+              candidatos = [];
+            }
+          }
+        }
+      } else {
+        const feedUrl = discoverFeed(page$, pagina.finalUrl);
+        if (feedUrl) {
           try {
-            pagina = await fetchPublicPage(siteLink);
-            const $site = cheerio.load(pagina.body);
-            candidatos = [
-              ...parseJsonLd($site, fonte.tipoSugerido),
-              ...parseHtmlLinks($site, pagina.finalUrl, fonte.tipoSugerido),
-            ];
+            const feedPage = await fetchPublicPage(feedUrl);
+            if (isJsonFeed(feedPage.contentType, feedPage.body)) {
+              candidatos = parseJsonFeed(feedPage.body, fonte.tipoSugerido);
+            } else {
+              const $feed = cheerio.load(feedPage.body, { xml: true });
+              candidatos = parseFeed($feed, fonte.tipoSugerido);
+            }
           } catch {
             candidatos = [];
           }
         }
-      }
-    } else {
-      const feedUrl = discoverFeed($, pagina.finalUrl);
-      if (feedUrl) {
-        try {
-          const feedPage = await fetchPublicPage(feedUrl);
-          const $feed = cheerio.load(feedPage.body, { xml: true });
-          candidatos = parseFeed($feed, fonte.tipoSugerido);
-        } catch {
-          candidatos = [];
+        if (candidatos.length === 0) {
+          candidatos = [
+            ...parseJsonLd(page$, fonte.tipoSugerido),
+            ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
+          ];
         }
-      }
-      if (candidatos.length === 0) {
-        candidatos = [
-          ...parseJsonLd($, fonte.tipoSugerido),
-          ...parseHtmlLinks($, pagina.finalUrl, fonte.tipoSugerido),
-        ];
       }
     }
 
@@ -327,13 +390,13 @@ export async function coletarFonte(fonteId: string) {
     const usados = abertos.length > 0 ? abertos : [...unicos.values()].slice(0, 8);
     if (usados.length === 0) {
       const titulo =
-        $("title").first().text().trim() ||
-        $('meta[property="og:title"]').attr("content") ||
+        page$("title").first().text().trim() ||
+        page$('meta[property="og:title"]').attr("content") ||
         fonte.titulo ||
         hostnameLabel(fonte.url);
       const descricao =
-        $('meta[name="description"]').attr("content") ||
-        $('meta[property="og:description"]').attr("content") ||
+        page$('meta[name="description"]').attr("content") ||
+        page$('meta[property="og:description"]').attr("content") ||
         "Página monitorada pela Oportuna. Abra o link para ver os editais atuais.";
       usados.push({
         titulo: cleanText(titulo).slice(0, 140),
@@ -345,7 +408,7 @@ export async function coletarFonte(fonteId: string) {
     }
 
     if (!fonte.titulo) {
-      const pageTitle = $("title").first().text().trim();
+      const pageTitle = page$("title").first().text().trim();
       if (pageTitle) updateFonte(fonte.id, { titulo: pageTitle.slice(0, 80) });
     }
 
@@ -377,6 +440,7 @@ export async function coletarFonte(fonteId: string) {
 }
 
 export async function coletarTodas() {
+  ensureSeedFontes();
   const fontes = listFontes();
   const resultados = [];
   for (const fonte of fontes) {
