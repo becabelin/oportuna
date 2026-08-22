@@ -1,5 +1,6 @@
 import { isOpen } from "./format";
 import { slugify } from "./format";
+import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
 import type {
   FiltrosOportunidade,
@@ -25,6 +26,12 @@ function withOrigem(item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl"> 
 }
 
 function createStore(): Store {
+  const snapshot = readSnapshot();
+  if (snapshot && snapshot.oportunidades.length > 0) {
+    return {
+      items: new Map(snapshot.oportunidades.map((item) => [item.id, withOrigem(item)])),
+    };
+  }
   return {
     items: new Map(SEED.map((item) => [item.id, withOrigem(item)])),
   };
@@ -35,6 +42,14 @@ function getStore(): Store {
     globalForStore.__oportunaStore = createStore();
   }
   return globalForStore.__oportunaStore;
+}
+
+function allItems() {
+  return [...getStore().items.values()];
+}
+
+function touch() {
+  persistOportunidades(allItems());
 }
 
 function matchesQuery(item: Oportunidade, q?: string) {
@@ -151,6 +166,7 @@ export function createOportunidade(input: NovaOportunidade): Oportunidade {
     atualizadoEm: now,
   };
   getStore().items.set(item.id, item);
+  touch();
   return item;
 }
 
@@ -168,11 +184,14 @@ export function updateOportunidade(
     atualizadoEm: new Date().toISOString(),
   };
   getStore().items.set(id, updated);
+  touch();
   return updated;
 }
 
 export function deleteOportunidade(id: string) {
-  return getStore().items.delete(id);
+  const removed = getStore().items.delete(id);
+  if (removed) touch();
+  return removed;
 }
 
 export function findByUrlInscricao(url: string) {
@@ -199,6 +218,7 @@ export function deleteByFonte(fonteId: string) {
   for (const item of store.items.values()) {
     if (item.fonteId === fonteId) store.items.delete(item.id);
   }
+  touch();
 }
 
 export function taxonomia() {
@@ -244,4 +264,5 @@ export function taxonomia() {
 
 export function resetStore() {
   globalForStore.__oportunaStore = createStore();
+  touch();
 }

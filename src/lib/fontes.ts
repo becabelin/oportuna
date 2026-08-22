@@ -1,3 +1,4 @@
+import { persistFontes, readSnapshot } from "./persist";
 import { slugify } from "./format";
 import type { Fonte, TipoOportunidade } from "./types";
 
@@ -26,6 +27,10 @@ export const SEED_FONTES: Array<Pick<Fonte, "url" | "titulo" | "tipoSugerido">> 
 ];
 
 function createStore(): FontesStore {
+  const snapshot = readSnapshot();
+  if (snapshot && snapshot.fontes.length > 0) {
+    return { items: new Map(snapshot.fontes.map((fonte) => [fonte.id, fonte])) };
+  }
   const items = new Map<string, Fonte>();
   const now = new Date().toISOString();
   for (const seed of SEED_FONTES) {
@@ -51,6 +56,10 @@ function getStore() {
     globalForFontes.__oportunaFontes = createStore();
   }
   return globalForFontes.__oportunaFontes;
+}
+
+function touch() {
+  persistFontes([...getStore().items.values()]);
 }
 
 export function listFontes() {
@@ -100,6 +109,7 @@ export function createFonte(input: {
     criadaEm: now,
   };
   getStore().items.set(id, fonte);
+  touch();
   return fonte;
 }
 
@@ -108,9 +118,12 @@ export function updateFonte(id: string, patch: Partial<Fonte>) {
   if (!current) return null;
   const next = { ...current, ...patch, id };
   getStore().items.set(id, next);
+  touch();
   return next;
 }
 
 export function deleteFonte(id: string) {
-  return getStore().items.delete(id);
+  const removed = getStore().items.delete(id);
+  if (removed) touch();
+  return removed;
 }

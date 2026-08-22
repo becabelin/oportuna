@@ -91,10 +91,10 @@ export function FontesManager() {
   return (
     <div className="grid gap-8">
       <div className="rounded-2xl border bg-card/80 p-5">
-        <h2 className="font-heading text-xl">Cole uma URL</h2>
+        <h2 className="font-heading text-xl">Incluir fonte na base</h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          RSS, páginas de editais, blogs de bolsas. A Oportuna busca o que ainda
-          parece aberto e joga no catálogo.
+          RSS e páginas de editais que a Oportuna passa a monitorar. Não aparece para
+          quem só consome a API.
         </p>
         <AddSourceForm />
       </div>
@@ -124,7 +124,7 @@ export function FontesManager() {
 
       {fontes && fontes.length === 0 ? (
         <p className="rounded-2xl border border-dashed px-5 py-10 text-center text-sm text-muted-foreground">
-          Nenhuma fonte ainda. Cole o primeiro link acima.
+          Nenhuma fonte ainda. Inclua um RSS ou página de editais acima.
         </p>
       ) : null}
 

@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     default: "Oportuna — bolsas, eventos e editais",
     template: "%s · Oportuna",
   },
-  description:
-    "Cole links de bolsas e editais. A Oportuna coleta e mantém as oportunidades ainda abertas.",
+    description:
+      "Base pública de bolsas, eventos e editais. Integre a API e puxe as oportunidades já coletadas.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

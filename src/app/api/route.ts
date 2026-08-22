@@ -12,21 +12,18 @@ export function GET() {
     name: "Oportuna API",
     version: "1.0.0",
     description:
-      "Você envia links de editais. A Oportuna coleta e mantém as oportunidades ainda abertas.",
+      "Base pública de oportunidades de estudo. Integre no seu app e puxe bolsas, eventos, cursos, estágios, intercâmbios e concursos já coletados.",
+    comoUsar: {
+      listarAbertas: "/api/oportunidades?status=abertas",
+      puxarTodaABase: "/api/oportunidades?status=todas&limit=todas",
+      detalhe: "/api/oportunidades/:id",
+    },
     endpoints: {
       "GET /api": "Este índice",
       "GET /api/taxonomia": "Tipos, áreas, níveis, modalidades e países com contagem",
-      "GET /api/fontes": "Fontes monitoradas (URLs que você cadastrou)",
-      "POST /api/fontes": "Adiciona uma URL e coleta na hora. Corpo: { url, tipo? }",
-      "POST /api/fontes/:id/coletar": "Coleta de novo uma fonte",
-      "DELETE /api/fontes/:id": "Remove a fonte e as oportunidades coletadas dela",
-      "GET|POST /api/coletar": "Atualiza todas as fontes",
       "GET /api/oportunidades":
-        "Lista paginada. Query: q, tipo, area, nivel, modalidade, pais, status, origem, fonteId, ordenar, page, limit",
-      "POST /api/oportunidades": "Cadastra uma oportunidade na mão",
-      "GET /api/oportunidades/:id": "Detalhe",
-      "PATCH /api/oportunidades/:id": "Atualização parcial",
-      "DELETE /api/oportunidades/:id": "Remove",
+        "Lista a base. Query: q, tipo, area, nivel, modalidade, pais, status, ordenar, page, limit (use limit=todas para o acervo inteiro)",
+      "GET /api/oportunidades/:id": "Detalhe de uma oportunidade",
     },
     enumeracoes: {
       tipo: ["bolsa", "evento", "curso", "estagio", "intercambio", "concurso"],

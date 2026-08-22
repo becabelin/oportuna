@@ -196,7 +196,9 @@ export function parseListQuery(searchParams: URLSearchParams): FiltrosOportunida
   const ordenarRaw = searchParams.get("ordenar");
   const origemRaw = searchParams.get("origem");
   const page = Number(searchParams.get("page") ?? "1");
-  const limit = Number(searchParams.get("limit") ?? "20");
+  const limitRaw = searchParams.get("limit") ?? "50";
+  const unlimited = limitRaw === "todas" || limitRaw === "all";
+  const limit = unlimited ? 10_000 : Number(limitRaw);
 
   return {
     q: searchParams.get("q")?.trim() || undefined,
@@ -215,7 +217,7 @@ export function parseListQuery(searchParams: URLSearchParams): FiltrosOportunida
         : "prazo",
     page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1,
     limit:
-      Number.isFinite(limit) && limit > 0 ? Math.min(100, Math.floor(limit)) : 20,
+      Number.isFinite(limit) && limit > 0 ? Math.min(10_000, Math.floor(limit)) : 50,
     fonteId: searchParams.get("fonteId")?.trim() || undefined,
     origem: origemRaw === "coleta" || origemRaw === "manual" ? origemRaw : undefined,
   };

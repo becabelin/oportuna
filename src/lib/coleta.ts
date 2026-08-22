@@ -9,6 +9,7 @@ import {
   listFontes,
   updateFonte,
 } from "./fontes";
+import { persistNow } from "./persist";
 import { assertPublicHttpUrl } from "./ssrf";
 import {
   deleteByFonte,
@@ -361,6 +362,7 @@ export async function coletarFonte(fonteId: string) {
       erro: null,
     });
 
+    persistNow();
     return { fonte: atualizada ?? fonte, oportunidades: salvos };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao coletar a fonte.";
@@ -369,6 +371,7 @@ export async function coletarFonte(fonteId: string) {
       ultimaColeta: new Date().toISOString(),
       erro: message,
     });
+    persistNow();
     return { fonte: atualizada ?? fonte, oportunidades: [], erro: message };
   }
 }
@@ -379,6 +382,7 @@ export async function coletarTodas() {
   for (const fonte of fontes) {
     resultados.push(await coletarFonte(fonte.id));
   }
+  persistNow();
   return resultados;
 }
 

@@ -13,12 +13,7 @@ export default function CadastrarPage() {
       <p className="text-sm font-medium tracking-wide text-primary uppercase">Novo edital</p>
       <h1 className="mt-2 font-heading text-4xl tracking-tight">Cadastrar oportunidade</h1>
       <p className="mt-3 text-muted-foreground">
-        Para acompanhar um site inteiro, use{" "}
-        <a href="/fontes" className="underline-offset-4 hover:underline">
-          fontes
-        </a>
-        . Este formulário é para um edital avulso, via{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5 text-sm">POST /api/oportunidades</code>.
+        Inclusão avulsa na base, para um edital que não veio da coleta automática.
       </p>
       <div className="mt-8 rounded-2xl border bg-card/80 p-5 sm:p-6">
         <CreateOpportunityForm />
