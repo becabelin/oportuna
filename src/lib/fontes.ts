@@ -182,7 +182,7 @@ export const SEED_FONTES: Array<
   {
     url: "https://www.estudarfora.org.br/feed/",
     titulo: "Estudar Fora",
-    tipoSugerido: "bolsa",
+    tipoSugerido: "intercambio",
     areaSugerida: "Multidisciplinar",
   },
   {
@@ -201,7 +201,7 @@ export const SEED_FONTES: Array<
     url: "https://fundacaolemann.org.br/liderancas/bolsas-e-oportunidades/",
     titulo: "Fundação Lemann — Bolsas e oportunidades",
     tipoSugerido: "bolsa",
-    areaSugerida: "Negócios",
+    areaSugerida: "Multidisciplinar",
   },
   {
     url: "https://www.programaria.org/feed/",
@@ -224,7 +224,7 @@ export const SEED_FONTES: Array<
   {
     url: "https://cartadaterrainternacional.org/envolva-se/programa-jovens-lideres/",
     titulo: "Carta da Terra — Jovens Líderes",
-    tipoSugerido: "bolsa",
+    tipoSugerido: "curso",
     areaSugerida: "Meio Ambiente",
   },
   {
