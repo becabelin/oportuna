@@ -40,19 +40,17 @@ function createStore(): Store {
 function getStore(): Store {
   if (!globalForStore.__oportunaStore) {
     globalForStore.__oportunaStore = createStore();
+    const seedIds = new Set(SEED.map((item) => item.id));
+    const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const existing = globalForStore.__oportunaStore.items.get(item.id);
-      if (!existing) {
-        globalForStore.__oportunaStore.items.set(item.id, withOrigem(item));
-        added = true;
-      } else if (existing.origem === "manual") {
-        globalForStore.__oportunaStore.items.set(item.id, {
-          ...withOrigem(item),
-          origem: "manual",
-          fonteId: existing.fonteId,
-          fonteUrl: existing.fonteUrl,
-        });
+      globalForStore.__oportunaStore.items.set(item.id, withOrigem(item));
+      added = true;
+    }
+    for (const [id, item] of [...globalForStore.__oportunaStore.items.entries()]) {
+      if (seedIds.has(id)) continue;
+      if (seedUrls.has(item.urlInscricao)) {
+        globalForStore.__oportunaStore.items.delete(id);
         added = true;
       }
     }
@@ -217,6 +215,9 @@ export function findByUrlInscricao(url: string) {
 
 export function upsertColetada(input: NovaOportunidade): Oportunidade {
   const existing = findByUrlInscricao(input.urlInscricao);
+  if (existing?.origem === "manual") {
+    return existing;
+  }
   if (existing) {
     return (
       updateOportunidade(existing.id, {
