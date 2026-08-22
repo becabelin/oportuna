@@ -42,8 +42,17 @@ function getStore(): Store {
     globalForStore.__oportunaStore = createStore();
     let added = false;
     for (const item of SEED) {
-      if (!globalForStore.__oportunaStore.items.has(item.id)) {
+      const existing = globalForStore.__oportunaStore.items.get(item.id);
+      if (!existing) {
         globalForStore.__oportunaStore.items.set(item.id, withOrigem(item));
+        added = true;
+      } else if (existing.origem === "manual") {
+        globalForStore.__oportunaStore.items.set(item.id, {
+          ...withOrigem(item),
+          origem: "manual",
+          fonteId: existing.fonteId,
+          fonteUrl: existing.fonteUrl,
+        });
         added = true;
       }
     }

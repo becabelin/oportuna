@@ -24,7 +24,7 @@ const MAX_BYTES = 3_000_000;
 const MAX_ITEMS = 30;
 
 const KEYWORD =
-  /bolsa|bolsas|scholarship|fellow|edital|inscri[cç]|prazo|grant|internship|est[aá]gio|interc[aâ]mbio|exchange|hackathon|congresso|confer[eê]ncia|summer school|postdoc|doutorado|mestrado|\bphd\b|call for|concurso|olimp[ií]ada|mobilidade|funding|fellowship|workshop|webinar|bootcamp|tutorial|curso|course|guide|ux|ui design|product design/i;
+  /bolsa|bolsas|scholarship|fellow|edital|inscri[cç]|prazo|grant|internship|est[aá]gio|interc[aâ]mbio|exchange|hackathon|congresso|confer[eê]ncia|festival|summit|\bcamp\b|summer school|postdoc|doutorado|mestrado|\bphd\b|call for|concurso|olimp[ií]ada|pr[eê]mio|award|prize|mobilidade|funding|fellowship|workshop|webinar|bootcamp|tutorial|curso|course|guide|ux|ui design|product design|criativ/i;
 
 const SKIP_HREF =
   /login|signup|cart|facebook|twitter|instagram|linkedin|whatsapp|mailto:|javascript:|privacy|cookie|termos|wp-admin|#/i;
@@ -55,13 +55,13 @@ export function inferTipo(text: string, fallback: TipoOportunidade | null): Tipo
   const value = text.toLowerCase();
   if (/est[aá]gio|internship/.test(value)) return "estagio";
   if (/interc[aâ]mbio|exchange|erasmus|mobilidade/.test(value)) return "intercambio";
-  if (/hackathon|congresso|confer[eê]ncia|evento|summit|workshop|webinar/i.test(value)) {
+  if (/hackathon|congresso|confer[eê]ncia|evento|summit|festival|workshop|webinar|design day|\bcamp\b/i.test(value)) {
     return "evento";
   }
   if (/curso|certificate|mooc|bootcamp|tutorial|guide|artigo|article|newsletter/i.test(value)) {
     return "curso";
   }
-  if (/concurso|olimp[ií]ada|prize/.test(value)) return "concurso";
+  if (/concurso|olimp[ií]ada|pr[eê]mio|award|prize/.test(value)) return "concurso";
   if (/bolsa|scholarship|fellow|grant|funding|edital/.test(value)) return "bolsa";
   return fallback ?? "bolsa";
 }
@@ -329,7 +329,12 @@ export async function coletarFonte(fonteId: string) {
 
   try {
     let pagina = await fetchPublicPage(fonte.url);
-    const modoBlog = fonte.tipoSugerido === "curso" || fonte.tipoSugerido === "evento";
+    const modoBlog =
+      fonte.tipoSugerido === "curso" ||
+      fonte.tipoSugerido === "evento" ||
+      fonte.tipoSugerido === "bolsa" ||
+      fonte.tipoSugerido === "intercambio" ||
+      fonte.tipoSugerido === "concurso";
     let candidatos: Candidato[] = [];
     let page$ = cheerio.load("");
 
