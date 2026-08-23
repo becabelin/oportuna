@@ -36,9 +36,31 @@ Fontes oficiais (RSS e páginas de editais) ficam no código / em `data/base.jso
 
 Em host serverless (Vercel), configure um cron para `GET /api/coletar`. Em Railway/Render o loop interno basta.
 
+## Repositório
+
+```bash
+git clone https://origin.cursor.com/rebeca-sousa/tmp-510dcabb2e0718f5.git oportuna
+cd oportuna
+npm install
+npm run dev
+```
+
 ## Publicar
 
-Hospede o Next.js (Vercel, Railway ou Render) e compartilhe a URL da API. Em disco gravável, `data/base.json` persiste entre reinícios; na Vercel o arquivo versionado no Git é a base, e a coleta em runtime não sobrevive.
+O jeito mais simples é a **Vercel** (Next.js nativo). Há um cron em `vercel.json` que chama `GET /api/coletar` a cada hora.
+
+```bash
+npx vercel --yes
+```
+
+Em Railway, Render ou qualquer VPS:
+
+```bash
+docker build -t oportuna .
+docker run -p 3000:3000 oportuna
+```
+
+O `npm start` respeita a variável `PORT`. Em disco gravável, `data/base.json` persiste entre reinícios; na Vercel o arquivo versionado no Git é a base, e a coleta em runtime não sobrevive.
 
 ## Stack
 
