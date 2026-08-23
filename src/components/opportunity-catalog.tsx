@@ -1,15 +1,50 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Filter, Search, SlidersHorizontal, Sticker, X } from "lucide-react";
 
 import { OpportunityCard } from "@/components/opportunity-card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
 import type { Oportunidade, PaginaOportunidades, TipoOportunidade } from "@/lib/types";
 import { MODALIDADES, NIVEIS, TIPOS } from "@/lib/types";
@@ -23,34 +58,39 @@ type Taxonomia = {
   total: number;
 };
 
-function NativeSelect({
-  id,
-  value,
-  onChange,
-  children,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
-  return (
-    <select
-      id={id}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="h-9 w-full rounded-xl border-2 border-foreground/30 bg-background px-2.5 text-sm font-medium outline-none focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-primary/30"
-    >
-      {children}
-    </select>
-  );
-}
-
 type CatalogProps = {
   initialResult?: PaginaOportunidades;
   initialTaxonomia?: Taxonomia;
   initialQuery?: string;
 };
+
+const selectTriggerClass =
+  "h-9 w-full rounded-xl border-2 border-foreground/30 bg-background font-medium";
+
+function FilterSelect({
+  value,
+  onValueChange,
+  items,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  items: { value: string; label: string }[];
+}) {
+  return (
+    <Select value={value} onValueChange={(next) => onValueChange(next ?? "all")}>
+      <SelectTrigger className={selectTriggerClass}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent alignItemWithTrigger={false} align="start" className="max-h-72">
+        {items.map((item) => (
+          <SelectItem key={item.value} value={item.value}>
+            {item.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 export function OpportunityCatalog({
   initialResult,
@@ -65,6 +105,7 @@ export function OpportunityCatalog({
   const [taxonomia, setTaxonomia] = useState<Taxonomia | null>(initialTaxonomia ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialResult);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const query = searchParams.toString();
 
@@ -131,43 +172,147 @@ export function OpportunityCatalog({
     }).length;
   }, [searchParams]);
 
+  const filterFields = (
+    <FieldGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <Field>
+        <FieldLabel>Área</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("area") ?? "all"}
+          onValueChange={(value) => updateParams({ area: value === "all" ? null : value })}
+          items={[
+            { value: "all", label: "Todas" },
+            ...(taxonomia?.areas ?? []).map((area) => ({ value: area.id, label: area.id })),
+          ]}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>Nível</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("nivel") ?? "all"}
+          onValueChange={(value) => updateParams({ nivel: value === "all" ? null : value })}
+          items={[
+            { value: "all", label: "Todos" },
+            ...NIVEIS.map((nivel) => ({ value: nivel, label: NIVEL_LABEL[nivel] })),
+          ]}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>Modalidade</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("modalidade") ?? "all"}
+          onValueChange={(value) =>
+            updateParams({ modalidade: value === "all" ? null : value })
+          }
+          items={[
+            { value: "all", label: "Todas" },
+            ...MODALIDADES.map((modalidade) => ({
+              value: modalidade,
+              label: MODALIDADE_LABEL[modalidade],
+            })),
+          ]}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>País</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("pais") ?? "all"}
+          onValueChange={(value) => updateParams({ pais: value === "all" ? null : value })}
+          items={[
+            { value: "all", label: "Todos" },
+            ...(taxonomia?.paises ?? []).map((pais) => ({ value: pais.id, label: pais.id })),
+          ]}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>Prazo</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("status") ?? "abertas"}
+          onValueChange={(value) =>
+            updateParams({ status: value === "abertas" ? null : value })
+          }
+          items={[
+            { value: "abertas", label: "Inscrições abertas" },
+            { value: "encerradas", label: "Encerradas" },
+            { value: "todas", label: "Todas" },
+          ]}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>Ordenar</FieldLabel>
+        <FilterSelect
+          value={searchParams.get("ordenar") ?? "prazo"}
+          onValueChange={(value) =>
+            updateParams({ ordenar: value === "prazo" ? null : value })
+          }
+          items={[
+            { value: "prazo", label: "Prazo mais próximo" },
+            { value: "recentes", label: "Atualizadas recentemente" },
+            { value: "titulo", label: "Título A–Z" },
+          ]}
+        />
+      </Field>
+    </FieldGroup>
+  );
+
+  const totalPages = result?.meta.totalPages ?? 1;
+  const currentPage = result?.meta.page ?? 1;
+
+  function pageHref(page: number) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (page <= 1) next.delete("page");
+    else next.set("page", String(page));
+    const qs = next.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
+
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={selectedTipo === "" ? "default" : "outline"}
-          size="sm"
-          onClick={() => updateParams({ tipo: null })}
+    <div className="flex flex-col gap-6">
+      <ToggleGroup
+        multiple={false}
+        value={selectedTipo ? [selectedTipo] : ["todas"]}
+        onValueChange={(groupValue) => {
+          const next = groupValue[0];
+          if (!next || next === "todas") updateParams({ tipo: null });
+          else updateParams({ tipo: next });
+        }}
+        variant="outline"
+        size="sm"
+        spacing={2}
+        className="flex w-full flex-wrap justify-start"
+      >
+        <ToggleGroupItem
+          value="todas"
+          className="rounded-xl border-2 border-foreground/40 px-3 font-bold data-[pressed]:border-foreground data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
         >
           Todas
-        </Button>
+        </ToggleGroupItem>
         {TIPOS.map((tipo) => (
-          <Button
+          <ToggleGroupItem
             key={tipo}
-            variant={selectedTipo === tipo ? "default" : "outline"}
-            size="sm"
-            onClick={() => updateParams({ tipo })}
+            value={tipo}
+            className="rounded-xl border-2 border-foreground/40 px-3 font-bold data-[pressed]:border-foreground data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
           >
             {TIPO_LABEL[tipo]}
             {taxonomia ? (
-              <span className="text-xs opacity-70">
+              <Badge variant="secondary" className="ml-1 h-5 rounded-md px-1.5 text-[10px]">
                 {taxonomia.tipos.find((item) => item.id === tipo)?.total ?? 0}
-              </span>
+              </Badge>
             ) : null}
-          </Button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
 
-      <div className="grid gap-3 rounded-2xl border-2 border-foreground/80 bg-card p-4 shadow-[5px_5px_0_0_var(--foreground)] sm:grid-cols-2 lg:grid-cols-4">
-        <div className="grid gap-1.5 sm:col-span-2">
-          <Label htmlFor="busca">Busca</Label>
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <Field className="flex-1">
+          <FieldLabel htmlFor="busca">Busca</FieldLabel>
+          <InputGroup className="h-10 rounded-xl border-2 border-foreground/80 bg-background shadow-[3px_3px_0_0_var(--foreground)]">
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
               id="busca"
               defaultValue={searchParams.get("q") ?? ""}
               placeholder="CNPq, mestrado, hackathon…"
-              className="pl-8"
               onChange={(event) => {
                 const value = event.target.value;
                 window.clearTimeout((window as unknown as { __oportunaT?: number }).__oportunaT);
@@ -177,92 +322,36 @@ export function OpportunityCatalog({
                 );
               }}
             />
-          </div>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="area">Área</Label>
-          <NativeSelect
-            id="area"
-            value={searchParams.get("area") ?? ""}
-            onChange={(value) => updateParams({ area: value || null })}
-          >
-            <option value="">Todas</option>
-            {(taxonomia?.areas ?? []).map((area) => (
-              <option key={area.id} value={area.id}>
-                {area.id}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="nivel">Nível</Label>
-          <NativeSelect
-            id="nivel"
-            value={searchParams.get("nivel") ?? ""}
-            onChange={(value) => updateParams({ nivel: value || null })}
-          >
-            <option value="">Todos</option>
-            {NIVEIS.map((nivel) => (
-              <option key={nivel} value={nivel}>
-                {NIVEL_LABEL[nivel]}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="modalidade">Modalidade</Label>
-          <NativeSelect
-            id="modalidade"
-            value={searchParams.get("modalidade") ?? ""}
-            onChange={(value) => updateParams({ modalidade: value || null })}
-          >
-            <option value="">Todas</option>
-            {MODALIDADES.map((modalidade) => (
-              <option key={modalidade} value={modalidade}>
-                {MODALIDADE_LABEL[modalidade]}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="pais">País</Label>
-          <NativeSelect
-            id="pais"
-            value={searchParams.get("pais") ?? ""}
-            onChange={(value) => updateParams({ pais: value || null })}
-          >
-            <option value="">Todos</option>
-            {(taxonomia?.paises ?? []).map((pais) => (
-              <option key={pais.id} value={pais.id}>
-                {pais.id}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="status">Prazo</Label>
-          <NativeSelect
-            id="status"
-            value={searchParams.get("status") ?? "abertas"}
-            onChange={(value) => updateParams({ status: value === "abertas" ? null : value })}
-          >
-            <option value="abertas">Inscrições abertas</option>
-            <option value="encerradas">Encerradas</option>
-            <option value="todas">Todas</option>
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ordenar">Ordenar</Label>
-          <NativeSelect
-            id="ordenar"
-            value={searchParams.get("ordenar") ?? "prazo"}
-            onChange={(value) => updateParams({ ordenar: value === "prazo" ? null : value })}
-          >
-            <option value="prazo">Prazo mais próximo</option>
-            <option value="recentes">Atualizadas recentemente</option>
-            <option value="titulo">Título A–Z</option>
-          </NativeSelect>
-        </div>
+          </InputGroup>
+        </Field>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger
+            render={
+              <Button variant="outline" className="lg:hidden">
+                <SlidersHorizontal />
+                Filtros
+                {activeFilters > 0 ? (
+                  <Badge variant="secondary" className="h-5 px-1.5">
+                    {activeFilters}
+                  </Badge>
+                ) : null}
+              </Button>
+            }
+          />
+          <SheetContent side="bottom" className="gap-0 rounded-t-3xl border-2 border-foreground">
+            <SheetHeader className="border-b-2 border-foreground/10">
+              <SheetTitle className="font-heading text-2xl">Filtros do mural</SheetTitle>
+              <SheetDescription>
+                Área, prazo, país e ordem. O que vale no edital oficial continua valendo.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="overflow-y-auto p-4">{filterFields}</div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <div className="hidden rounded-2xl border-2 border-foreground bg-card p-4 shadow-[5px_5px_0_0_var(--foreground)] lg:block">
+        {filterFields}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -279,26 +368,33 @@ export function OpportunityCatalog({
             size="sm"
             onClick={() => router.replace(pathname, { scroll: false })}
           >
-            <X className="size-3.5" />
+            <X />
             Limpar filtros
           </Button>
         ) : null}
       </div>
 
       {error ? (
-        <div className="rounded-2xl border-2 border-destructive bg-destructive/10 px-5 py-8 text-center shadow-[5px_5px_0_0_var(--destructive)]">
-          <p className="font-medium">Não foi possível carregar as oportunidades.</p>
-          <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-          <Button className="mt-4" onClick={() => router.refresh()}>
+        <Alert
+          variant="destructive"
+          className="border-2 border-destructive shadow-[5px_5px_0_0_var(--destructive)]"
+        >
+          <Filter />
+          <AlertTitle>Não foi possível carregar as oportunidades.</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button className="mt-3 w-fit" onClick={() => router.refresh()}>
             Tentar de novo
           </Button>
-        </div>
+        </Alert>
       ) : null}
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]">
+            <div
+              key={index}
+              className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]"
+            >
               <Skeleton className="h-5 w-24" />
               <Skeleton className="mt-4 h-6 w-5/6" />
               <Skeleton className="mt-2 h-4 w-1/2" />
@@ -309,21 +405,28 @@ export function OpportunityCatalog({
       ) : null}
 
       {!loading && result && result.data.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-foreground/40 bg-card px-6 py-16 text-center shadow-[5px_5px_0_0_oklch(0.24_0.04_40_/_0.08)]">
-          <p className="font-heading text-3xl">Nada grudou no mural com esses filtros.</p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Tente uma busca mais ampla, limpe os filtros ou cadastre um edital que você
-            conhece.
-          </p>
-          <div className="mt-6 flex justify-center gap-2">
+        <Empty className="rounded-2xl border-2 border-dashed border-foreground/40 bg-card py-16 shadow-[5px_5px_0_0_oklch(0.24_0.04_40_/_0.08)]">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Sticker />
+            </EmptyMedia>
+            <EmptyTitle className="font-heading text-3xl">
+              Nada grudou no mural com esses filtros.
+            </EmptyTitle>
+            <EmptyDescription>
+              Tente uma busca mais ampla, limpe os filtros ou cadastre um edital que você
+              conhece.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent className="flex-row justify-center">
             <Button variant="outline" onClick={() => router.replace(pathname)}>
               Limpar filtros
             </Button>
             <Link href="/cadastrar" className={cn(buttonVariants())}>
               Cadastrar edital
             </Link>
-          </div>
-        </div>
+          </EmptyContent>
+        </Empty>
       ) : null}
 
       {!loading && result && result.data.length > 0 ? (
@@ -336,30 +439,34 @@ export function OpportunityCatalog({
         </ul>
       ) : null}
 
-      {result && result.meta.totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-2">
-          {Array.from({ length: result.meta.totalPages }).map((_, index) => {
-            const page = index + 1;
-            const current = result.meta.page === page;
-            return (
-              <Button
-                key={page}
-                size="icon-sm"
-                variant={current ? "default" : "outline"}
-                className={cn(current && "pointer-events-none")}
-                onClick={() => {
-                  const next = new URLSearchParams(searchParams.toString());
-                  if (page === 1) next.delete("page");
-                  else next.set("page", String(page));
-                  const qs = next.toString();
-                  router.replace(qs ? `${pathname}?${qs}` : pathname);
-                }}
-              >
-                {page}
-              </Button>
-            );
-          })}
-        </div>
+      {result && totalPages > 1 ? (
+        <>
+          <Separator className="bg-foreground/20" />
+          <Pagination>
+            <PaginationContent>
+              {currentPage > 1 ? (
+                <PaginationItem>
+                  <PaginationPrevious href={pageHref(currentPage - 1)} text="Anterior" />
+                </PaginationItem>
+              ) : null}
+              {Array.from({ length: totalPages }).map((_, index) => {
+                const page = index + 1;
+                return (
+                  <PaginationItem key={page}>
+                    <PaginationLink href={pageHref(page)} isActive={currentPage === page}>
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              {currentPage < totalPages ? (
+                <PaginationItem>
+                  <PaginationNext href={pageHref(currentPage + 1)} text="Próxima" />
+                </PaginationItem>
+              ) : null}
+            </PaginationContent>
+          </Pagination>
+        </>
       ) : null}
     </div>
   );

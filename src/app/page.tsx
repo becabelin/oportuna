@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 
+import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { OpportunityCatalog } from "@/components/opportunity-catalog";
 import { buttonVariants } from "@/components/ui/button";
@@ -108,17 +109,7 @@ export default async function HomePage({
         <h2 id="faq-heading" className="font-heading text-3xl">
           Perguntas que a busca costuma fazer
         </h2>
-        <dl className="grid gap-4 sm:grid-cols-2">
-          {FAQ.map((item) => (
-            <div
-              key={item.q}
-              className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]"
-            >
-              <dt className="font-heading text-lg">{item.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-foreground/80">{item.a}</dd>
-            </div>
-          ))}
-        </dl>
+        <FaqAccordion />
       </section>
     </div>
   );

@@ -1,7 +1,30 @@
-import Link from "next/link";
+"use client";
 
-import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
+import { Menu } from "lucide-react";
+
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+
+const NAV = [
+  { href: "/", label: "Mural" },
+  { href: "/sobre", label: "Sobre" },
+  { href: "/docs", label: "API" },
+];
 
 export function SiteHeader() {
   return (
@@ -16,27 +39,63 @@ export function SiteHeader() {
           </span>
         </Link>
         <nav aria-label="Principal" className="flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/"
-            className="hidden rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/70 hover:text-foreground sm:inline"
-          >
-            Mural
-          </Link>
-          <Link
-            href="/sobre"
-            className="hidden rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/70 hover:text-foreground sm:inline"
-          >
-            Sobre
-          </Link>
-          <Link
-            href="/docs"
-            className="hidden rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/70 hover:text-foreground sm:inline"
-          >
-            API
-          </Link>
-          <Link href="/chave" className={cn(buttonVariants({ size: "sm" }), "ml-1")}>
-            Pedir chave
-          </Link>
+          {NAV.map((item) => (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              nativeButton={false}
+              render={<Link href={item.href} />}
+              className="hidden sm:inline-flex"
+            >
+              {item.label}
+            </Button>
+          ))}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Link href="/chave" className={cn(buttonVariants({ size: "sm" }), "ml-1")} />
+              }
+            >
+              Pedir chave
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Gera uma chave para a API, de graça</TooltipContent>
+          </Tooltip>
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button variant="outline" size="icon" className="sm:hidden" aria-label="Abrir menu" />
+              }
+            >
+              <Menu />
+            </SheetTrigger>
+            <SheetContent side="right" className="border-2 border-foreground">
+              <SheetHeader>
+                <SheetTitle className="font-heading text-2xl">Oportuna</SheetTitle>
+              </SheetHeader>
+              <nav className="grid gap-1 px-4">
+                {NAV.map((item) => (
+                  <SheetClose
+                    key={item.href}
+                    render={
+                      <Link
+                        href={item.href}
+                        className="rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"
+                      />
+                    }
+                  >
+                    {item.label}
+                  </SheetClose>
+                ))}
+                <Separator className="my-2" />
+                <SheetClose
+                  render={<Link href="/chave" className={cn(buttonVariants())} />}
+                >
+                  Pedir chave
+                </SheetClose>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </nav>
       </div>
     </header>

@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, Nunito } from "next/font/google";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { websiteSchema } from "@/lib/schema";
 import {
   SITE_DESCRIPTION,
@@ -77,10 +78,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${nunito.variable} ${bricolage.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <JsonLd data={websiteSchema()} />
-        <SiteHeader />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <SiteFooter />
+        <TooltipProvider>
+          <JsonLd data={websiteSchema()} />
+          <SiteHeader />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <SiteFooter />
+        </TooltipProvider>
       </body>
     </html>
   );

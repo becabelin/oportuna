@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LIMITES_API } from "@/lib/limites-api";
 
@@ -49,12 +51,17 @@ export function KeyRequestForm() {
 
   if (result) {
     return (
-      <div className="rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:p-6">
-        <p className="inline-block -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
-          chave na mão
-        </p>
-        <h2 className="mt-3 font-heading text-2xl">Guarde isso agora, {result.nome.split(" ")[0]}.</h2>
-        <p className="mt-2 text-sm text-foreground/80">
+      <Card className="border-2 border-foreground shadow-[6px_6px_0_0_var(--foreground)]">
+        <CardHeader>
+          <p className="w-fit -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+            chave na mão
+          </p>
+          <CardTitle className="font-heading text-2xl">
+            Guarde isso agora, {result.nome.split(" ")[0]}.
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+        <p className="text-sm text-foreground/80">
           A chave só aparece esta vez. Sem ela o app não consulta a base. Limite:{" "}
           {result.limites.porMinuto} chamadas/minuto e {result.limites.porDia}/dia.
         </p>
@@ -82,26 +89,28 @@ export function KeyRequestForm() {
             Pedir outra
           </Button>
         </div>
-        <pre className="mt-4 overflow-x-auto rounded-xl bg-foreground p-3 text-xs leading-relaxed text-background">
+        <pre className="overflow-x-auto rounded-xl bg-foreground p-3 text-xs leading-relaxed text-background">
           {result.comoUsar.exemplo.replace("https://SEU_HOST", typeof window !== "undefined" ? window.location.origin : "")}
         </pre>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:p-6">
+      <FieldGroup className="grid gap-4">
       <p className="text-sm text-foreground/75">
         Sai na hora. Sem fila. Usamos o email só se a chave der problema — não tem
         newsletter escondida. Teto atual: {LIMITES_API.porMinuto}/min e{" "}
         {LIMITES_API.porDia}/dia.
       </p>
-      <div className="grid gap-1.5">
-        <Label htmlFor="nome">Seu nome</Label>
+      <Field>
+        <FieldLabel htmlFor="nome">Seu nome</FieldLabel>
         <Input id="nome" required value={nome} onChange={(event) => setNome(event.target.value)} />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="email">Email</Label>
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="email">Email</FieldLabel>
         <Input
           id="email"
           type="email"
@@ -109,9 +118,9 @@ export function KeyRequestForm() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="projeto">O que você vai montar?</Label>
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="projeto">O que você vai montar?</FieldLabel>
         <Textarea
           id="projeto"
           required
@@ -119,11 +128,17 @@ export function KeyRequestForm() {
           value={projeto}
           onChange={(event) => setProjeto(event.target.value)}
         />
-      </div>
-      {error ? <p className="text-sm font-semibold text-destructive">{error}</p> : null}
+      </Field>
+      {error ? (
+        <Alert variant="destructive" className="border-2">
+          <AlertTitle>Não rolou</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
       <Button type="submit" size="lg" disabled={pending}>
         {pending ? "Carimbando…" : "Pedir minha chave"}
       </Button>
+      </FieldGroup>
     </form>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { KeyRequestForm } from "@/components/key-request-form";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Pedir chave da API",
@@ -24,29 +25,22 @@ export default function ChavePage() {
           coisa que um bot faria mil vezes. Assim a conta de servidor não some
           no primeiro script maluco.
         </p>
-        <ul className="mt-6 grid gap-3 text-sm leading-relaxed">
-          <li className="rounded-xl border-2 border-foreground/20 bg-card px-4 py-3">
-            <strong>Não cobra nada agora.</strong> Cada consulta é um pedacinho de
-            função na Vercel. No plano Hobby isso entra no pacote grátis até o
-            tráfego ficar grande.
-          </li>
-          <li className="rounded-xl border-2 border-foreground/20 bg-card px-4 py-3">
-            <strong>Teto por chave:</strong> 120 chamadas por minuto, 5 mil por
-            dia. Um app de verdade quase não encosta nisso. Um scraper encosta.
-          </li>
-          <li className="rounded-xl border-2 border-foreground/20 bg-card px-4 py-3">
-            <strong>Custo se crescer:</strong> o que pesa é invocação + banda, não
-            “por bolsa”. Se estourar o grátis, sobe o plano ou a gente coloca um
-            teto mais baixo — não é cobrança por aluno.
-          </li>
-          <li className="rounded-xl border-2 border-foreground/20 bg-card px-4 py-3">
-            <strong>Onde a chave mora:</strong> no computador, em{" "}
-            <code className="rounded bg-muted px-1">data/chaves.json</code>. Na
-            Vercel o disco some entre deploys — para produção de verdade a gente
-            ainda precisa de um KV. Enquanto isso, peça de novo se a chave
-            “sumir”.
-          </li>
-        </ul>
+        <div className="mt-6 grid gap-3 text-sm leading-relaxed">
+          {[
+            ["Não cobra nada agora.", "Cada consulta é um pedacinho de função na Vercel. No plano Hobby isso entra no pacote grátis até o tráfego ficar grande."],
+            ["Teto por chave:", "120 chamadas por minuto, 5 mil por dia. Um app de verdade quase não encosta nisso. Um scraper encosta."],
+            ["Custo se crescer:", "o que pesa é invocação + banda, não “por bolsa”. Se estourar o grátis, sobe o plano ou a gente coloca um teto mais baixo — não é cobrança por aluno."],
+            ["Onde a chave mora:", "no computador, em data/chaves.json. Na Vercel o disco some entre deploys — para produção de verdade ainda precisa de um KV. Enquanto isso, peça de novo se a chave “sumir”."],
+          ].map(([title, body]) => (
+            <Card key={title} size="sm">
+              <CardContent>
+                <p>
+                  <strong>{title}</strong> {body}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
       <KeyRequestForm />
     </div>

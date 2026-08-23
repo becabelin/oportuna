@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -98,12 +99,9 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
           <CalendarClock className="size-3.5" />
           {item.tags.slice(0, 2).join(" · ") || "Sem tags"}
         </span>
-        <Link
-          href={`/oportunidades/${item.id}`}
-          className="font-medium text-primary hover:underline"
-        >
+        <Button variant="link" size="sm" nativeButton={false} render={<Link href={`/oportunidades/${item.id}`} />} className="h-auto px-0">
           Ver edital
-        </Link>
+        </Button>
       </CardFooter>
     </Card>
     </article>

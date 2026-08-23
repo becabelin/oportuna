@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type SelectHTMLAttributes } from "react";
 import { useRouter } from "next/navigation";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,18 +99,20 @@ export function CreateOpportunityForm() {
   return (
     <form onSubmit={onSubmit} className="grid gap-5">
       {error ? (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm">
-          <p className="font-medium">{error}</p>
+        <Alert variant="destructive" className="border-destructive/40">
+          <AlertTitle>{error}</AlertTitle>
           {Object.keys(details).length > 0 ? (
-            <ul className="mt-2 list-disc pl-4 text-muted-foreground">
-              {Object.entries(details).map(([field, message]) => (
-                <li key={field}>
-                  {field}: {message}
-                </li>
-              ))}
-            </ul>
+            <AlertDescription>
+              <ul className="list-disc pl-4">
+                {Object.entries(details).map(([field, message]) => (
+                  <li key={field}>
+                    {field}: {message}
+                  </li>
+                ))}
+              </ul>
+            </AlertDescription>
           ) : null}
-        </div>
+        </Alert>
       ) : null}
 
       <div className="grid gap-1.5">

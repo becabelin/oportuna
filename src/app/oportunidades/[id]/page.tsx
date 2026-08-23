@@ -5,7 +5,17 @@ import { ArrowUpRight, Calendar, MapPin, Wallet } from "lucide-react";
 
 import { JsonLd } from "@/components/json-ld";
 import { PrazoBadge, TipoBadge } from "@/components/opportunity-card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/format";
 import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -62,13 +72,17 @@ export default async function OpportunityPage({ params }: PageProps) {
         ])}
       />
       <JsonLd data={opportunitySchema(item)} />
-      <p className="text-sm text-muted-foreground">
-        <Link href="/" className="font-semibold underline decoration-2 underline-offset-4 hover:text-foreground">
-          Mural
-        </Link>
-        <span className="px-2">/</span>
-        {item.organizacao}
-      </p>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/" />}>Mural</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{item.organizacao}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mt-4 flex flex-wrap gap-2">
         <TipoBadge tipo={item.tipo} />
@@ -81,7 +95,9 @@ export default async function OpportunityPage({ params }: PageProps) {
       <p className="mt-3 text-lg leading-snug text-foreground/85">{item.subtitulo}</p>
       <p className="mt-2 text-muted-foreground">{item.organizacao}</p>
 
-      <dl className="mt-8 grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:grid-cols-2">
+      <Card className="mt-8">
+      <CardContent className="pt-(--card-spacing)">
+      <dl className="grid gap-4 sm:grid-cols-2">
         <div>
           <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
             <Wallet className="size-3.5" />
@@ -140,8 +156,12 @@ export default async function OpportunityPage({ params }: PageProps) {
           </div>
         ) : null}
       </dl>
+      </CardContent>
+      </Card>
 
-      <div className="mt-8 space-y-4 text-[17px] leading-relaxed">
+      <Separator className="my-8 bg-foreground/15" />
+
+      <div className="space-y-4 text-[17px] leading-relaxed">
         <p>{item.descricao}</p>
       </div>
 

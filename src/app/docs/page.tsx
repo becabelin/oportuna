@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { LIMITES_API } from "@/lib/limites-api";
 import { cn } from "@/lib/utils";
 
@@ -108,33 +117,61 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Endpoints</h2>
-        <ul className="mt-4 divide-y-2 divide-foreground/10 rounded-2xl border-2 border-foreground bg-card shadow-[5px_5px_0_0_var(--foreground)]">
-          {endpoints.map((endpoint) => (
-            <li key={endpoint.method + endpoint.path} className="grid gap-1 px-4 py-3 sm:grid-cols-[7rem_1fr] sm:items-baseline">
-              <span className="font-mono text-xs font-black tracking-wide text-primary">
-                {endpoint.method}
-              </span>
-              <div>
-                <code className="text-sm">{endpoint.path}</code>
-                <p className="mt-1 text-sm text-foreground/70">{endpoint.desc}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-foreground bg-card shadow-[5px_5px_0_0_var(--foreground)]">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-28">Método</TableHead>
+                <TableHead>Caminho</TableHead>
+                <TableHead className="hidden sm:table-cell">O que faz</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {endpoints.map((endpoint) => (
+                <TableRow key={endpoint.method + endpoint.path}>
+                  <TableCell>
+                    <Badge variant="outline" className="font-mono text-[10px] font-black tracking-wide">
+                      {endpoint.method}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <code className="text-sm">{endpoint.path}</code>
+                    <p className="mt-1 text-sm text-foreground/70 sm:hidden">{endpoint.desc}</p>
+                  </TableCell>
+                  <TableCell className="hidden text-sm text-foreground/70 sm:table-cell">
+                    {endpoint.desc}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </section>
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Filtros</h2>
-        <dl className="mt-4 grid gap-3">
-          {queryParams.map(([name, desc]) => (
-            <div key={name} className="grid gap-1 sm:grid-cols-[8rem_1fr]">
-              <dt>
-                <code className="text-sm">{name}</code>
-              </dt>
-              <dd className="text-sm text-foreground/70">{desc}</dd>
-            </div>
-          ))}
-        </dl>
+        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-foreground/15 bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-32">Filtro</TableHead>
+                <TableHead>Uso</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {queryParams.map(([name, desc]) => (
+                <TableRow key={name}>
+                  <TableCell>
+                    <code className="text-sm">{name}</code>
+                  </TableCell>
+                  <TableCell className="whitespace-normal text-sm text-foreground/70">
+                    {desc}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </section>
 
       <section className="mt-12">
