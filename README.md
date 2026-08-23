@@ -39,7 +39,7 @@ Em host serverless (Vercel), configure um cron para `GET /api/coletar`. Em Railw
 ## Repositório
 
 ```bash
-git clone https://origin.cursor.com/rebeca-sousa/tmp-510dcabb2e0718f5.git oportuna
+git clone https://github.com/becabelin/oportuna.git
 cd oportuna
 npm install
 npm run dev
