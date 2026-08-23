@@ -3,11 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Calendar, MapPin, Wallet } from "lucide-react";
 
+import { JsonLd } from "@/components/json-ld";
 import { PrazoBadge, TipoBadge } from "@/components/opportunity-card";
 import { buttonVariants } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
+import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { getOportunidade } from "@/lib/store";
-import { MODALIDADE_LABEL, NIVEL_LABEL } from "@/lib/taxonomia";
+import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -17,10 +20,29 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const item = getOportunidade(id);
-  if (!item) return { title: "Oportunidade não encontrada" };
+  if (!item) return { title: "Oportunidade não encontrada", robots: { index: false } };
+  const description = item.subtitulo || item.descricao;
+  const url = absoluteUrl(`/oportunidades/${item.id}`);
   return {
     title: item.titulo,
-    description: item.subtitulo || item.descricao,
+    description,
+    keywords: [TIPO_LABEL[item.tipo], item.organizacao, item.area, item.pais, ...item.tags],
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      locale: "pt_BR",
+      siteName: SITE_NAME,
+      title: item.titulo,
+      description,
+      url,
+      modifiedTime: item.atualizadoEm,
+      publishedTime: item.criadoEm,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: item.titulo,
+      description,
+    },
   };
 }
 
@@ -33,6 +55,13 @@ export default async function OpportunityPage({ params }: PageProps) {
 
   return (
     <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Mural", path: "/" },
+          { name: item.titulo, path: `/oportunidades/${item.id}` },
+        ])}
+      />
+      <JsonLd data={opportunitySchema(item)} />
       <p className="text-sm text-muted-foreground">
         <Link href="/" className="font-semibold underline decoration-2 underline-offset-4 hover:text-foreground">
           Mural
@@ -75,7 +104,14 @@ export default async function OpportunityPage({ params }: PageProps) {
             Inscrições
           </dt>
           <dd className="mt-1 text-sm">
-            {item.prazoInscricao ? `até ${formatDate(item.prazoInscricao)}` : "fluxo contínuo"}
+            {item.prazoInscricao ? (
+              <>
+                até{" "}
+                <time dateTime={item.prazoInscricao}>{formatDate(item.prazoInscricao)}</time>
+              </>
+            ) : (
+              "fluxo contínuo"
+            )}
           </dd>
         </div>
         <div>

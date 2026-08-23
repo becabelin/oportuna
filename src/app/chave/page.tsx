@@ -4,7 +4,9 @@ import { KeyRequestForm } from "@/components/key-request-form";
 
 export const metadata: Metadata = {
   title: "Pedir chave da API",
-  description: "Gere uma chave para consultar a base da Oportuna no seu aplicativo.",
+  description:
+    "Gere de graça uma chave para consultar bolsas, eventos e editais da Oportuna no seu aplicativo. Teto por chave para não estourar o servidor.",
+  alternates: { canonical: "/chave" },
 };
 
 export default function ChavePage() {

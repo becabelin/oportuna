@@ -47,7 +47,7 @@ export function PrazoBadge({ prazoInscricao }: { prazoInscricao: string | null }
         : "bg-primary/8 text-primary border-primary/15";
   return (
     <Badge variant="outline" className={cn("border", tone)}>
-      {prazo.text}
+      {prazoInscricao ? <time dateTime={prazoInscricao}>{prazo.text}</time> : prazo.text}
     </Badge>
   );
 }
@@ -56,6 +56,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
   const local = [item.cidade, item.pais].filter(Boolean).join(" · ");
 
   return (
+    <article className="h-full">
     <Card className="h-full bg-card transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -67,7 +68,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
             href={`/oportunidades/${item.id}`}
             className="hover:underline hover:underline-offset-4"
           >
-            {item.titulo}
+            <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
         </CardTitle>
         <p className="text-sm leading-snug text-foreground/80">{item.subtitulo}</p>
@@ -105,5 +106,6 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         </Link>
       </CardFooter>
     </Card>
+    </article>
   );
 }

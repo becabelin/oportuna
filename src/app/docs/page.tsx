@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Documentação da API",
-  description: "Como pedir uma chave e puxar a base da Oportuna no seu aplicativo.",
+  description:
+    "Como pedir uma chave e consultar a base da Oportuna: listar bolsas, eventos, estágios e intercâmbios via REST.",
+  alternates: { canonical: "/docs" },
 };
 
 const endpoints = [

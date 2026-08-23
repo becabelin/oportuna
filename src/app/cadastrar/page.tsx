@@ -5,6 +5,7 @@ import { CreateOpportunityForm } from "@/components/create-opportunity-form";
 export const metadata: Metadata = {
   title: "Cadastrar oportunidade",
   description: "Publique um edital de bolsa, evento, curso, estágio ou intercâmbio.",
+  robots: { index: false, follow: false },
 };
 
 export default function CadastrarPage() {

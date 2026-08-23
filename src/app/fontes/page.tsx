@@ -5,6 +5,7 @@ import { FontesManager } from "@/components/fontes-manager";
 export const metadata: Metadata = {
   title: "Manutenção da base",
   description: "Fontes internas usadas para atualizar a base de oportunidades.",
+  robots: { index: false, follow: false },
 };
 
 export default function FontesPage() {

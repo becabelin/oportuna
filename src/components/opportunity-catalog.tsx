@@ -46,15 +46,25 @@ function NativeSelect({
   );
 }
 
-export function OpportunityCatalog() {
+type CatalogProps = {
+  initialResult?: PaginaOportunidades;
+  initialTaxonomia?: Taxonomia;
+  initialQuery?: string;
+};
+
+export function OpportunityCatalog({
+  initialResult,
+  initialTaxonomia,
+  initialQuery,
+}: CatalogProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [result, setResult] = useState<PaginaOportunidades | null>(null);
-  const [taxonomia, setTaxonomia] = useState<Taxonomia | null>(null);
+  const [result, setResult] = useState<PaginaOportunidades | null>(initialResult ?? null);
+  const [taxonomia, setTaxonomia] = useState<Taxonomia | null>(initialTaxonomia ?? null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialResult);
 
   const query = searchParams.toString();
 
@@ -85,7 +95,9 @@ export function OpportunityCatalog() {
         if (!cancelled) setLoading(false);
       }
     }
-    load();
+    if (!(initialResult && query === (initialQuery ?? ""))) {
+      void load();
+    }
     const onUpdate = () => {
       if (!cancelled) void load();
     };
@@ -94,7 +106,7 @@ export function OpportunityCatalog() {
       cancelled = true;
       window.removeEventListener("oportuna:atualizou", onUpdate);
     };
-  }, [query]);
+  }, [query, initialQuery, initialResult]);
 
   function updateParams(patch: Record<string, string | null>) {
     const next = new URLSearchParams(searchParams.toString());

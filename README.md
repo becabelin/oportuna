@@ -65,6 +65,21 @@ docker run -p 3000:3000 oportuna
 
 O `npm start` respeita a variável `PORT`. Em disco gravável, `data/base.json` persiste entre reinícios; na Vercel o arquivo versionado no Git é a base, e a coleta em runtime não sobrevive.
 
+Em produção, defina `NEXT_PUBLIC_SITE_URL` com o domínio canônico (ex.: `https://oportuna.vercel.app`). Sem isso, sitemap, JSON-LD, Open Graph e `/llms.txt` caem no fallback local `http://127.0.0.1:3847`.
+
+## SEO e GEO
+
+O mural da home é HTML de servidor: buscadores e modelos leem títulos e subtítulos sem executar o app. Cada oportunidade tem URL própria, dados estruturados (JSON-LD), imagem Open Graph e prazo em `<time>`.
+
+Rotas para indexação e citação:
+
+- `/sitemap.xml` — mural, páginas estáticas e cada edital
+- `/robots.txt` — libera o mural e bots de IA; bloqueia `/fontes`, `/cadastrar` e `/api/`
+- `/llms.txt` — resumo para modelos (também em `/.well-known/llms.txt`)
+- `/llms-full.txt` — inventário das inscrições abertas
+- `/feed.xml` — RSS das abertas
+- `/sobre` — o que é a base e como citar sem inventar prazo
+
 ## Stack
 
 Next.js (App Router), TypeScript, Tailwind CSS e shadcn/ui. Cheerio na coleta interna.
