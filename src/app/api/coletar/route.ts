@@ -2,7 +2,7 @@ import { coletarTodas } from "@/lib/coleta";
 import { json, optionsResponse } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 export function OPTIONS() {
   return optionsResponse();
