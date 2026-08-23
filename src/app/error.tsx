@@ -18,7 +18,7 @@ export default function ErrorPage({
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center px-4 py-24 text-center">
       <p className="text-sm font-medium tracking-wide text-primary uppercase">Erro</p>
-      <h1 className="mt-2 font-heading text-4xl">Algo saiu do trilho.</h1>
+      <h1 className="mt-2 font-heading text-4xl">O mural emperrou um instante.</h1>
       <p className="mt-3 text-muted-foreground">
         Não foi possível carregar esta página. Tente de novo em instantes.
       </p>

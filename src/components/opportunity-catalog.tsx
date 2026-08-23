@@ -39,7 +39,7 @@ function NativeSelect({
       id={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="h-9 w-full rounded-xl border-2 border-foreground/30 bg-background px-2.5 text-sm font-medium outline-none focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-primary/30"
     >
       {children}
     </select>
@@ -146,7 +146,7 @@ export function OpportunityCatalog() {
         ))}
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-border/80 bg-card/70 p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 rounded-2xl border-2 border-foreground/80 bg-card p-4 shadow-[5px_5px_0_0_var(--foreground)] sm:grid-cols-2 lg:grid-cols-4">
         <div className="grid gap-1.5 sm:col-span-2">
           <Label htmlFor="busca">Busca</Label>
           <div className="relative">
@@ -286,7 +286,7 @@ export function OpportunityCatalog() {
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 px-5 py-8 text-center">
+        <div className="rounded-2xl border-2 border-destructive bg-destructive/10 px-5 py-8 text-center shadow-[5px_5px_0_0_var(--destructive)]">
           <p className="font-medium">Não foi possível carregar as oportunidades.</p>
           <p className="mt-1 text-sm text-muted-foreground">{error}</p>
           <Button className="mt-4" onClick={() => router.refresh()}>
@@ -298,7 +298,7 @@ export function OpportunityCatalog() {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="rounded-xl border bg-card p-4">
+            <div key={index} className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]">
               <Skeleton className="h-5 w-24" />
               <Skeleton className="mt-4 h-6 w-5/6" />
               <Skeleton className="mt-2 h-4 w-1/2" />
@@ -309,8 +309,8 @@ export function OpportunityCatalog() {
       ) : null}
 
       {!loading && result && result.data.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-card/50 px-6 py-16 text-center">
-          <p className="font-heading text-2xl">Nada por aqui com esses filtros.</p>
+        <div className="rounded-2xl border-2 border-dashed border-foreground/40 bg-card px-6 py-16 text-center shadow-[5px_5px_0_0_oklch(0.24_0.04_40_/_0.08)]">
+          <p className="font-heading text-3xl">Nada grudou no mural com esses filtros.</p>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
             Tente uma busca mais ampla, limpe os filtros ou cadastre um edital que você
             conhece.

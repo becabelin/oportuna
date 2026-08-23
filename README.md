@@ -11,20 +11,23 @@ npm install
 npm run dev
 ```
 
-Abra [http://127.0.0.1:3847](http://127.0.0.1:3847). Documentação em `/docs`. JSON em `/api/oportunidades`.
+Abra [http://127.0.0.1:3847](http://127.0.0.1:3847). Peça uma chave em `/chave`. Documentação em `/docs`.
 
-## Puxar a base
+## Puxar a base (com chave)
 
 ```bash
-# Inscrições ainda abertas (o que a maioria dos apps quer)
-curl "http://127.0.0.1:3847/api/oportunidades?status=abertas&limit=todas"
+# 1. Peça uma chave em http://127.0.0.1:3847/chave  (ou POST /api/chaves)
 
-# Tudo o que está na base
-curl "http://127.0.0.1:3847/api/oportunidades?status=todas&limit=todas"
-
-# Um item
-curl "http://127.0.0.1:3847/api/oportunidades/pibic-cnpq-2026"
+# 2. Inscrições ainda abertas
+curl -H "Authorization: Bearer opt_SUA_CHAVE" \
+  "http://127.0.0.1:3847/api/oportunidades?status=abertas&limit=todas"
 ```
+
+O mural no site **não** pede chave. Só a API. Cada chave tem teto de 120 chamadas/minuto e 5 mil/dia — para um script não queimar o plano da Vercel.
+
+**Custo:** a chave não é cobrança. Cada GET gasta um pouco de função + banda. No Hobby da Vercel isso é grátis até um volume alto (centenas de milhares de chamadas/mês, não um app de faculdade). Se um dia crescer de verdade, aperta o teto ou sobe o plano — não existe “R$ por bolsa”.
+
+Na Vercel o arquivo `data/chaves.json` não sobrevive entre deploys; em disco local, sim. Para produção estável depois entra um KV.
 
 Resposta: `{ "data": [ ...oportunidades ], "meta": { "total", "page", "limit", "totalPages" } }`.
 

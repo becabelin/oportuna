@@ -10,12 +10,14 @@ export const metadata: Metadata = {
 export default function CadastrarPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="text-sm font-medium tracking-wide text-primary uppercase">Novo edital</p>
-      <h1 className="mt-2 font-heading text-4xl tracking-tight">Cadastrar oportunidade</h1>
+      <p className="inline-block -rotate-2 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+        Novo edital
+      </p>
+      <h1 className="mt-4 font-heading text-4xl tracking-tight">Cadastrar oportunidade</h1>
       <p className="mt-3 text-muted-foreground">
         Inclusão avulsa na base, para um edital que não veio da coleta automática.
       </p>
-      <div className="mt-8 rounded-2xl border bg-card/80 p-5 sm:p-6">
+      <div className="mt-8 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[5px_5px_0_0_var(--foreground)] sm:p-6">
         <CreateOpportunityForm />
       </div>
     </div>

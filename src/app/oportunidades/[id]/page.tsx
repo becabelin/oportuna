@@ -34,8 +34,8 @@ export default async function OpportunityPage({ params }: PageProps) {
   return (
     <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <p className="text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Catálogo
+        <Link href="/" className="font-semibold underline decoration-2 underline-offset-4 hover:text-foreground">
+          Mural
         </Link>
         <span className="px-2">/</span>
         {item.organizacao}
@@ -54,7 +54,7 @@ export default async function OpportunityPage({ params }: PageProps) {
       </h1>
       <p className="mt-3 text-lg text-muted-foreground">{item.organizacao}</p>
 
-      <dl className="mt-8 grid gap-4 rounded-2xl border bg-card/80 p-5 sm:grid-cols-2">
+      <dl className="mt-8 grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:grid-cols-2">
         <div>
           <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
             <Wallet className="size-3.5" />
@@ -138,8 +138,8 @@ export default async function OpportunityPage({ params }: PageProps) {
           Ir para a inscrição
           <ArrowUpRight className="size-4" />
         </a>
-        <Link href={`/api/oportunidades/${item.id}`} className={cn(buttonVariants({ variant: "outline" }))}>
-          Ver JSON
+        <Link href="/chave" className={cn(buttonVariants({ variant: "outline" }))}>
+          JSON via API (precisa de chave)
         </Link>
         {item.fonteId ? (
           <Link href={`/?fonteId=${item.fonteId}`} className={cn(buttonVariants({ variant: "ghost" }))}>

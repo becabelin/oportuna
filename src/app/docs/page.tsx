@@ -2,18 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
+import { LIMITES_API } from "@/lib/limites-api";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Documentação da API",
-  description: "Como puxar a base de oportunidades da Oportuna no seu aplicativo.",
+  description: "Como pedir uma chave e puxar a base da Oportuna no seu aplicativo.",
 };
 
 const endpoints = [
   {
+    method: "POST",
+    path: "/api/chaves",
+    desc: "Pede uma chave. Corpo: nome, email, projeto. A chave volta uma vez só.",
+  },
+  {
     method: "GET",
     path: "/api",
-    desc: "Índice, enumerações e um resumo de quantas oportunidades existem na base.",
+    desc: "Índice da API — este não precisa de chave.",
   },
   {
     method: "GET",
@@ -48,52 +54,67 @@ const queryParams = [
 export default function DocsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="text-sm font-medium tracking-wide text-primary uppercase">REST</p>
-      <h1 className="mt-2 font-heading text-4xl tracking-tight">API Oportuna</h1>
-      <p className="mt-3 text-muted-foreground">
-        A base já vem preenchida. Nós coletamos editais em fontes oficiais e
-        atualizamos o acervo. O seu app só autentica com HTTP: um GET devolve as
-        oportunidades. CORS liberado. Datas em{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>.
+      <p className="inline-block -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+        REST · precisa de chave
+      </p>
+      <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API Oportuna</h1>
+      <p className="mt-3 text-foreground/80">
+        O mural no site é livre. Para o <em>seu</em> app consultar a base, manda a
+        chave no header. CORS liberado. Datas em{" "}
+        <code className="rounded-md bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>.
+        Teto: {LIMITES_API.porMinuto}/min e {LIMITES_API.porDia}/dia por chave.
       </p>
       <div className="mt-6 flex flex-wrap gap-2">
-        <Link href="/api" className={cn(buttonVariants())}>
-          Abrir /api
+        <Link href="/chave" className={cn(buttonVariants())}>
+          Pedir chave
         </Link>
-        <Link
-          href="/api/oportunidades?status=abertas&limit=todas"
-          className={cn(buttonVariants({ variant: "outline" }))}
-        >
-          Puxar a base (JSON)
+        <Link href="/api" className={cn(buttonVariants({ variant: "outline" }))}>
+          Abrir /api
         </Link>
       </div>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl">Puxar todas as oportunidades</h2>
-        <pre className="mt-4 overflow-x-auto rounded-2xl border bg-card p-4 text-sm">
+        <h2 className="font-heading text-2xl">Uma chamada</h2>
+        <pre className="mt-4 overflow-x-auto rounded-2xl border-2 border-foreground bg-foreground p-4 text-sm text-background shadow-[5px_5px_0_0_oklch(0.58_0.19_32)]">
           <code>
-            {`curl "http://127.0.0.1:3847/api/oportunidades?status=abertas&limit=todas"`}
+            {`curl -H "Authorization: Bearer opt_SUA_CHAVE" \\
+  "https://SEU_HOST/api/oportunidades?status=abertas&limit=todas"`}
           </code>
         </pre>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-foreground/70">
+          Também vale o header <code className="rounded bg-muted px-1.5 py-0.5">X-Api-Key</code>.
           A resposta vem como{" "}
-          <code className="rounded bg-muted px-1.5 py-0.5">{`{ "data": [...], "meta": { total, page, limit, totalPages } }`}</code>
-          . Cada item tem título, tipo, organização, prazo, URL de inscrição e o
-          restante dos campos da base.
+          <code className="rounded bg-muted px-1.5 py-0.5">{`{ "data": [...], "meta": { total, page, limit, totalPages } }`}</code>.
         </p>
       </section>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl">Endpoints públicos</h2>
-        <ul className="mt-4 divide-y rounded-2xl border bg-card/80">
+        <h2 className="font-heading text-2xl">Custo, sem enrolação</h2>
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-foreground/80">
+          <p>
+            Cada GET na API gasta um pouquinho de servidor (função) e de banda. No
+            Hobby da Vercel isso é de graça até um volume alto — pensa em centenas
+            de milhares de chamadas no mês, não em um app de faculdade.
+          </p>
+          <p>
+            A chave não é para te cobrar. É para um robô não baixar o mural 80 mil
+            vezes e queimar o plano. Se um dia o tráfego real crescer, a gente
+            aperta o teto ou sobe o plano. Não existe “R$ por bolsa”.
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-heading text-2xl">Endpoints</h2>
+        <ul className="mt-4 divide-y-2 divide-foreground/10 rounded-2xl border-2 border-foreground bg-card shadow-[5px_5px_0_0_var(--foreground)]">
           {endpoints.map((endpoint) => (
             <li key={endpoint.method + endpoint.path} className="grid gap-1 px-4 py-3 sm:grid-cols-[7rem_1fr] sm:items-baseline">
-              <span className="font-mono text-xs font-semibold tracking-wide text-primary">
+              <span className="font-mono text-xs font-black tracking-wide text-primary">
                 {endpoint.method}
               </span>
               <div>
                 <code className="text-sm">{endpoint.path}</code>
-                <p className="mt-1 text-sm text-muted-foreground">{endpoint.desc}</p>
+                <p className="mt-1 text-sm text-foreground/70">{endpoint.desc}</p>
               </div>
             </li>
           ))}
@@ -108,32 +129,20 @@ export default function DocsPage() {
               <dt>
                 <code className="text-sm">{name}</code>
               </dt>
-              <dd className="text-sm text-muted-foreground">{desc}</dd>
+              <dd className="text-sm text-foreground/70">{desc}</dd>
             </div>
           ))}
         </dl>
       </section>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl">Exemplos</h2>
-        <pre className="mt-4 overflow-x-auto rounded-2xl border bg-card p-4 text-sm leading-relaxed">
-          <code>
-            {`# Só bolsas ainda abertas
-curl "http://127.0.0.1:3847/api/oportunidades?tipo=bolsa&status=abertas"
-
-# Detalhe
-curl "http://127.0.0.1:3847/api/oportunidades/pibic-cnpq-2026"`}
-          </code>
-        </pre>
-      </section>
-
-      <section className="mt-12">
         <h2 className="font-heading text-2xl">Erros</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-3 text-sm text-foreground/70">
           Sempre no formato{" "}
           <code className="rounded bg-muted px-1.5 py-0.5">{`{ "error": { "code", "message", "details?" } }`}</code>
-          . Códigos: <code>not_found</code> (404), <code>invalid_json</code> (400),{" "}
-          <code>validation_error</code> (422).
+          . Sem chave: <code>missing_api_key</code> (401). Estourou teto:{" "}
+          <code>rate_limited</code> (429). Outros: <code>not_found</code> (404),{" "}
+          <code>invalid_json</code> (400), <code>validation_error</code> (422).
         </p>
       </section>
     </div>

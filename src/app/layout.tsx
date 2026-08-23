@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Newsreader } from "next/font/google";
+import { Bricolage_Grotesque, Nunito } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
 });
 
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -22,15 +21,15 @@ export const metadata: Metadata = {
     default: "Oportuna — bolsas, eventos e editais",
     template: "%s · Oportuna",
   },
-    description:
-      "Base pública de bolsas, eventos e editais. Integre a API e puxe as oportunidades já coletadas.",
+  description:
+    "Mural público de bolsas, eventos e editais. Peça uma chave e puxe a base pelo seu app.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${newsreader.variable} h-full antialiased`}
+      className={`${nunito.variable} ${bricolage.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
         <SiteHeader />

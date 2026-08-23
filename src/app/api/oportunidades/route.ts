@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 
+import { gatePublicApi } from "@/lib/api-auth";
 import { apiError, json, optionsResponse } from "@/lib/http";
 import { createOportunidade, listOportunidades } from "@/lib/store";
 import { parseListQuery, validateOportunidade } from "@/lib/validate";
@@ -11,8 +12,10 @@ export function OPTIONS() {
 }
 
 export function GET(request: NextRequest) {
+  const gate = gatePublicApi(request);
+  if (gate instanceof Response) return gate;
   const filtros = parseListQuery(request.nextUrl.searchParams);
-  return json(listOportunidades(filtros));
+  return json(listOportunidades(filtros), { headers: gate.headers });
 }
 
 export async function POST(request: NextRequest) {

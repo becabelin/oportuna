@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 
+import { gatePublicApi } from "@/lib/api-auth";
 import { apiError, CORS_HEADERS, json, optionsResponse } from "@/lib/http";
 import {
   deleteOportunidade,
@@ -16,13 +17,15 @@ export function OPTIONS() {
   return optionsResponse();
 }
 
-export async function GET(_request: NextRequest, context: RouteParams) {
+export async function GET(request: NextRequest, context: RouteParams) {
+  const gate = gatePublicApi(request);
+  if (gate instanceof Response) return gate;
   const { id } = await context.params;
   const item = getOportunidade(id);
   if (!item) {
     return apiError(404, "not_found", "Oportunidade não encontrada.");
   }
-  return json({ data: item });
+  return json({ data: item }, { headers: gate.headers });
 }
 
 export async function PATCH(request: NextRequest, context: RouteParams) {

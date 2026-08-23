@@ -21,17 +21,17 @@ import type { Oportunidade, TipoOportunidade } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const TIPO_TONE: Record<TipoOportunidade, string> = {
-  bolsa: "bg-teal-700/10 text-teal-900 border-teal-700/15",
-  evento: "bg-amber-600/10 text-amber-950 border-amber-700/15",
-  curso: "bg-sky-700/10 text-sky-900 border-sky-700/15",
-  estagio: "bg-violet-700/10 text-violet-950 border-violet-700/15",
-  intercambio: "bg-rose-700/10 text-rose-950 border-rose-700/15",
-  concurso: "bg-stone-700/10 text-stone-900 border-stone-700/15",
+  bolsa: "-rotate-2 border-foreground bg-[#F7C948] text-foreground",
+  evento: "rotate-2 border-foreground bg-primary text-primary-foreground",
+  curso: "-rotate-1 border-foreground bg-[#7BDFF2] text-foreground",
+  estagio: "rotate-1 border-foreground bg-[#C4B5FD] text-foreground",
+  intercambio: "-rotate-2 border-foreground bg-[#FB7185] text-foreground",
+  concurso: "rotate-2 border-foreground bg-[#86EFAC] text-foreground",
 };
 
 export function TipoBadge({ tipo }: { tipo: TipoOportunidade }) {
   return (
-    <Badge variant="outline" className={cn("border", TIPO_TONE[tipo])}>
+    <Badge variant="outline" className={cn("border-2 font-black", TIPO_TONE[tipo])}>
       {TIPO_LABEL[tipo]}
     </Badge>
   );
@@ -56,7 +56,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
   const local = [item.cidade, item.pais].filter(Boolean).join(" · ");
 
   return (
-    <Card className="h-full bg-card/90 transition-shadow hover:shadow-md">
+    <Card className="h-full bg-card transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />

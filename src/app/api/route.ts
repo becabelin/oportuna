@@ -12,14 +12,20 @@ export function GET() {
     name: "Oportuna API",
     version: "1.0.0",
     description:
-      "Base pública de oportunidades de estudo. Integre no seu app e puxe bolsas, eventos, cursos, estágios, intercâmbios e concursos já coletados.",
+      "Base de oportunidades de estudo. O mural no site é aberto. Para o seu app consultar /api/oportunidades, peça uma chave em /chave e envie Authorization: Bearer opt_…",
+    autenticacao: {
+      pedirChave: "POST /api/chaves  { nome, email, projeto }",
+      usar: "Authorization: Bearer opt_…   ou   X-Api-Key: opt_…",
+      teto: "120 chamadas/minuto e 5.000/dia por chave",
+    },
     comoUsar: {
       listarAbertas: "/api/oportunidades?status=abertas",
       puxarTodaABase: "/api/oportunidades?status=todas&limit=todas",
       detalhe: "/api/oportunidades/:id",
     },
     endpoints: {
-      "GET /api": "Este índice",
+      "POST /api/chaves": "Emite uma chave (nome, email, projeto)",
+      "GET /api": "Este índice (sem chave)",
       "GET /api/taxonomia": "Tipos, áreas, níveis, modalidades e países com contagem",
       "GET /api/oportunidades":
         "Lista a base. Query: q, tipo, area, nivel, modalidade, pais, status, ordenar, page, limit (use limit=todas para o acervo inteiro)",
