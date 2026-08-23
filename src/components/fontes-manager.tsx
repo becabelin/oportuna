@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { Fonte } from "@/lib/types";
 
 function formatWhen(iso: string | null) {
-  if (!iso) return "ainda não coletada";
+  if (!iso) return "ainda não puxada";
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",
     timeStyle: "short",
@@ -139,10 +139,10 @@ export function FontesManager() {
                 <p className="font-medium">{fonte.titulo || new URL(fonte.url).hostname}</p>
                 <Badge variant="outline">
                   {fonte.status === "ok"
-                    ? "coletada"
+                    ? "atualizada"
                     : fonte.status === "erro"
                       ? "erro"
-                      : "pendente"}
+                      : "na fila"}
                 </Badge>
               </div>
               <a

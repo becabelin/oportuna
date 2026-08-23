@@ -6,6 +6,7 @@ import type {
   TipoOportunidade,
 } from "./types";
 import { MODALIDADES, NIVEIS, TIPOS } from "./types";
+import { gerarSubtitulo } from "./triagem";
 
 export function isTipo(value: unknown): value is TipoOportunidade {
   return typeof value === "string" && (TIPOS as readonly string[]).includes(value);
@@ -155,18 +156,35 @@ export function validateOportunidade(
     return { ok: false, details };
   }
 
+  const titulo = String(input.titulo).trim();
+  const organizacao = String(input.organizacao).trim();
+  const descricao = String(input.descricao).trim();
+  const tipo = input.tipo as TipoOportunidade;
+  const prazoInscricao = (input.prazoInscricao as string | null) ?? null;
+  const subtituloInformado =
+    typeof input.subtitulo === "string" ? input.subtitulo.trim().slice(0, 220) : "";
+
   const data: NovaOportunidade = {
-    titulo: String(input.titulo).trim(),
-    tipo: input.tipo as TipoOportunidade,
-    organizacao: String(input.organizacao).trim(),
-    descricao: String(input.descricao).trim(),
+    titulo,
+    subtitulo:
+      subtituloInformado ||
+      gerarSubtitulo({
+        titulo,
+        descricao,
+        tipo,
+        organizacao,
+        prazoInscricao,
+      }),
+    tipo,
+    organizacao,
+    descricao,
     area: String(input.area).trim(),
     nivel: input.nivel as Nivel,
     modalidade: input.modalidade as Modalidade,
     pais: String(input.pais).trim(),
     cidade: input.cidade == null ? null : String(input.cidade).trim() || null,
     beneficio: input.beneficio == null ? null : String(input.beneficio).trim() || null,
-    prazoInscricao: (input.prazoInscricao as string | null) ?? null,
+    prazoInscricao,
     dataInicio: (input.dataInicio as string | null) ?? null,
     dataFim: (input.dataFim as string | null) ?? null,
     urlInscricao: String(input.urlInscricao).trim(),

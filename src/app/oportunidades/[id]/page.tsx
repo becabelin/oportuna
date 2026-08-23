@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!item) return { title: "Oportunidade não encontrada" };
   return {
     title: item.titulo,
-    description: item.descricao,
+    description: item.subtitulo || item.descricao,
   };
 }
 
@@ -44,15 +44,13 @@ export default async function OpportunityPage({ params }: PageProps) {
       <div className="mt-4 flex flex-wrap gap-2">
         <TipoBadge tipo={item.tipo} />
         <PrazoBadge prazoInscricao={item.prazoInscricao} />
-        {item.origem === "coleta" ? (
-          <span className="text-sm text-muted-foreground">coletada de fonte</span>
-        ) : null}
       </div>
 
       <h1 className="mt-4 font-heading text-3xl leading-tight tracking-tight text-balance sm:text-4xl">
         {item.titulo}
       </h1>
-      <p className="mt-3 text-lg text-muted-foreground">{item.organizacao}</p>
+      <p className="mt-3 text-lg leading-snug text-foreground/85">{item.subtitulo}</p>
+      <p className="mt-2 text-muted-foreground">{item.organizacao}</p>
 
       <dl className="mt-8 grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:grid-cols-2">
         <div>

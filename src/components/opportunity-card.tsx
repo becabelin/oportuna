@@ -61,11 +61,6 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />
           <PrazoBadge prazoInscricao={item.prazoInscricao} />
-          {item.origem === "coleta" ? (
-            <Badge variant="outline" className="border-primary/20 text-primary">
-              coletada
-            </Badge>
-          ) : null}
         </div>
         <CardTitle className="text-lg leading-snug">
           <Link
@@ -75,10 +70,11 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
             {item.titulo}
           </Link>
         </CardTitle>
+        <p className="text-sm leading-snug text-foreground/80">{item.subtitulo}</p>
         <CardDescription className="line-clamp-1">{item.organizacao}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
-        <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {item.descricao}
         </p>
         <ul className="mt-auto grid gap-1.5 text-xs text-muted-foreground">

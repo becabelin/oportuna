@@ -12,6 +12,7 @@ import {
 } from "./fontes";
 import { persistNow } from "./persist";
 import { assertPublicHttpUrl } from "./ssrf";
+import { gerarSubtitulo, pareceOportunidade, SINAL_OPORTUNIDADE } from "./triagem";
 import {
   deleteByFonte,
   upsertColetada,
@@ -23,8 +24,7 @@ const USER_AGENT =
 const MAX_BYTES = 3_000_000;
 const MAX_ITEMS = 30;
 
-const KEYWORD =
-  /bolsa|bolsas|scholarship|fellow|edital|inscri[cç]|prazo|grant|internship|est[aá]gio|interc[aâ]mbio|exchange|hackathon|congresso|confer[eê]ncia|festival|summit|\bcamp\b|summer school|postdoc|doutorado|mestrado|\bphd\b|call for|concurso|olimp[ií]ada|pr[eê]mio|award|prize|mobilidade|funding|fellowship|workshop|webinar|bootcamp|tutorial|curso|course|guide|ux|ui design|product design|criativ/i;
+const KEYWORD = SINAL_OPORTUNIDADE;
 
 const SKIP_HREF =
   /login|signup|cart|facebook|twitter|instagram|linkedin|whatsapp|mailto:|javascript:|privacy|cookie|termos|wp-admin|#/i;
@@ -58,7 +58,7 @@ export function inferTipo(text: string, fallback: TipoOportunidade | null): Tipo
   if (/hackathon|congresso|confer[eê]ncia|evento|summit|festival|workshop|webinar|design day|\bcamp\b/i.test(value)) {
     return "evento";
   }
-  if (/curso|certificate|mooc|bootcamp|tutorial|guide|artigo|article|newsletter/i.test(value)) {
+  if (/curso gratuito|curso com bolsa|certificate program|mooc|bootcamp|summer school|winter school/i.test(value)) {
     return "curso";
   }
   if (/concurso|olimp[ií]ada|pr[eê]mio|award|prize/.test(value)) return "concurso";
@@ -248,7 +248,8 @@ function parseHtmlLinks(
     const context = cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || titulo);
     const blob = `${titulo} ${url.pathname} ${context}`;
     const inArticle = el.closest("article, .post, h2, h3").length > 0;
-    if (!KEYWORD.test(blob) && !(modoBlog && inArticle)) return;
+    if (!KEYWORD.test(blob)) return;
+    if (modoBlog && inArticle && !KEYWORD.test(`${titulo} ${url.pathname}`)) return;
     const score =
       (KEYWORD.test(titulo) ? 4 : 0) +
       (KEYWORD.test(url.pathname) ? 2 : 0) +
@@ -291,10 +292,19 @@ function toOportunidade(
   candidato: Candidato,
   fonte: Fonte
 ): NovaOportunidade {
+  const organizacao = fonte.titulo || hostnameLabel(fonte.url);
+  const tipo = fonte.tipoSugerido ?? candidato.tipo;
   return {
     titulo: candidato.titulo,
-    tipo: fonte.tipoSugerido ?? candidato.tipo,
-    organizacao: fonte.titulo || hostnameLabel(fonte.url),
+    subtitulo: gerarSubtitulo({
+      titulo: candidato.titulo,
+      descricao: candidato.descricao,
+      tipo,
+      organizacao,
+      prazoInscricao: candidato.prazo,
+    }),
+    tipo,
+    organizacao,
     descricao: candidato.descricao,
     area: fonte.areaSugerida || "Multidisciplinar",
     nivel: "todos",
@@ -307,7 +317,7 @@ function toOportunidade(
     dataFim: null,
     urlInscricao: candidato.url,
     requisitos: [],
-    tags: ["coletada", fonte.titulo ?? hostnameLabel(fonte.url)],
+    tags: [fonte.titulo ?? hostnameLabel(fonte.url)],
     vagas: null,
     origem: "coleta",
     fonteId: fonte.id,
@@ -329,12 +339,7 @@ export async function coletarFonte(fonteId: string) {
 
   try {
     let pagina = await fetchPublicPage(fonte.url);
-    const modoBlog =
-      fonte.tipoSugerido === "curso" ||
-      fonte.tipoSugerido === "evento" ||
-      fonte.tipoSugerido === "bolsa" ||
-      fonte.tipoSugerido === "intercambio" ||
-      fonte.tipoSugerido === "concurso";
+    const modoBlog = false;
     let candidatos: Candidato[] = [];
     let page$ = cheerio.load("");
 
@@ -386,31 +391,22 @@ export async function coletarFonte(fonteId: string) {
 
     const unicos = new Map<string, Candidato>();
     for (const candidato of candidatos) {
-      if (!unicos.has(candidato.url)) unicos.set(candidato.url, candidato);
+      if (
+        pareceOportunidade({
+          titulo: candidato.titulo,
+          descricao: candidato.descricao,
+          url: candidato.url,
+        }) &&
+        !unicos.has(candidato.url)
+      ) {
+        unicos.set(candidato.url, candidato);
+      }
     }
 
     const hoje = new Date().toISOString().slice(0, 10);
-    const abertos = [...unicos.values()].filter((item) => !item.prazo || item.prazo >= hoje);
-
-    const usados = abertos.length > 0 ? abertos : [...unicos.values()].slice(0, 8);
-    if (usados.length === 0) {
-      const titulo =
-        page$("title").first().text().trim() ||
-        page$('meta[property="og:title"]').attr("content") ||
-        fonte.titulo ||
-        hostnameLabel(fonte.url);
-      const descricao =
-        page$('meta[name="description"]').attr("content") ||
-        page$('meta[property="og:description"]').attr("content") ||
-        "Página monitorada pela Oportuna. Abra o link para ver os editais atuais.";
-      usados.push({
-        titulo: cleanText(titulo).slice(0, 140),
-        descricao: cleanText(descricao).slice(0, 800),
-        url: pagina.finalUrl,
-        prazo: pickDeadline(`${titulo} ${descricao}`),
-        tipo: fonte.tipoSugerido ?? "bolsa",
-      });
-    }
+    const triados = [...unicos.values()];
+    const abertos = triados.filter((item) => !item.prazo || item.prazo >= hoje);
+    const usados = abertos.length > 0 ? abertos : triados.slice(0, 8);
 
     if (!fonte.titulo) {
       const pageTitle = page$("title").first().text().trim();

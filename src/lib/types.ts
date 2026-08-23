@@ -25,6 +25,7 @@ export type OrigemOportunidade = "manual" | "coleta";
 export type Oportunidade = {
   id: string;
   titulo: string;
+  subtitulo: string;
   tipo: TipoOportunidade;
   organizacao: string;
   descricao: string;

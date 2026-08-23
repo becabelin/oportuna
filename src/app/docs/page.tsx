@@ -39,7 +39,7 @@ const endpoints = [
 ];
 
 const queryParams = [
-  ["q", "Busca em título, organização, descrição, tags e requisitos."],
+  ["q", "Busca em título, subtítulo, organização, descrição, tags e requisitos."],
   ["tipo", "bolsa, evento, curso, estagio, intercambio ou concurso. Vários valores separados por vírgula."],
   ["area", "Ex.: Ciência da Computação, Engenharia, Saúde."],
   ["nivel", "ensino-medio, graduacao, pos-graduacao ou todos."],

@@ -1,5 +1,6 @@
 import { isOpen } from "./format";
 import { slugify } from "./format";
+import { gerarSubtitulo, pareceOportunidade } from "./triagem";
 import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
 import type {
@@ -16,13 +17,36 @@ type Store = {
 
 const globalForStore = globalThis as unknown as { __oportunaStore?: Store };
 
-function withOrigem(item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl"> & Partial<Oportunidade>): Oportunidade {
+function withOrigem(
+  item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo"> & Partial<Oportunidade>
+): Oportunidade {
+  const organizacao = item.organizacao;
+  const tags = (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada");
   return {
     ...item,
+    tags,
+    subtitulo:
+      item.subtitulo?.trim() ||
+      gerarSubtitulo({
+        titulo: item.titulo,
+        descricao: item.descricao,
+        tipo: item.tipo,
+        organizacao,
+        prazoInscricao: item.prazoInscricao,
+      }),
     origem: item.origem ?? "manual",
     fonteId: item.fonteId ?? null,
     fonteUrl: item.fonteUrl ?? null,
   };
+}
+
+function valeNoMural(item: Oportunidade) {
+  if (item.origem !== "coleta") return true;
+  return pareceOportunidade({
+    titulo: item.titulo,
+    descricao: item.descricao,
+    url: item.urlInscricao || item.fonteUrl || undefined,
+  });
 }
 
 function createStore(): Store {
@@ -37,9 +61,30 @@ function createStore(): Store {
   };
 }
 
+function sanitizar(store: Store) {
+  let mudou = false;
+  for (const [id, item] of [...store.items.entries()]) {
+    const next = withOrigem(item);
+    if (!valeNoMural(next)) {
+      store.items.delete(id);
+      mudou = true;
+      continue;
+    }
+    if (
+      next.subtitulo !== item.subtitulo ||
+      next.tags.join("|") !== item.tags.join("|")
+    ) {
+      store.items.set(id, next);
+      mudou = true;
+    }
+  }
+  if (mudou) persistOportunidades([...store.items.values()]);
+}
+
 function getStore(): Store {
   if (!globalForStore.__oportunaStore) {
     globalForStore.__oportunaStore = createStore();
+    sanitizar(globalForStore.__oportunaStore);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
@@ -71,6 +116,7 @@ function matchesQuery(item: Oportunidade, q?: string) {
   if (!q) return true;
   const haystack = [
     item.titulo,
+    item.subtitulo,
     item.organizacao,
     item.descricao,
     item.area,
@@ -171,15 +217,12 @@ function uniqueId(titulo: string) {
 
 export function createOportunidade(input: NovaOportunidade): Oportunidade {
   const now = new Date().toISOString();
-  const item: Oportunidade = {
+  const item = withOrigem({
     ...input,
-    origem: input.origem ?? "manual",
-    fonteId: input.fonteId ?? null,
-    fonteUrl: input.fonteUrl ?? null,
     id: uniqueId(input.titulo),
     criadoEm: now,
     atualizadoEm: now,
-  };
+  });
   getStore().items.set(item.id, item);
   touch();
   return item;
