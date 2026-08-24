@@ -20,7 +20,7 @@ export function organizationSchema() {
     description: SITE_DESCRIPTION,
     slogan: SITE_TAGLINE,
     inLanguage: "pt-BR",
-    sameAs: ["https://github.com/becabelin/oportuna"],
+    sameAs: ["https://github.com/becabelin/trilha-da-oportunidade"],
   };
 }
 

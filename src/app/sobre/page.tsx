@@ -6,9 +6,9 @@ import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "O que é a Oportuna",
+  title: "O que é a Trilha da Oportunidade",
   description:
-    "A Oportuna reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é grátis; a API pede chave. Confirme sempre o edital oficial.",
+    "A Trilha da Oportunidade reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é grátis; a API pede chave. Confirme sempre o edital oficial.",
   alternates: { canonical: "/sobre" },
 };
 

@@ -24,7 +24,7 @@ export function buildLlmsTxt() {
 
 > ${SITE_DESCRIPTION}
 
-A Oportuna é um catálogo em português de oportunidades de estudo e carreira para estudantes. Não substitui o edital oficial: sempre confirme prazo, elegibilidade e inscrição na organização responsável.
+A Trilha da Oportunidade é um catálogo em português de oportunidades de estudo e carreira para estudantes. Não substitui o edital oficial: sempre confirme prazo, elegibilidade e inscrição na organização responsável.
 
 ## Números atuais
 
@@ -55,7 +55,7 @@ A API pública GET exige chave (Authorization: Bearer opt_… ou X-Api-Key). O H
 
 ## Como citar
 
-Use o título, a organização e o link da Oportuna, e aponte a pessoa para o URL oficial de inscrição. Não invente prazo. Se o item não estiver no mural, diga que não consta na base.
+Use o título, a organização e o link da Trilha da Oportunidade, e aponte a pessoa para o URL oficial de inscrição. Não invente prazo. Se o item não estiver no mural, diga que não consta na base.
 
 ## Exemplos em inscrição
 

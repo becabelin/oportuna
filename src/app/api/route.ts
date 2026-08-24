@@ -9,7 +9,7 @@ export function OPTIONS() {
 
 export function GET() {
   return json({
-    name: "Oportuna API",
+    name: "Trilha da Oportunidade API",
     version: "1.0.0",
     description:
       "Base de oportunidades de estudo. O mural no site é aberto. Para o seu app consultar /api/oportunidades, peça uma chave em /chave e envie Authorization: Bearer opt_…",

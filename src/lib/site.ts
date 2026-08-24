@@ -1,5 +1,5 @@
-export const SITE_NAME = "Oportuna";
-export const SITE_TAGLINE = "Bolsas, eventos e editais num mural só";
+export const SITE_NAME = "Trilha da Oportunidade";
+export const SITE_TAGLINE = "Bolsas, eventos e editais numa trilha só";
 export const SITE_DESCRIPTION =
   "Catálogo público de bolsas de estudo, eventos, cursos, estágios, intercâmbios e concursos. Consulte o mural de graça. Para plugar no app, peça uma chave da API.";
 export const SITE_KEYWORDS = [
@@ -15,7 +15,9 @@ export const SITE_KEYWORDS = [
   "CAPES",
   "Chevening",
   "Fulbright",
+  "Trilha da Oportunidade",
 ];
+export const SITE_GITHUB = "https://github.com/becabelin/trilha-da-oportunidade";
 
 export function siteUrl() {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");

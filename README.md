@@ -1,4 +1,4 @@
-# Oportuna
+# Trilha da Oportunidade
 
 API com uma **base de oportunidades de estudo** (bolsas, eventos, cursos, estágios, intercâmbios e concursos).
 
@@ -42,8 +42,8 @@ Em host serverless (Vercel), configure um cron para `GET /api/coletar`. Em Railw
 ## Repositório
 
 ```bash
-git clone https://github.com/becabelin/oportuna.git
-cd oportuna
+git clone https://github.com/becabelin/trilha-da-oportunidade.git
+cd trilha-da-oportunidade
 npm install
 npm run dev
 ```
@@ -59,13 +59,13 @@ npx vercel --yes
 Em Railway, Render ou qualquer VPS:
 
 ```bash
-docker build -t oportuna .
-docker run -p 3000:3000 oportuna
+docker build -t trilha-da-oportunidade .
+docker run -p 3000:3000 trilha-da-oportunidade
 ```
 
 O `npm start` respeita a variável `PORT`. Em disco gravável, `data/base.json` persiste entre reinícios; na Vercel o arquivo versionado no Git é a base, e a coleta em runtime não sobrevive.
 
-Em produção, defina `NEXT_PUBLIC_SITE_URL` com o domínio canônico (ex.: `https://oportuna.vercel.app`). Sem isso, sitemap, JSON-LD, Open Graph e `/llms.txt` caem no fallback local `http://127.0.0.1:3847`.
+Em produção, defina `NEXT_PUBLIC_SITE_URL` com o domínio canônico (ex.: `https://trilha-da-oportunidade.vercel.app`). Sem isso, sitemap, JSON-LD, Open Graph e `/llms.txt` caem no fallback local `http://127.0.0.1:3847`.
 
 ## SEO e GEO
 

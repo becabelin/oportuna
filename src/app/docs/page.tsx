@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Documentação da API",
   description:
-    "Como pedir uma chave e consultar a base da Oportuna: listar bolsas, eventos, estágios e intercâmbios via REST.",
+    "Como pedir uma chave e consultar a base da Trilha da Oportunidade: listar bolsas, eventos, estágios e intercâmbios via REST.",
   alternates: { canonical: "/docs" },
 };
 
@@ -68,7 +68,7 @@ export default function DocsPage() {
       <p className="inline-block -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
         REST · precisa de chave
       </p>
-      <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API Oportuna</h1>
+      <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API da Trilha</h1>
       <p className="mt-3 text-foreground/80">
         O mural no site é livre. Para o <em>seu</em> app consultar a base, manda a
         chave no header. CORS liberado. Datas em{" "}
@@ -86,7 +86,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Uma chamada</h2>
-        <pre className="mt-4 overflow-x-auto rounded-2xl border-2 border-foreground bg-foreground p-4 text-sm text-background shadow-[5px_5px_0_0_oklch(0.58_0.19_32)]">
+        <pre className="mt-4 overflow-x-auto rounded-2xl border-2 border-foreground bg-foreground p-4 text-sm text-background shadow-[5px_5px_0_0_#f5b942]">
           <code>
             {`curl -H "Authorization: Bearer opt_SUA_CHAVE" \\
   "https://SEU_HOST/api/oportunidades?status=abertas&limit=todas"`}

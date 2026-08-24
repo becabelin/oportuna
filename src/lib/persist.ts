@@ -45,7 +45,7 @@ function flush() {
     mkdirSync(path.dirname(DB_PATH), { recursive: true });
     writeFileSync(DB_PATH, `${JSON.stringify(next, null, 2)}\n`);
   } catch (error) {
-    console.warn("[oportuna] não foi possível gravar data/base.json", error);
+    console.warn("[trilha] não foi possível gravar data/base.json", error);
   }
 }
 

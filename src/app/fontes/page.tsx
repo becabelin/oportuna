@@ -16,8 +16,8 @@ export default function FontesPage() {
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight">Fontes da base</h1>
       <p className="mt-3 text-muted-foreground">
-        Quem consome a API não vê esta tela. Aqui a Oportuna atualiza o acervo a
-        partir de sites e RSS que nós mesmos acompanhamos.
+        Quem consome a API não vê esta tela. Aqui a Trilha da Oportunidade atualiza
+        o acervo a partir de sites e RSS que nós mesmos acompanhamos.
       </p>
       <div className="mt-8">
         <FontesManager />

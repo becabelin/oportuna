@@ -1,7 +1,7 @@
 export const FAQ = [
   {
-    q: "O que é a Oportuna?",
-    a: "A Oportuna é um mural público de bolsas de estudo, eventos, cursos, estágios, intercâmbios e concursos. Junta editais abertos num só lugar, com link para a inscrição oficial.",
+    q: "O que é a Trilha da Oportunidade?",
+    a: "A Trilha da Oportunidade é um mural público de bolsas de estudo, eventos, cursos, estágios, intercâmbios e concursos. Junta editais abertos num só lugar, com link para a inscrição oficial.",
   },
   {
     q: "Preciso pagar ou criar conta para consultar?",
@@ -9,7 +9,7 @@ export const FAQ = [
   },
   {
     q: "De onde vêm as oportunidades?",
-    a: "De páginas e feeds oficiais que a Oportuna acompanha. Cada item passa por um filtro para não misturar artigo de blog com edital. O prazo e as regras valem no site da organização, não aqui.",
+    a: "De páginas e feeds oficiais que a Trilha da Oportunidade acompanha. Cada item passa por um filtro para não misturar artigo de blog com edital. O prazo e as regras valem no site da organização, não aqui.",
   },
   {
     q: "Como um app consulta a base?",

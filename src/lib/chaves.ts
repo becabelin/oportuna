@@ -43,7 +43,7 @@ function persist(items: ChaveApi[]) {
     mkdirSync(path.dirname(KEYS_PATH), { recursive: true });
     writeFileSync(KEYS_PATH, `${JSON.stringify(items, null, 2)}\n`);
   } catch (error) {
-    console.warn("[oportuna] não foi possível gravar data/chaves.json", error);
+    console.warn("[trilha] não foi possível gravar data/chaves.json", error);
   }
 }
 

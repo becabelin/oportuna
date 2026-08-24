@@ -73,9 +73,9 @@ export default async function HomePage({
           Ache a próxima bolsa como quem folheia um caderno de recortes.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg">
-          A Oportuna junta bolsas, eventos, estágios, intercâmbios e concursos num
-          mural público. Você consulta de graça. Quem for plugar num app pede uma
-          chave. O prazo que vale é o do edital oficial.
+          A Trilha da Oportunidade junta bolsas, eventos, estágios, intercâmbios e
+          concursos num mural público. Você consulta de graça. Quem for plugar num
+          app pede uma chave. O prazo que vale é o do edital oficial.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/chave" className={cn(buttonVariants({ size: "lg" }))}>

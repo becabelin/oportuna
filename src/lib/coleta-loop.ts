@@ -11,7 +11,7 @@ export function startColetaLoop() {
     try {
       await coletarTodas();
     } catch (error) {
-      console.error("[oportuna] coleta periódica falhou", error);
+      console.error("[trilha] coleta periódica falhou", error);
     }
   };
   setTimeout(() => {

@@ -93,7 +93,7 @@ export function FontesManager() {
       <div className="rounded-2xl border bg-card/80 p-5">
         <h2 className="font-heading text-xl">Incluir fonte na base</h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          RSS e páginas de editais que a Oportuna passa a monitorar. Não aparece para
+          RSS e páginas de editais que a Trilha da Oportunidade passa a monitorar. Não aparece para
           quem só consome a API.
         </p>
         <AddSourceForm />

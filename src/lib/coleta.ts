@@ -20,7 +20,7 @@ import {
 import type { Fonte, NovaOportunidade, TipoOportunidade } from "./types";
 
 const USER_AGENT =
-  "OportunaBot/1.0 (agregador educacional; +https://github.com/oportuna)";
+  "TrilhaDaOportunidade/1.0 (agregador educacional; +https://github.com/becabelin/trilha-da-oportunidade)";
 const MAX_BYTES = 3_000_000;
 const MAX_ITEMS = 30;
 
