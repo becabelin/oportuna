@@ -14,7 +14,6 @@ import {
   SITE_KEYWORDS,
   SITE_NAME,
   SITE_TAGLINE,
-  absoluteUrl,
   siteUrl,
 } from "@/lib/site";
 
@@ -24,12 +23,14 @@ const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
   weight: ["400", "600", "700", "800"],
+  display: "swap",
 });
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -55,9 +56,6 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   alternates: {
     canonical: "/",
-    languages: {
-      "pt-BR": "/",
-    },
     types: {
       "application/rss+xml": "/feed.xml",
       "text/plain": "/llms.txt",
@@ -69,7 +67,6 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
-    url: absoluteUrl("/"),
   },
   twitter: {
     card: "summary_large_image",

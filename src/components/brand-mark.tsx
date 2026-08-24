@@ -11,8 +11,9 @@ export function BrandIcon({ className }: { className?: string }) {
     <Image
       src="/logo-icon-trilha.png"
       alt=""
-      width={64}
-      height={64}
+      width={256}
+      height={256}
+      sizes="40px"
       className={cn("shrink-0 object-contain", className)}
       aria-hidden
     />
@@ -31,23 +32,25 @@ export function BrandMark({
     compact ? "max-h-9 max-w-[10.5rem]" : "max-h-11 max-w-[13rem]",
     className
   );
+  const sizes = compact ? "10.5rem" : "13rem";
   return (
     <>
       <Image
         src="/logo-trilha-da-oportunidade.png"
         alt="Trilha da Oportunidade"
-        width={1536}
-        height={1024}
+        width={640}
+        height={427}
+        sizes={sizes}
         className={cn(frame, "dark:hidden contrast:hidden")}
         priority
       />
       <Image
         src="/logo-trilha-da-oportunidade-escuro.png"
         alt=""
-        width={1536}
-        height={1024}
+        width={640}
+        height={427}
+        sizes={sizes}
         className={cn(frame, "hidden dark:block contrast:block")}
-        priority
         aria-hidden
       />
     </>

@@ -68,17 +68,19 @@ const selectTriggerClass =
   "h-9 w-full rounded-xl border border-border/30 bg-background font-medium";
 
 function FilterSelect({
+  id,
   value,
   onValueChange,
   items,
 }: {
+  id: string;
   value: string;
   onValueChange: (value: string) => void;
   items: { value: string; label: string }[];
 }) {
   return (
     <Select value={value} onValueChange={(next) => onValueChange(next ?? "all")}>
-      <SelectTrigger className={selectTriggerClass}>
+      <SelectTrigger id={id} className={selectTriggerClass}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false} align="start" className="max-h-72">
@@ -175,8 +177,9 @@ export function OpportunityCatalog({
   const filterFields = (
     <FieldGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <Field>
-        <FieldLabel>Área</FieldLabel>
+        <FieldLabel htmlFor="filtro-area">Área</FieldLabel>
         <FilterSelect
+          id="filtro-area"
           value={searchParams.get("area") ?? "all"}
           onValueChange={(value) => updateParams({ area: value === "all" ? null : value })}
           items={[
@@ -186,8 +189,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel>Nível</FieldLabel>
+        <FieldLabel htmlFor="filtro-nivel">Nível</FieldLabel>
         <FilterSelect
+          id="filtro-nivel"
           value={searchParams.get("nivel") ?? "all"}
           onValueChange={(value) => updateParams({ nivel: value === "all" ? null : value })}
           items={[
@@ -197,8 +201,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel>Modalidade</FieldLabel>
+        <FieldLabel htmlFor="filtro-modalidade">Modalidade</FieldLabel>
         <FilterSelect
+          id="filtro-modalidade"
           value={searchParams.get("modalidade") ?? "all"}
           onValueChange={(value) =>
             updateParams({ modalidade: value === "all" ? null : value })
@@ -213,8 +218,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel>País</FieldLabel>
+        <FieldLabel htmlFor="filtro-pais">País</FieldLabel>
         <FilterSelect
+          id="filtro-pais"
           value={searchParams.get("pais") ?? "all"}
           onValueChange={(value) => updateParams({ pais: value === "all" ? null : value })}
           items={[
@@ -224,8 +230,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel>Prazo</FieldLabel>
+        <FieldLabel htmlFor="filtro-prazo">Prazo</FieldLabel>
         <FilterSelect
+          id="filtro-prazo"
           value={searchParams.get("status") ?? "abertas"}
           onValueChange={(value) =>
             updateParams({ status: value === "abertas" ? null : value })
@@ -238,8 +245,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel>Ordenar</FieldLabel>
+        <FieldLabel htmlFor="filtro-ordenar">Ordenar</FieldLabel>
         <FilterSelect
+          id="filtro-ordenar"
           value={searchParams.get("ordenar") ?? "prazo"}
           onValueChange={(value) =>
             updateParams({ ordenar: value === "prazo" ? null : value })
@@ -307,7 +315,7 @@ export function OpportunityCatalog({
           <FieldLabel htmlFor="busca">Busca</FieldLabel>
           <InputGroup className="h-11 min-h-11 rounded-xl border border-border bg-background shadow-none">
             <InputGroupAddon>
-              <Search />
+              <Search aria-hidden />
             </InputGroupAddon>
             <InputGroupInput
               id="busca"
@@ -328,7 +336,7 @@ export function OpportunityCatalog({
           <SheetTrigger
             render={
               <Button variant="outline" className="lg:hidden">
-                <SlidersHorizontal />
+                <SlidersHorizontal aria-hidden />
                 Filtros
                 {activeFilters > 0 ? (
                   <Badge variant="secondary" className="h-5 px-1.5">
@@ -368,7 +376,7 @@ export function OpportunityCatalog({
             size="sm"
             onClick={() => router.replace(pathname, { scroll: false })}
           >
-            <X />
+            <X aria-hidden />
             Limpar filtros
           </Button>
         ) : null}
@@ -379,7 +387,7 @@ export function OpportunityCatalog({
           variant="destructive"
           className="border border-destructive shadow-none"
         >
-          <Filter />
+          <Filter aria-hidden />
           <AlertTitle>Não foi possível carregar as oportunidades.</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
           <Button className="mt-3 w-fit" onClick={() => router.refresh()}>
@@ -408,7 +416,7 @@ export function OpportunityCatalog({
         <Empty className="rounded-2xl border border-dashed border-border bg-card py-16 shadow-none">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Sticker />
+              <Sticker aria-hidden />
             </EmptyMedia>
             <EmptyTitle className="font-heading text-3xl">
               Nada grudou no mural com esses filtros.

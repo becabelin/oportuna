@@ -20,6 +20,13 @@ export function organizationSchema() {
     description: SITE_DESCRIPTION,
     slogan: SITE_TAGLINE,
     inLanguage: "pt-BR",
+    logo: {
+      "@type": "ImageObject",
+      url: absoluteUrl("/logo-trilha-da-oportunidade.png"),
+      width: 640,
+      height: 427,
+    },
+    image: absoluteUrl("/og-lockup.png"),
     sameAs: ["https://github.com/becabelin/trilha-da-oportunidade"],
   };
 }
@@ -63,12 +70,13 @@ export function websiteSchema() {
             "@type": "DataDownload",
             encodingFormat: "application/rss+xml",
             contentUrl: absoluteUrl("/feed.xml"),
+            description: "RSS das oportunidades com inscrição aberta.",
           },
           {
             "@type": "DataDownload",
-            encodingFormat: "application/json",
-            contentUrl: absoluteUrl("/api/oportunidades"),
-            description: "Requer chave. Peça em /chave.",
+            encodingFormat: "text/plain",
+            contentUrl: absoluteUrl("/llms-full.txt"),
+            description: "Inventário em texto para modelos e citação.",
           },
         ],
       },
@@ -147,6 +155,7 @@ export function opportunitySchema(item: Oportunidade) {
   }
 
   if (item.tipo === "estagio") {
+    const remoto = item.modalidade === "remoto";
     return {
       ...base,
       title: item.titulo,
@@ -154,7 +163,17 @@ export function opportunitySchema(item: Oportunidade) {
       employmentType: "INTERN",
       datePosted: item.criadoEm.slice(0, 10),
       validThrough: item.prazoInscricao ?? undefined,
-      jobLocationType: item.modalidade === "remoto" ? "TELECOMMUTE" : undefined,
+      jobLocationType: remoto ? "TELECOMMUTE" : undefined,
+      jobLocation: remoto
+        ? undefined
+        : {
+            "@type": "Place",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: item.cidade ?? undefined,
+              addressCountry: item.pais,
+            },
+          },
       applicantLocationRequirements: {
         "@type": "Country",
         name: item.pais,

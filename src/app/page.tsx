@@ -9,18 +9,17 @@ import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FAQ } from "@/lib/faq";
 import { faqSchema, itemListSchema } from "@/lib/schema";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { pageSocial, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import { listOportunidades, taxonomia } from "@/lib/store";
 import { TIPO_LABEL } from "@/lib/taxonomia";
 import { parseListQuery } from "@/lib/validate";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
+  ...pageSocial("/", `${SITE_NAME} — ${SITE_TAGLINE}`, SITE_DESCRIPTION),
   title: { absolute: `${SITE_NAME} — ${SITE_TAGLINE}` },
-  description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
 };
 
 function toQuery(raw: Record<string, string | string[] | undefined>) {

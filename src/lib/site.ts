@@ -28,3 +28,26 @@ export function absoluteUrl(path = "/") {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return new URL(normalized, `${siteUrl()}/`).toString();
 }
+
+/** Metadata compartilhada de páginas estáticas (canonical + OG URL corretos). */
+export function pageSocial(path: string, title: string, description: string) {
+  const url = absoluteUrl(path);
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website" as const,
+      locale: "pt_BR",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url,
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title,
+      description,
+    },
+  };
+}

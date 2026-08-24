@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Sticker } from "lucide-react";
 
@@ -12,12 +13,17 @@ import {
 } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
 
+export const metadata: Metadata = {
+  title: "Página não encontrada",
+  robots: { index: false, follow: false },
+};
+
 export default function NotFound() {
   return (
     <Empty className="mx-auto min-h-[60vh] w-full max-w-lg flex-1 border-0">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Sticker />
+          <Sticker aria-hidden />
         </EmptyMedia>
         <EmptyTitle className="font-heading text-4xl">Essa página não está no mural.</EmptyTitle>
         <EmptyDescription>

@@ -3,14 +3,13 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbSchema, organizationSchema } from "@/lib/schema";
-import { SITE_NAME } from "@/lib/site";
+import { pageSocial, SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "O que é a Trilha da Oportunidade",
-  description:
-    "A Trilha da Oportunidade reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é grátis; a API pede chave. Confirme sempre o edital oficial.",
-  alternates: { canonical: "/sobre" },
-};
+export const metadata: Metadata = pageSocial(
+  "/sobre",
+  "O que é a Trilha da Oportunidade",
+  "A Trilha da Oportunidade reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é grátis; a API pede chave. Confirme sempre o edital oficial."
+);
 
 export default function SobrePage() {
   return (

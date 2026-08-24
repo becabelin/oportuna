@@ -73,9 +73,11 @@ O mural da home é HTML de servidor: buscadores e modelos leem títulos e subtí
 
 A imagem de compartilhamento (`/opengraph-image`, `/twitter-image`, 1200×630) usa a logo oficial em fundo branco. Cada edital tem a sua.
 
+Em produção, defina `NEXT_PUBLIC_SITE_URL` (veja `.env.example`) para canonical, sitemap, Open Graph e JSON-LD apontarem para o domínio certo.
+
 Rotas para indexação e citação:
 
-- `/sitemap.xml` — mural, páginas estáticas e cada edital
+- `/sitemap.xml` — mural, páginas estáticas e editais (abertas com prioridade; encerradas com prioridade baixa)
 - `/robots.txt` — libera o mural e bots de IA; bloqueia `/fontes`, `/cadastrar` e `/api/`
 - `/llms.txt` — resumo para modelos (também em `/.well-known/llms.txt`)
 - `/llms-full.txt` — inventário das inscrições abertas

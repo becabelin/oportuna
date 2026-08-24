@@ -14,12 +14,13 @@ import {
 import { LIMITES_API } from "@/lib/limites-api";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Documentação da API",
-  description:
-    "Como pedir uma chave e consultar a base da Trilha da Oportunidade: listar bolsas, eventos, estágios e intercâmbios via REST.",
-  alternates: { canonical: "/docs" },
-};
+import { pageSocial } from "@/lib/site";
+
+export const metadata: Metadata = pageSocial(
+  "/docs",
+  "Documentação da API",
+  "Como pedir uma chave e consultar a base da Trilha da Oportunidade: listar bolsas, eventos, estágios e intercâmbios via REST."
+);
 
 const endpoints = [
   {

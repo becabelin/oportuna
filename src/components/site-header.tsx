@@ -67,7 +67,7 @@ export function SiteHeader() {
                 />
               }
             >
-              <Menu />
+              <Menu aria-hidden />
             </SheetTrigger>
             <SheetContent side="right" className="border border-border">
               <SheetHeader>

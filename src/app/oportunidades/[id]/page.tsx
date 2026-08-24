@@ -80,7 +80,7 @@ export default async function OpportunityPage({ params }: PageProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{item.organizacao}</BreadcrumbPage>
+            <BreadcrumbPage>{item.titulo}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -103,14 +103,14 @@ export default async function OpportunityPage({ params }: PageProps) {
       <dl className="grid gap-4 sm:grid-cols-2">
         <div>
           <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <Wallet className="size-3.5" />
+            <Wallet className="size-3.5" aria-hidden />
             Benefício
           </dt>
           <dd className="mt-1 text-sm">{item.beneficio ?? "Não informado"}</dd>
         </div>
         <div>
           <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <MapPin className="size-3.5" />
+            <MapPin className="size-3.5" aria-hidden />
             Onde
           </dt>
           <dd className="mt-1 text-sm">
@@ -119,7 +119,7 @@ export default async function OpportunityPage({ params }: PageProps) {
         </div>
         <div>
           <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <Calendar className="size-3.5" />
+            <Calendar className="size-3.5" aria-hidden />
             Inscrições
           </dt>
           <dd className="mt-1 text-sm">
@@ -189,11 +189,12 @@ export default async function OpportunityPage({ params }: PageProps) {
         <a
           href={item.urlInscricao}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className={cn(buttonVariants())}
         >
           Ir para a inscrição
-          <ArrowUpRight className="size-4" />
+          <ArrowUpRight className="size-4" aria-hidden />
+          <span className="sr-only">(abre em nova aba)</span>
         </a>
         <Link href="/chave" className={cn(buttonVariants({ variant: "outline" }))}>
           JSON via API (precisa de chave)

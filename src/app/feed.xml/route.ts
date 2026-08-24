@@ -1,7 +1,7 @@
 import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import { listOportunidades } from "@/lib/store";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function escapeXml(value: string) {
   return value

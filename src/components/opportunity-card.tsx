@@ -57,7 +57,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
 
   return (
     <article className="h-full">
-    <Card className="relative h-full cursor-pointer bg-card transition-shadow hover:shadow-[0_12px_36px_rgba(0,26,76,0.1)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring">
+    <Card className="relative h-full cursor-pointer bg-card transition-shadow hover:shadow-[0_12px_36px_rgba(0,26,76,0.1)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />
@@ -66,7 +66,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         <CardTitle className="text-lg leading-snug">
           <Link
             href={`/oportunidades/${item.id}`}
-            className="cursor-pointer after:absolute after:inset-0 after:z-10 after:cursor-pointer focus-visible:outline-none"
+            className="cursor-pointer after:absolute after:inset-0 after:z-10 after:cursor-pointer focus-visible:outline-none focus-visible:ring-0"
           >
             <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
@@ -79,15 +79,15 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         </p>
         <ul className="mt-auto grid gap-1.5 text-xs text-muted-foreground">
           <li className="flex items-center gap-2">
-            <Wallet className="size-3.5 shrink-0" />
+            <Wallet className="size-3.5 shrink-0" aria-hidden />
             {item.beneficio ?? "Benefício não informado"}
           </li>
           <li className="flex items-center gap-2">
-            <MapPin className="size-3.5 shrink-0" />
+            <MapPin className="size-3.5 shrink-0" aria-hidden />
             {local} · {MODALIDADE_LABEL[item.modalidade]}
           </li>
           <li className="flex items-center gap-2">
-            <Globe2 className="size-3.5 shrink-0" />
+            <Globe2 className="size-3.5 shrink-0" aria-hidden />
             {item.area} · {NIVEL_LABEL[item.nivel]}
           </li>
         </ul>

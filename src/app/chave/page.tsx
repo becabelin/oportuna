@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import { pageSocial } from "@/lib/site";
 
 import { KeyRequestForm } from "@/components/key-request-form";
 import { Card, CardContent } from "@/components/ui/card";
 
-export const metadata: Metadata = {
-  title: "Pedir chave da API",
-  description:
-    "Gere de graça uma chave para consultar bolsas, eventos e editais da Trilha da Oportunidade no seu aplicativo. Teto por chave para não estourar o servidor.",
-  alternates: { canonical: "/chave" },
-};
+export const metadata: Metadata = pageSocial(
+  "/chave",
+  "Pedir chave da API",
+  "Gere de graça uma chave para consultar bolsas, eventos e editais da Trilha da Oportunidade no seu aplicativo. Teto por chave para não estourar o servidor."
+);
 
 export default function ChavePage() {
   return (
