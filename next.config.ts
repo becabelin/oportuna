@@ -16,6 +16,13 @@ const assetCache = {
 };
 
 const nextConfig: NextConfig = {
+  // Cursor / proxy previews hit the app as a cross-origin host in dev.
+  allowedDevOrigins: [
+    "127.0.0.1",
+    "localhost",
+    "*.cursor.sh",
+    "*.cursorusercontent.com",
+  ],
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
