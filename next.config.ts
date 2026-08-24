@@ -10,6 +10,11 @@ const securityHeaders = [
   },
 ];
 
+const assetCache = {
+  key: "Cache-Control",
+  value: "public, max-age=86400, stale-while-revalidate=604800",
+};
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
@@ -45,24 +50,11 @@ const nextConfig: NextConfig = {
         source: "/robots.txt",
         headers: [{ key: "Cache-Control", value: "public, max-age=3600" }],
       },
-      {
-        source: "/favicon.svg",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=604800",
-          },
-        ],
-      },
-      {
-        source: "/logo-:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=604800",
-          },
-        ],
-      },
+      { source: "/favicon.svg", headers: [assetCache] },
+      { source: "/logo-trilha-da-oportunidade.png", headers: [assetCache] },
+      { source: "/logo-trilha-da-oportunidade-escuro.png", headers: [assetCache] },
+      { source: "/logo-icon-trilha.png", headers: [assetCache] },
+      { source: "/og-lockup.png", headers: [assetCache] },
     ];
   },
 };
