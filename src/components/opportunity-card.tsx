@@ -26,7 +26,7 @@ const TIPO_TONE: Record<TipoOportunidade, string> = {
   evento: "rotate-2 border-foreground bg-primary text-primary-foreground",
   curso: "-rotate-1 border-foreground bg-[#7BDFF2] text-foreground",
   estagio: "rotate-1 border-foreground bg-[#C4B5FD] text-foreground",
-  intercambio: "-rotate-2 border-foreground bg-[#FB7185] text-foreground",
+  intercambio: "-rotate-2 border-foreground bg-[#FFD6DC] text-foreground",
   concurso: "rotate-2 border-foreground bg-[#86EFAC] text-foreground",
 };
 
@@ -42,10 +42,10 @@ export function PrazoBadge({ prazoInscricao }: { prazoInscricao: string | null }
   const prazo = prazoLabel(prazoInscricao);
   const tone =
     prazo.tone === "soon"
-      ? "bg-destructive/10 text-destructive border-destructive/15"
+      ? "bg-card text-destructive border-destructive"
       : prazo.tone === "closed"
         ? "bg-muted text-muted-foreground"
-        : "bg-primary/8 text-primary border-primary/15";
+        : "bg-primary text-primary-foreground border-foreground";
   return (
     <Badge variant="outline" className={cn("border", tone)}>
       {prazoInscricao ? <time dateTime={prazoInscricao}>{prazo.text}</time> : prazo.text}
@@ -72,7 +72,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
             <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
         </CardTitle>
-        <p className="text-sm leading-snug text-foreground/80">{item.subtitulo}</p>
+        <p className="text-sm leading-snug text-foreground">{item.subtitulo}</p>
         <CardDescription className="line-clamp-1">{item.organizacao}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">

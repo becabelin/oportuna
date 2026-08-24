@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Nunito } from "next/font/google";
 
+import { A11yProvider } from "@/components/a11y-provider";
 import { JsonLd } from "@/components/json-ld";
+import { SkipLink } from "@/components/skip-link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PREFS_BOOTSTRAP } from "@/lib/a11y";
 import { websiteSchema } from "@/lib/schema";
 import {
   SITE_DESCRIPTION,
@@ -75,15 +78,24 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={`${nunito.variable} ${bricolage.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PREFS_BOOTSTRAP }} />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
-        <TooltipProvider>
-          <JsonLd data={websiteSchema()} />
-          <SiteHeader />
-          <main className="flex flex-1 flex-col">{children}</main>
-          <SiteFooter />
-        </TooltipProvider>
+        <A11yProvider>
+          <TooltipProvider delay={200}>
+            <SkipLink />
+            <JsonLd data={websiteSchema()} />
+            <SiteHeader />
+            <main id="conteudo" tabIndex={-1} className="flex flex-1 flex-col outline-none">
+              {children}
+            </main>
+            <SiteFooter />
+          </TooltipProvider>
+        </A11yProvider>
       </body>
     </html>
   );

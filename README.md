@@ -80,6 +80,16 @@ Rotas para indexação e citação:
 - `/feed.xml` — RSS das abertas
 - `/sobre` — o que é a base e como citar sem inventar prazo
 
+## Acessibilidade
+
+O site busca **WCAG 2.2 AAA**:
+
+- Contraste de texto 7:1 nos modos claro, escuro e alto contraste
+- Alvos de clique com no mínimo 44×44 px
+- Link “Ir para o conteúdo”
+- No cabeçalho: **Claro / Escuro / Contraste** e **A− / A+** para o tamanho do texto (preferências ficam no navegador)
+- Foco visível, `prefers-reduced-motion` e `prefers-contrast`
+
 ## Stack
 
 Next.js (App Router), TypeScript, Tailwind CSS e shadcn/ui. Cheerio na coleta interna.

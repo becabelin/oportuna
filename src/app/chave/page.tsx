@@ -20,7 +20,7 @@ export default function ChavePage() {
         <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
           Pede a chave, cola no app, puxa o mural.
         </h1>
-        <p className="mt-4 text-base leading-relaxed text-foreground/80 sm:text-lg">
+        <p className="mt-4 text-base leading-relaxed text-foreground sm:text-lg">
           O site continua aberto. A chave é só para chamada de API — o tipo de
           coisa que um bot faria mil vezes. Assim a conta de servidor não some
           no primeiro script maluco.

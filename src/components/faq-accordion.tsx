@@ -16,7 +16,7 @@ export function FaqAccordion() {
           <AccordionTrigger className="font-heading text-base hover:no-underline">
             {item.q}
           </AccordionTrigger>
-          <AccordionContent className="text-sm leading-relaxed text-foreground/80">
+          <AccordionContent className="text-sm leading-relaxed text-foreground">
             {item.a}
           </AccordionContent>
         </AccordionItem>

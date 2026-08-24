@@ -76,7 +76,7 @@ export function AddSourceForm({ compact = false }: { compact?: boolean }) {
         </Button>
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {message ? <p className="text-sm text-primary">{message}</p> : null}
+      {message ? <p className="text-sm font-semibold text-foreground">{message}</p> : null}
     </form>
   );
 }

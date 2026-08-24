@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Menu } from "lucide-react";
 
+import { A11yToolbar } from "@/components/a11y-toolbar";
 import { BrandMark } from "@/components/brand-mark";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,11 +15,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -29,16 +25,16 @@ const NAV = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-foreground/15 bg-[color-mix(in_oklch,var(--background),white_35%)]/90 backdrop-blur-md">
-      <div className="mx-auto flex h-[4.25rem] w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link
           href="/"
-          className="flex items-center"
+          className="flex items-center rounded-md"
           aria-label="Trilha da Oportunidade — página inicial"
         >
           <BrandMark />
         </Link>
-        <nav aria-label="Principal" className="flex items-center gap-1 sm:gap-2">
+        <nav aria-label="Principal" className="flex flex-wrap items-center justify-end gap-2">
           {NAV.map((item) => (
             <Button
               key={item.href}
@@ -46,25 +42,29 @@ export function SiteHeader() {
               size="sm"
               nativeButton={false}
               render={<Link href={item.href} />}
-              className="hidden sm:inline-flex"
+              className="hidden min-h-11 sm:inline-flex"
             >
               {item.label}
             </Button>
           ))}
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Link href="/chave" className={cn(buttonVariants({ size: "sm" }), "ml-1")} />
-              }
-            >
-              Pedir chave
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Gera uma chave para a API, de graça</TooltipContent>
-          </Tooltip>
+          <div className="hidden lg:block">
+            <A11yToolbar />
+          </div>
+          <Link
+            href="/chave"
+            className={cn(buttonVariants({ size: "sm" }), "min-h-11")}
+          >
+            Pedir chave
+          </Link>
           <Sheet>
             <SheetTrigger
               render={
-                <Button variant="outline" size="icon" className="sm:hidden" aria-label="Abrir menu" />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="min-h-11 min-w-11 lg:hidden"
+                  aria-label="Abrir menu e opções de acessibilidade"
+                />
               }
             >
               <Menu />
@@ -75,14 +75,14 @@ export function SiteHeader() {
                   <BrandMark compact />
                 </SheetTitle>
               </SheetHeader>
-              <nav className="grid gap-1 px-4">
+              <nav className="grid gap-1 px-4" aria-label="Menu">
                 {NAV.map((item) => (
                   <SheetClose
                     key={item.href}
                     render={
                       <Link
                         href={item.href}
-                        className="rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"
+                        className="rounded-xl px-3 py-3 text-base font-semibold hover:bg-muted"
                       />
                     }
                   >
@@ -91,11 +91,15 @@ export function SiteHeader() {
                 ))}
                 <Separator className="my-2" />
                 <SheetClose
-                  render={<Link href="/chave" className={cn(buttonVariants())} />}
+                  render={<Link href="/chave" className={cn(buttonVariants(), "min-h-11")} />}
                 >
                   Pedir chave
                 </SheetClose>
               </nav>
+              <div className="mt-6 px-4">
+                <p className="mb-2 font-heading text-sm font-bold">Acessibilidade</p>
+                <A11yToolbar compact />
+              </div>
             </SheetContent>
           </Sheet>
         </nav>

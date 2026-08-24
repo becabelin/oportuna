@@ -61,7 +61,7 @@ export function KeyRequestForm() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
-        <p className="text-sm text-foreground/80">
+        <p className="text-sm text-foreground">
           A chave só aparece esta vez. Sem ela o app não consulta a base. Limite:{" "}
           {result.limites.porMinuto} chamadas/minuto e {result.limites.porDia}/dia.
         </p>
@@ -100,7 +100,7 @@ export function KeyRequestForm() {
   return (
     <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:p-6">
       <FieldGroup className="grid gap-4">
-      <p className="text-sm text-foreground/75">
+      <p className="text-sm text-foreground">
         Sai na hora. Sem fila. Usamos o email só se a chave der problema — não tem
         newsletter escondida. Teto atual: {LIMITES_API.porMinuto}/min e{" "}
         {LIMITES_API.porDia}/dia.

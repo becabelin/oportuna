@@ -282,7 +282,7 @@ export function OpportunityCatalog({
       >
         <ToggleGroupItem
           value="todas"
-          className="rounded-xl border-2 border-foreground/40 px-3 font-bold data-[pressed]:border-foreground data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
+          className="min-h-11 rounded-xl border-2 border-foreground px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
         >
           Todas
         </ToggleGroupItem>
@@ -290,11 +290,11 @@ export function OpportunityCatalog({
           <ToggleGroupItem
             key={tipo}
             value={tipo}
-            className="rounded-xl border-2 border-foreground/40 px-3 font-bold data-[pressed]:border-foreground data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
+            className="min-h-11 rounded-xl border-2 border-foreground px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
           >
             {TIPO_LABEL[tipo]}
             {taxonomia ? (
-              <Badge variant="secondary" className="ml-1 h-5 rounded-md px-1.5 text-[10px]">
+              <Badge variant="secondary" className="ml-1 h-5 rounded-md px-1.5 text-xs">
                 {taxonomia.tipos.find((item) => item.id === tipo)?.total ?? 0}
               </Badge>
             ) : null}
@@ -305,7 +305,7 @@ export function OpportunityCatalog({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <Field className="flex-1">
           <FieldLabel htmlFor="busca">Busca</FieldLabel>
-          <InputGroup className="h-10 rounded-xl border-2 border-foreground/80 bg-background shadow-[3px_3px_0_0_var(--foreground)]">
+          <InputGroup className="h-11 min-h-11 rounded-xl border-2 border-foreground bg-background shadow-[3px_3px_0_0_var(--foreground)]">
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>

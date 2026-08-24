@@ -92,7 +92,7 @@ export default async function OpportunityPage({ params }: PageProps) {
       <h1 className="mt-4 font-heading text-3xl leading-tight tracking-tight text-balance sm:text-4xl">
         {item.titulo}
       </h1>
-      <p className="mt-3 text-lg leading-snug text-foreground/85">{item.subtitulo}</p>
+      <p className="mt-3 text-lg leading-snug text-foreground">{item.subtitulo}</p>
       <p className="mt-2 text-muted-foreground">{item.organizacao}</p>
 
       <Card className="mt-8">

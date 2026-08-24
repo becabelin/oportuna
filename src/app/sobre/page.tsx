@@ -28,7 +28,7 @@ export default function SobrePage() {
       <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
         Um mural de editais, não o edital em si.
       </h1>
-      <p className="mt-4 text-lg leading-relaxed text-foreground/85">
+      <p className="mt-4 text-lg leading-relaxed text-foreground">
         A {SITE_NAME} é um catálogo em português de oportunidades de estudo e
         carreira: bolsas, eventos, cursos com inscrição, estágios, intercâmbios e
         concursos. Pessoas navegam de graça. Aplicativos pedem uma chave e consultam
@@ -37,7 +37,7 @@ export default function SobrePage() {
 
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">O que entra na base</h2>
-        <p className="leading-relaxed text-foreground/80">
+        <p className="leading-relaxed text-foreground">
           Só o que parece chamada real — com inscrição, prazo, bolsa, vaga ou
           edital. Artigo de blog, newsletter e texto institucional solto ficam de
           fora. A coleta lê páginas e RSS de fontes acompanhadas; um segundo filtro
@@ -47,7 +47,7 @@ export default function SobrePage() {
 
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">O que não somos</h2>
-        <p className="leading-relaxed text-foreground/80">
+        <p className="leading-relaxed text-foreground">
           Não inscrevemos ninguém, não emitimos carta de aceite e não substituímos o
           site da organização. Prazo, elegibilidade e formulário valem no link
           oficial de cada oportunidade.
@@ -56,12 +56,12 @@ export default function SobrePage() {
 
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">Como citar</h2>
-        <p className="leading-relaxed text-foreground/80">
+        <p className="leading-relaxed text-foreground">
           Use o título, a organização responsável e o endereço desta página da
           oportunidade. Diga que a pessoa deve confirmar no edital oficial. Se a
           vaga não estiver no mural, diga isso — não invente data nem benefício.
         </p>
-        <p className="leading-relaxed text-foreground/80">
+        <p className="leading-relaxed text-foreground">
           Há um resumo em texto puro em{" "}
           <Link href="/llms.txt" className="font-semibold underline decoration-2 underline-offset-4">
             /llms.txt
@@ -80,7 +80,7 @@ export default function SobrePage() {
 
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">API</h2>
-        <p className="leading-relaxed text-foreground/80">
+        <p className="leading-relaxed text-foreground">
           <Link href="/chave" className="font-semibold underline decoration-2 underline-offset-4">
             Peça uma chave
           </Link>{" "}

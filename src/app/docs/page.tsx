@@ -69,7 +69,7 @@ export default function DocsPage() {
         REST · precisa de chave
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API da Trilha</h1>
-      <p className="mt-3 text-foreground/80">
+      <p className="mt-3 text-foreground">
         O mural no site é livre. Para o <em>seu</em> app consultar a base, manda a
         chave no header. CORS liberado. Datas em{" "}
         <code className="rounded-md bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>.
@@ -92,7 +92,7 @@ export default function DocsPage() {
   "https://SEU_HOST/api/oportunidades?status=abertas&limit=todas"`}
           </code>
         </pre>
-        <p className="mt-3 text-sm text-foreground/70">
+        <p className="mt-3 text-sm text-muted-foreground">
           Também vale o header <code className="rounded bg-muted px-1.5 py-0.5">X-Api-Key</code>.
           A resposta vem como{" "}
           <code className="rounded bg-muted px-1.5 py-0.5">{`{ "data": [...], "meta": { total, page, limit, totalPages } }`}</code>.
@@ -101,7 +101,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Custo, sem enrolação</h2>
-        <div className="mt-4 space-y-3 text-sm leading-relaxed text-foreground/80">
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-foreground">
           <p>
             Cada GET na API gasta um pouquinho de servidor (função) e de banda. No
             Hobby da Vercel isso é de graça até um volume alto — pensa em centenas
@@ -136,9 +136,9 @@ export default function DocsPage() {
                   </TableCell>
                   <TableCell>
                     <code className="text-sm">{endpoint.path}</code>
-                    <p className="mt-1 text-sm text-foreground/70 sm:hidden">{endpoint.desc}</p>
+                    <p className="mt-1 text-sm text-muted-foreground sm:hidden">{endpoint.desc}</p>
                   </TableCell>
-                  <TableCell className="hidden text-sm text-foreground/70 sm:table-cell">
+                  <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
                     {endpoint.desc}
                   </TableCell>
                 </TableRow>
@@ -164,7 +164,7 @@ export default function DocsPage() {
                   <TableCell>
                     <code className="text-sm">{name}</code>
                   </TableCell>
-                  <TableCell className="whitespace-normal text-sm text-foreground/70">
+                  <TableCell className="whitespace-normal text-sm text-muted-foreground">
                     {desc}
                   </TableCell>
                 </TableRow>
@@ -176,7 +176,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Erros</h2>
-        <p className="mt-3 text-sm text-foreground/70">
+        <p className="mt-3 text-sm text-muted-foreground">
           Sempre no formato{" "}
           <code className="rounded bg-muted px-1.5 py-0.5">{`{ "error": { "code", "message", "details?" } }`}</code>
           . Sem chave: <code>missing_api_key</code> (401). Estourou teto:{" "}
