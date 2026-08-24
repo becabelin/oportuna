@@ -26,18 +26,30 @@ export function BrandMark({
   className?: string;
   compact?: boolean;
 }) {
+  const frame = cn(
+    "h-auto w-auto object-contain object-left",
+    compact ? "max-h-9 max-w-[10.5rem]" : "max-h-11 max-w-[13rem]",
+    className
+  );
   return (
-    <Image
-      src="/logo-trilha-da-oportunidade.png"
-      alt="Trilha da Oportunidade"
-      width={1536}
-      height={1024}
-      className={cn(
-        "h-auto w-auto object-contain object-left",
-        compact ? "max-h-9 max-w-[10.5rem]" : "max-h-11 max-w-[13rem]",
-        className
-      )}
-      priority
-    />
+    <>
+      <Image
+        src="/logo-trilha-da-oportunidade.png"
+        alt="Trilha da Oportunidade"
+        width={1536}
+        height={1024}
+        className={cn(frame, "dark:hidden contrast:hidden")}
+        priority
+      />
+      <Image
+        src="/logo-trilha-da-oportunidade-escuro.png"
+        alt=""
+        width={1536}
+        height={1024}
+        className={cn(frame, "hidden dark:block contrast:block")}
+        priority
+        aria-hidden
+      />
+    </>
   );
 }
