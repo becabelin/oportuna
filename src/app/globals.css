@@ -194,6 +194,11 @@
     outline: 3px solid var(--ring);
     outline-offset: 3px;
   }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href] {
+    cursor: pointer;
+  }
   ::selection {
     background: var(--primary);
     color: var(--primary-foreground);

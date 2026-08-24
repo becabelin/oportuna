@@ -66,7 +66,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         <CardTitle className="text-lg leading-snug">
           <Link
             href={`/oportunidades/${item.id}`}
-            className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
+            className="cursor-pointer after:absolute after:inset-0 after:z-10 after:cursor-pointer focus-visible:outline-none"
           >
             <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
