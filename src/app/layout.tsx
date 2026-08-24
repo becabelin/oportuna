@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Lexend } from "next/font/google";
 
 import { A11yProvider } from "@/components/a11y-provider";
 import { JsonLd } from "@/components/json-ld";
@@ -19,17 +19,10 @@ import {
 
 import "./globals.css";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  display: "swap",
-});
-
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -85,7 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${nunito.variable} ${fredoka.variable} h-full antialiased`}
+      className={`${lexend.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_BOOTSTRAP }} />

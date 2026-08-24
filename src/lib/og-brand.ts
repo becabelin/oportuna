@@ -14,18 +14,18 @@ const FONTS_DIR = join(process.cwd(), "src/assets/fonts");
 export async function loadOgFonts() {
   try {
     const [semibold, bold] = await Promise.all([
-      readFile(join(FONTS_DIR, "fredoka-600.ttf")),
-      readFile(join(FONTS_DIR, "fredoka-700.ttf")),
+      readFile(join(FONTS_DIR, "lexend-semibold.ttf")),
+      readFile(join(FONTS_DIR, "lexend-bold.ttf")),
     ]);
     return [
       {
-        name: "Fredoka",
+        name: "Lexend",
         data: semibold,
         weight: 600 as const,
         style: "normal" as const,
       },
       {
-        name: "Fredoka",
+        name: "Lexend",
         data: bold,
         weight: 700 as const,
         style: "normal" as const,

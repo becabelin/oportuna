@@ -36,7 +36,7 @@ export default async function OpenGraphImage() {
           background: OG_WHITE,
           color: OG_NAVY,
           padding: "56px 72px",
-          fontFamily: "Fredoka",
+          fontFamily: "Lexend",
         }}
       >
         <img

@@ -47,7 +47,7 @@ export default async function OpportunityOgImage({
           background: OG_WHITE,
           color: OG_NAVY,
           padding: "56px 64px",
-          fontFamily: "Fredoka",
+          fontFamily: "Lexend",
         }}
       >
         <img
