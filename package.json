@@ -6,10 +6,12 @@
     "dev": "next dev --port 3847 --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port ${PORT:-3000}",
-    "lint": "eslint"
+    "lint": "eslint",
+    "enriquecer:capas": "npx tsx scripts/enriquecer-capas-eventos.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@upstash/redis": "^1.38.2",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

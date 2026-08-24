@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LIMITES_API } from "@/lib/limites-api";
+import { LIMITES_API, LIMITES_IP } from "@/lib/limites-api";
 import { cn } from "@/lib/utils";
 
 import { pageSocial } from "@/lib/site";
@@ -31,7 +31,7 @@ const endpoints = [
   {
     method: "GET",
     path: "/api",
-    desc: "Índice da API — este não precisa de chave.",
+    desc: "Índice da API. Este não precisa de chave.",
   },
   {
     method: "GET",
@@ -65,8 +65,8 @@ const queryParams = [
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
+    <div className="mx-auto w-full max-w-[720px] px-5 py-12 sm:px-8 sm:py-16">
+      <p className="text-sm text-muted-foreground">
         REST · precisa de chave
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API da Trilha</h1>
@@ -75,6 +75,7 @@ export default function DocsPage() {
         chave no header. CORS liberado. Datas em{" "}
         <code className="rounded-md bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>.
         Teto: {LIMITES_API.porMinuto}/min e {LIMITES_API.porDia}/dia por chave.
+        Também {LIMITES_IP.porMinuto}/min e {LIMITES_IP.porDia}/dia por IP, inclusive no mural.
       </p>
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href="/chave" className={cn(buttonVariants())}>
@@ -105,7 +106,7 @@ export default function DocsPage() {
         <div className="mt-4 space-y-3 text-sm leading-relaxed text-foreground">
           <p>
             Cada GET na API gasta um pouquinho de servidor (função) e de banda. No
-            Hobby da Vercel isso é de graça até um volume alto — pensa em centenas
+            Hobby da Vercel isso é de graça até um volume alto. Pensa em centenas
             de milhares de chamadas no mês, não em um app de faculdade.
           </p>
           <p>

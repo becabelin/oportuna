@@ -22,11 +22,17 @@ export function organizationSchema() {
     inLanguage: "pt-BR",
     logo: {
       "@type": "ImageObject",
-      url: absoluteUrl("/logo-trilha-da-oportunidade.png"),
-      width: 640,
-      height: 427,
+      url: absoluteUrl("/logo-trilha-da-oportunidade.svg"),
+      width: 2048,
+      height: 768,
     },
     image: absoluteUrl("/og-lockup.png"),
+    founder: {
+      "@type": "Person",
+      name: "Rebeca Sousa",
+      url: absoluteUrl("/#sobre-a-criadora"),
+      image: absoluteUrl("/rebeca-sousa.jpg"),
+    },
     sameAs: ["https://github.com/becabelin/trilha-da-oportunidade"],
   };
 }
@@ -126,6 +132,7 @@ export function opportunitySchema(item: Oportunidade) {
     identifier: item.id,
     keywords: [TIPO_LABEL[item.tipo], item.area, ...item.tags].join(", "),
     mainEntityOfPage: url,
+    image: item.imagemUrl ?? undefined,
     provider: {
       "@type": "Organization",
       name: item.organizacao,

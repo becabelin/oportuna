@@ -39,6 +39,7 @@ export type Oportunidade = {
   dataInicio: string | null;
   dataFim: string | null;
   urlInscricao: string;
+  imagemUrl: string | null;
   requisitos: string[];
   tags: string[];
   vagas: number | null;

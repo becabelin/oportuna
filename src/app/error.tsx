@@ -12,6 +12,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
+    document.title = "Erro · Trilha da Oportunidade";
     console.error(error);
   }, [error]);
 

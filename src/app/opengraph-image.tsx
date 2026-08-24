@@ -8,10 +8,10 @@ import {
   OG_SIZE,
   OG_WHITE,
 } from "@/lib/og-brand";
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE, SITE_TITLE } from "@/lib/site";
 
 export const runtime = "nodejs";
-export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
+export const alt = SITE_TITLE;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

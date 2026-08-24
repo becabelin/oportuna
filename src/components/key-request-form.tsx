@@ -51,7 +51,7 @@ export function KeyRequestForm() {
 
   if (result) {
     return (
-      <Card className="border border-border shadow-[0_12px_32px_rgba(0,26,76,0.08)]">
+      <Card className="border border-border">
         <CardHeader>
           <p className="w-fit rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
             chave na mão
@@ -78,6 +78,9 @@ export function KeyRequestForm() {
           >
             {copied ? "Copiada" : "Copiar chave"}
           </Button>
+          <span role="status" className="sr-only">
+            {copied ? "Chave copiada para a área de transferência." : ""}
+          </span>
           <Button
             type="button"
             variant="outline"
@@ -89,8 +92,12 @@ export function KeyRequestForm() {
             Pedir outra
           </Button>
         </div>
+        <p className="mt-4 text-sm font-medium text-foreground">Uma chamada, já com a sua chave</p>
         <pre className="overflow-x-auto rounded-xl bg-foreground p-3 text-xs leading-relaxed text-background">
-          {result.comoUsar.exemplo.replace("https://SEU_HOST", typeof window !== "undefined" ? window.location.origin : "")}
+          {result.comoUsar.exemplo.replace(
+            "https://SEU_HOST",
+            typeof window !== "undefined" ? window.location.origin : ""
+          )}
         </pre>
         </CardContent>
       </Card>
@@ -98,39 +105,54 @@ export function KeyRequestForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 rounded-3xl border border-border bg-card p-5 sm:p-6 sm:p-6">
+    <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
       <FieldGroup className="grid gap-4">
-      <p className="text-sm text-foreground">
-        Sai na hora. Sem fila. Usamos o email só se a chave der problema — não tem
-        newsletter escondida. Teto atual: {LIMITES_API.porMinuto}/min e{" "}
-        {LIMITES_API.porDia}/dia.
+      <p id="chave-ajuda" className="text-sm text-foreground">
+        Sai na hora. Sem fila. Usamos o email só se a chave der problema. Não tem
+        newsletter escondida. Teto por chave: {LIMITES_API.porMinuto}/min e{" "}
+        {LIMITES_API.porDia}/dia. Por IP também tem teto, para o mural não virar
+        alvo.
       </p>
       <Field>
         <FieldLabel htmlFor="nome">Seu nome</FieldLabel>
-        <Input id="nome" required value={nome} onChange={(event) => setNome(event.target.value)} />
+        <Input
+          id="nome"
+          name="name"
+          autoComplete="name"
+          required
+          value={nome}
+          onChange={(event) => setNome(event.target.value)}
+          aria-describedby={error ? "chave-erro chave-ajuda" : "chave-ajuda"}
+        />
       </Field>
       <Field>
         <FieldLabel htmlFor="email">Email</FieldLabel>
         <Input
           id="email"
+          name="email"
           type="email"
+          autoComplete="email"
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          aria-describedby={error ? "chave-erro chave-ajuda" : "chave-ajuda"}
         />
       </Field>
       <Field>
         <FieldLabel htmlFor="projeto">O que você vai montar?</FieldLabel>
         <Textarea
           id="projeto"
+          name="organization"
+          autoComplete="organization"
           required
           placeholder="App de bolsas para o centro acadêmico, bot no Discord, TCC…"
           value={projeto}
           onChange={(event) => setProjeto(event.target.value)}
+          aria-describedby={error ? "chave-erro chave-ajuda" : "chave-ajuda"}
         />
       </Field>
       {error ? (
-        <Alert variant="destructive" className="border-2">
+        <Alert id="chave-erro" variant="destructive">
           <AlertTitle>Não rolou</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>

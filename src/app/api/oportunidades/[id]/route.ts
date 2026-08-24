@@ -1,7 +1,8 @@
 import type { NextRequest } from "next/server";
 
+import { gateAdmin } from "@/lib/admin-auth";
 import { gatePublicApi } from "@/lib/api-auth";
-import { apiError, CORS_HEADERS, json, optionsResponse } from "@/lib/http";
+import { apiError, emptyResponse, json, optionsResponse, requireJson } from "@/lib/http";
 import {
   deleteOportunidade,
   getOportunidade,
@@ -14,11 +15,11 @@ export const dynamic = "force-dynamic";
 type RouteParams = { params: Promise<{ id: string }> };
 
 export function OPTIONS() {
-  return optionsResponse();
+  return optionsResponse("public");
 }
 
 export async function GET(request: NextRequest, context: RouteParams) {
-  const gate = gatePublicApi(request);
+  const gate = await gatePublicApi(request);
   if (gate instanceof Response) return gate;
   const { id } = await context.params;
   const item = getOportunidade(id);
@@ -29,6 +30,12 @@ export async function GET(request: NextRequest, context: RouteParams) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteParams) {
+  const gate = await gateAdmin(request);
+  if (gate instanceof Response) return gate;
+
+  const media = requireJson(request);
+  if (media) return media;
+
   const { id } = await context.params;
   const current = getOportunidade(id);
   if (!current) {
@@ -53,14 +60,17 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
   }
 
   const updated = updateOportunidade(id, parsed.data);
-  return json({ data: updated });
+  return json({ data: updated }, { cors: "none" });
 }
 
-export async function DELETE(_request: NextRequest, context: RouteParams) {
+export async function DELETE(request: NextRequest, context: RouteParams) {
+  const gate = await gateAdmin(request);
+  if (gate instanceof Response) return gate;
+
   const { id } = await context.params;
   const removed = deleteOportunidade(id);
   if (!removed) {
     return apiError(404, "not_found", "Oportunidade não encontrada.");
   }
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+  return emptyResponse(204);
 }

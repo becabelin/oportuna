@@ -24,7 +24,7 @@ function FieldSelect({
       <Label htmlFor={id}>{label}</Label>
       <select
         id={id}
-        className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-11 min-h-11 w-full rounded-lg border border-foreground/50 bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring"
         {...props}
       >
         {children}
@@ -98,9 +98,9 @@ export function CreateOpportunityForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5">
+    <form onSubmit={onSubmit} className="grid gap-5" aria-describedby={error ? "cadastro-erro" : undefined}>
       {error ? (
-        <Alert variant="destructive" className="border-destructive/40">
+        <Alert id="cadastro-erro" variant="destructive" className="border-destructive/40">
           <AlertTitle>{error}</AlertTitle>
           {Object.keys(details).length > 0 ? (
             <AlertDescription>

@@ -100,7 +100,7 @@ export function FontesManager() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
           {fontes
             ? `${fontes.length} ${fontes.length === 1 ? "fonte" : "fontes"} monitoradas`
             : "Carregando fontes…"}
@@ -111,13 +111,13 @@ export function FontesManager() {
           onClick={() => void coletarTodas()}
           disabled={coletandoTodas}
         >
-          <RefreshCw className={coletandoTodas ? "size-3.5 animate-spin" : "size-3.5"} />
+          <RefreshCw aria-hidden className={coletandoTodas ? "size-3.5 animate-spin" : "size-3.5"} />
           Atualizar todas agora
         </Button>
       </div>
 
       {error ? (
-        <p className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm">
+        <p role="alert" className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm">
           {error}
         </p>
       ) : null}
@@ -148,10 +148,11 @@ export function FontesManager() {
               <a
                 href={fonte.url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="mt-1 block truncate text-sm text-muted-foreground hover:text-foreground"
               >
                 {fonte.url}
+                <span className="sr-only">(abre em nova aba)</span>
               </a>
               <p className="mt-1 text-xs text-muted-foreground">
                 {fonte.itensAbertos} abertas · última coleta {formatWhen(fonte.ultimaColeta)}
@@ -170,16 +171,25 @@ export function FontesManager() {
                 disabled={busyId === fonte.id}
                 onClick={() => void coletar(fonte.id)}
               >
-                <RefreshCw className="size-3.5" />
+                <RefreshCw aria-hidden className="size-3.5" />
                 Coletar
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 disabled={busyId === fonte.id}
-                onClick={() => void remover(fonte.id)}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      "Remover esta fonte da base? A coleta para de monitorar este endereço."
+                    )
+                  ) {
+                    return;
+                  }
+                  void remover(fonte.id);
+                }}
               >
-                <Trash2 className="size-3.5" />
+                <Trash2 aria-hidden className="size-3.5" />
                 Remover
               </Button>
             </div>

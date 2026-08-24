@@ -136,6 +136,10 @@ export function validateOportunidade(
     details.urlInscricao = "Informe uma URL http(s) válida.";
   }
 
+  if (input.imagemUrl !== undefined && input.imagemUrl !== null && !isUrl(input.imagemUrl)) {
+    details.imagemUrl = "A imagem deve ser uma URL http(s) válida ou nula.";
+  }
+
   if (input.requisitos !== undefined) {
     const requisitos = asStringArray(input.requisitos);
     if (!requisitos) details.requisitos = "Requisitos deve ser uma lista de textos.";
@@ -189,6 +193,7 @@ export function validateOportunidade(
     dataInicio: (input.dataInicio as string | null) ?? null,
     dataFim: (input.dataFim as string | null) ?? null,
     urlInscricao: String(input.urlInscricao).trim(),
+    imagemUrl: typeof input.imagemUrl === "string" ? input.imagemUrl.trim() : null,
     requisitos: asStringArray(input.requisitos) ?? [],
     tags: capitalizeTags(asStringArray(input.tags) ?? []),
     vagas: typeof input.vagas === "number" ? input.vagas : null,

@@ -3,8 +3,15 @@ import { isIP } from "node:net";
 
 const BLOCKED_HOSTS = new Set([
   "localhost",
+  "0.0.0.0",
+  "metadata",
   "metadata.google.internal",
   "metadata.internal",
+  "metadata.gke",
+  "instance-data",
+  "kubernetes",
+  "kubernetes.default",
+  "kubernetes.default.svc",
 ]);
 
 function ipv4ToInt(ip: string) {
@@ -48,23 +55,39 @@ export function isPrivateAddress(address: string) {
   return false;
 }
 
-export async function assertPublicHttpUrl(raw: string) {
-  let url: URL;
+export function parsePublicHttpUrl(raw: string): URL | null {
   try {
-    url = new URL(raw);
+    const url = new URL(raw);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (url.username || url.password) return null;
+    const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    if (
+      BLOCKED_HOSTS.has(host) ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal") ||
+      host.endsWith(".localhost") ||
+      host === "::" ||
+      host === "[::]"
+    ) {
+      return null;
+    }
+    if (isPrivateAddress(host)) return null;
+    return url;
   } catch {
-    throw new Error("URL inválida.");
+    return null;
   }
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("Use uma URL http ou https.");
+}
+
+export async function assertPublicHttpUrl(raw: string) {
+  const url = parsePublicHttpUrl(raw);
+  if (!url) {
+    throw new Error(
+      raw.startsWith("http://") || raw.startsWith("https://")
+        ? "Este endereço não pode ser coletado."
+        : "Use uma URL http ou https."
+    );
   }
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  if (BLOCKED_HOSTS.has(host) || host.endsWith(".local") || host.endsWith(".internal")) {
-    throw new Error("Este endereço não pode ser coletado.");
-  }
-  if (isPrivateAddress(host)) {
-    throw new Error("Este endereço não pode ser coletado.");
-  }
   try {
     const resolved = await lookup(host, { all: true });
     if (resolved.some((entry) => isPrivateAddress(entry.address))) {

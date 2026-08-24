@@ -7,6 +7,7 @@ export function generateImageMetadata() {
   return [
     { contentType: "image/png", size: { width: 32, height: 32 }, id: "32" },
     { contentType: "image/png", size: { width: 192, height: 192 }, id: "192" },
+    { contentType: "image/png", size: { width: 512, height: 512 }, id: "512" },
   ];
 }
 
@@ -43,7 +44,7 @@ export default async function Icon({
   id: Promise<string>;
 }) {
   const iconId = await id;
-  const size = iconId === "192" ? 192 : 32;
+  const size = iconId === "512" ? 512 : iconId === "192" ? 192 : 32;
   return new ImageResponse(
     (
       <div

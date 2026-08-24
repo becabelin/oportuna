@@ -1,5 +1,11 @@
 import * as cheerio from "cheerio";
 
+import {
+  imagemNoCard,
+  imagemNoDocumento,
+  imagemNoItemFeed,
+  imagemNoJsonFeedItem,
+} from "./capa-fonte";
 import { pickDeadline } from "./dates";
 import { capitalizeTags, isOpen } from "./format";
 import {
@@ -10,11 +16,14 @@ import {
   listFontes,
   updateFonte,
 } from "./fontes";
+import { ehCapaInutil } from "./imagem-url";
 import { persistNow } from "./persist";
 import { assertPublicHttpUrl } from "./ssrf";
-import { gerarSubtitulo, pareceOportunidade, SINAL_OPORTUNIDADE } from "./triagem";
+import { ehNomeDeFonte, enxugarFicha, enxugarTituloNoticia, gerarSubtitulo, limparTextoColetado, pareceOportunidade, SINAL_OPORTUNIDADE } from "./triagem";
 import {
   deleteByFonte,
+  listOportunidades,
+  updateOportunidade,
   upsertColetada,
 } from "./store";
 import type { Fonte, Modalidade, Nivel, NovaOportunidade, TipoOportunidade } from "./types";
@@ -42,6 +51,12 @@ type Candidato = {
   url: string;
   prazo: string | null;
   tipo: TipoOportunidade;
+  imagem: string | null;
+  organizacao?: string | null;
+  pais?: string;
+  modalidade?: Modalidade;
+  areaHint?: string;
+  confiavel?: boolean;
 };
 
 function hostnameLabel(url: string) {
@@ -168,19 +183,174 @@ function cleanText(value: string) {
 }
 
 function decodeSnippet(html: string) {
-  return cleanText(cheerio.load(`<div>${html}</div>`)("div").text());
+  const $ = cheerio.load(`<div>${html}</div>`);
+  $("p, li, br, div, h1, h2, h3, h4").each((_, el) => {
+    $(el).prepend(" ");
+  });
+  return cleanText($("div").first().text());
 }
 
-async function fetchPublicPage(rawUrl: string): Promise<Pagina> {
+const SANTANDER_DISCOVERY =
+  "https://api-manager.universia.net/soa-content-discovery/api/contents";
+
+function textoSantander(value: unknown) {
+  return typeof value === "string" ? value : "";
+}
+
+function dataSantander(value: unknown) {
+  const raw = textoSantander(value);
+  return /^\d{4}-\d{2}-\d{2}/.test(raw) ? raw.slice(0, 10) : null;
+}
+
+function listaSantander(value: unknown) {
+  return Array.isArray(value) ? value.map((item) => String(item)) : [];
+}
+
+export function ehFonteSantanderOpenAcademy(url: string) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    return host === "santanderopenacademy.com" || host.endsWith(".santanderopenacademy.com");
+  } catch {
+    return false;
+  }
+}
+
+function tipoSantander(resourceType: string, categories: string[], blob: string): TipoOportunidade {
+  if (/SOA_COURSE/i.test(resourceType)) return "curso";
+  const cats = categories.join(" ").toLowerCase();
+  if (cats.includes("internship")) return "estagio";
+  if (cats.includes("academic_mobility")) return "intercambio";
+  return inferTipo(blob, "bolsa");
+}
+
+function dicaAreaSantander(categories: string[]) {
+  const cats = categories.join(" ").toUpperCase();
+  if (/\bTECH\b|TOOLS/.test(cats)) return "computação inteligência artificial tecnologia";
+  if (/\bLANGUAGE\b/.test(cats)) return "idiomas inglês espanhol";
+  if (/BUSINESS|FINANCIAL_EDUCATION|SKILLS/.test(cats)) return "negócios carreira finanças";
+  if (/ACADEMIC_MOBILITY/.test(cats)) return "mobilidade acadêmica intercâmbio";
+  if (/INTERNSHIP/.test(cats)) return "estágio internship";
+  if (/RESEARCH/.test(cats)) return "pesquisa científica";
+  return "";
+}
+
+function modalidadeSantander(item: Record<string, unknown>, categories: string[]): Modalidade {
+  const mode = textoSantander(item.mode).toUpperCase();
+  if (mode === "ONLINE") return "remoto";
+  if (mode === "HYBRID" || mode === "HYBRIDIZED") return "hibrido";
+  if (mode === "ONSITE" || mode === "PRESENTIAL" || mode === "IN_PERSON") return "presencial";
+  if (/ACADEMIC_MOBILITY|INTERNSHIP/i.test(categories.join(" "))) return "presencial";
+  return "remoto";
+}
+
+function candidatoSantander(item: Record<string, unknown>): Candidato | null {
+  const status = textoSantander(item.status).toUpperCase();
+  if (status && status !== "OPEN") return null;
+  const titulo = cleanText(textoSantander(item.name));
+  const url =
+    textoSantander(item.detailUrl).trim() || textoSantander(item.actionUrl).trim();
+  if (titulo.length < 8 || !url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+  } catch {
+    return null;
+  }
+  const categories = listaSantander(item.categories);
+  const descricao = decodeSnippet(
+    textoSantander(item.shortDescription) ||
+      textoSantander(item.marketingTitle) ||
+      textoSantander(item.description)
+  );
+  const countries = listaSantander(item.countries);
+  const resourceType = textoSantander(item.resourceType);
+  const areaHint = dicaAreaSantander(categories);
+  const blob = `${titulo} ${descricao} ${categories.join(" ")} ${areaHint}`;
+  const organizacao =
+    cleanText(textoSantander(item.provider) || textoSantander(item.author)) ||
+    "Santander Open Academy";
+  const imagem = textoSantander(item.image).trim();
+  return {
+    titulo: titulo.slice(0, 140),
+    descricao: (descricao || titulo).slice(0, 800),
+    url,
+    prazo: dataSantander(item.applicationDeadlineDate),
+    tipo: tipoSantander(resourceType, categories, blob),
+    imagem: imagem && !ehCapaInutil(imagem) ? imagem : null,
+    organizacao,
+    pais: countries.includes("BR") ? "Brasil" : "Internacional",
+    modalidade: modalidadeSantander(item, categories),
+    areaHint,
+    confiavel: true,
+  };
+}
+
+async function fetchSantanderDiscovery(resourceType: "SOA_GRANT" | "SOA_COURSE") {
+  const candidatos: Candidato[] = [];
+  const limit = 50;
+  for (let offset = 0; offset < 200; offset += limit) {
+    const url = `${SANTANDER_DISCOVERY}?resourceType=${resourceType}&limit=${limit}&offset=${offset}&status=OPEN`;
+    const parsed = await assertPublicHttpUrl(url);
+    const response = await fetch(parsed, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(15_000),
+      headers: {
+        "User-Agent": USER_AGENT,
+        Accept: "application/json",
+        "Accept-Language": "pt-BR",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`A fonte Santander respondeu ${response.status}.`);
+    }
+    await assertPublicHttpUrl(response.url);
+    const data = (await response.json()) as { results?: unknown };
+    const results = Array.isArray(data.results) ? data.results : [];
+    for (const row of results) {
+      if (!row || typeof row !== "object") continue;
+      const candidato = candidatoSantander(row as Record<string, unknown>);
+      if (candidato) candidatos.push(candidato);
+    }
+    if (results.length < limit) break;
+  }
+  return candidatos;
+}
+
+async function coletarSantanderOpenAcademy(): Promise<Candidato[]> {
+  const [cursos, bolsas] = await Promise.all([
+    fetchSantanderDiscovery("SOA_COURSE"),
+    fetchSantanderDiscovery("SOA_GRANT"),
+  ]);
+  const unicos = new Map<string, Candidato>();
+  for (const candidato of [...cursos, ...bolsas]) {
+    if (!unicos.has(candidato.url)) unicos.set(candidato.url, candidato);
+  }
+  return [...unicos.values()].sort((a, b) => (a.prazo ?? "9999").localeCompare(b.prazo ?? "9999"));
+}
+
+const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
+const MAX_REDIRECTS = 3;
+
+async function fetchPublicPage(rawUrl: string, hops = 0): Promise<Pagina> {
+  if (hops > MAX_REDIRECTS) {
+    throw new Error("A fonte redirecionou vezes demais.");
+  }
   const url = await assertPublicHttpUrl(rawUrl);
   const response = await fetch(url, {
-    redirect: "follow",
+    redirect: "manual",
     signal: AbortSignal.timeout(15_000),
     headers: {
       "User-Agent": USER_AGENT,
       Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html, application/json;q=0.9, */*;q=0.8",
     },
   });
+  if (REDIRECT_STATUS.has(response.status)) {
+    const location = response.headers.get("location");
+    if (!location) {
+      throw new Error(`A fonte respondeu ${response.status}.`);
+    }
+    return fetchPublicPage(new URL(location, url).toString(), hops + 1);
+  }
   if (!response.ok) {
     throw new Error(`A fonte respondeu ${response.status}.`);
   }
@@ -230,6 +400,7 @@ function parseFeed($: cheerio.CheerioAPI, fallbackTipo: TipoOportunidade | null)
       url,
       prazo: pickDeadline(blob),
       tipo: inferTipo(blob, fallbackTipo),
+      imagem: imagemNoItemFeed($, node, url),
     });
   }
   return candidatos;
@@ -267,6 +438,7 @@ function parseJsonLd($: cheerio.CheerioAPI, fallbackTipo: TipoOportunidade | nul
             url,
             prazo,
             tipo: inferTipo(`${type} ${titulo} ${descricao}`, fallbackTipo),
+            imagem: imagemNoJsonFeedItem(record, url),
           });
         }
       }
@@ -303,6 +475,7 @@ function parseJsonFeed(body: string, fallbackTipo: TipoOportunidade | null): Can
       url,
       prazo: pickDeadline(`${titulo}\n${descricao}\n${String(item.date_published ?? "")}`),
       tipo: inferTipo(`${titulo} ${descricao}`, fallbackTipo),
+      imagem: imagemNoJsonFeedItem(item, url),
     });
   }
   return candidatos;
@@ -361,6 +534,7 @@ function parseHtmlLinks(
         url: url.toString(),
         prazo: pickDeadline(context),
         tipo: inferTipo(blob, fallbackTipo),
+        imagem: imagemNoCard($, node, url.toString()),
       },
     });
   });
@@ -409,6 +583,7 @@ function candidatoDaPagina(
     url: finalUrl,
     prazo: pickDeadline(blob),
     tipo: inferTipo(blob, fallbackTipo),
+    imagem: imagemNoDocumento($, finalUrl),
   };
 }
 
@@ -416,38 +591,46 @@ function toOportunidade(
   candidato: Candidato,
   fonte: Fonte
 ): NovaOportunidade {
-  const organizacao = fonte.titulo || hostnameLabel(fonte.url);
-  const tipo = fonte.tipoSugerido ?? candidato.tipo;
-  const blob = `${candidato.titulo}\n${candidato.descricao}\n${candidato.url}\n${fonte.titulo ?? ""}\n${fonte.url}`;
+  const ficha = enxugarFicha(candidato.titulo, candidato.descricao);
+  const nomeFonte = fonte.titulo || hostnameLabel(fonte.url);
+  const organizacao =
+    candidato.organizacao?.trim() ||
+    (ehNomeDeFonte(nomeFonte) && ficha.instituicao ? ficha.instituicao : nomeFonte);
+  const tipo = candidato.confiavel ? candidato.tipo : (fonte.tipoSugerido ?? candidato.tipo);
+  const blob = `${ficha.titulo}\n${ficha.descricao}\n${candidato.areaHint ?? ""}\n${candidato.url}\n${fonte.titulo ?? ""}\n${fonte.url}`;
   const areaFallback = fonte.areaSugerida || "Multidisciplinar";
+  const tagFonte = ehFonteSantanderOpenAcademy(fonte.url)
+    ? "Santander Open Academy"
+    : (fonte.titulo ?? hostnameLabel(fonte.url));
   return {
-    titulo: candidato.titulo,
+    titulo: enxugarTituloNoticia(ficha.titulo),
     subtitulo: gerarSubtitulo({
-      titulo: candidato.titulo,
-      descricao: candidato.descricao,
+      titulo: enxugarTituloNoticia(ficha.titulo),
+      descricao: limparTextoColetado(ficha.descricao),
       tipo,
       organizacao,
       prazoInscricao: candidato.prazo,
     }),
     tipo,
     organizacao,
-    descricao: candidato.descricao,
+    descricao: limparTextoColetado(ficha.descricao),
     area: inferArea(blob, areaFallback),
     nivel: inferNivel(blob, "todos"),
-    modalidade: inferModalidade(blob, "remoto"),
-    pais: inferPais(blob, /gov\.br|fapesp|faperj|fapemig|senac|senai|\.br\//i.test(fonte.url) ? "Brasil" : "Internacional"),
-    cidade: null,
+    modalidade: candidato.modalidade ?? inferModalidade(blob, "remoto"),
+    pais: candidato.pais ?? inferPais(blob, /gov\.br|fapesp|faperj|fapemig|senac|senai|\.br\//i.test(fonte.url) ? "Brasil" : "Internacional"),
+    cidade: ficha.cidade,
     beneficio: null,
     prazoInscricao: candidato.prazo,
     dataInicio: null,
     dataFim: null,
     urlInscricao: candidato.url,
     requisitos: [],
-    tags: capitalizeTags([fonte.titulo ?? hostnameLabel(fonte.url)]),
+    tags: capitalizeTags([tagFonte]),
     vagas: null,
     origem: "coleta",
     fonteId: fonte.id,
     fonteUrl: fonte.url,
+    imagemUrl: candidato.imagem,
   };
 }
 
@@ -457,6 +640,57 @@ function isFeed(contentType: string, body: string) {
   return head.includes("<rss") || head.includes("<feed") || head.includes("<rdf:rdf");
 }
 
+async function imagemDaPagina(rawUrl: string): Promise<string | null> {
+  try {
+    const pagina = await fetchPublicPage(rawUrl);
+    const $ = cheerio.load(pagina.body);
+    return imagemNoDocumento($, pagina.finalUrl);
+  } catch {
+    return null;
+  }
+}
+
+async function completarImagemEvento(candidato: Candidato, tipo: TipoOportunidade) {
+  if (tipo !== "evento") return candidato;
+  if (candidato.imagem && !ehCapaInutil(candidato.imagem)) return candidato;
+  const imagem = await imagemDaPagina(candidato.url);
+  return imagem ? { ...candidato, imagem } : candidato;
+}
+
+async function mapPool<T>(
+  items: T[],
+  size: number,
+  fn: (item: T) => Promise<void>
+) {
+  let index = 0;
+  async function worker() {
+    while (index < items.length) {
+      const current = index;
+      index += 1;
+      await fn(items[current]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(size, items.length) }, () => worker()));
+}
+
+export async function enriquecerCapasEventos() {
+  const { data } = listOportunidades({ tipo: "evento", status: "todas", limit: 10_000 });
+  let comCapa = 0;
+  await mapPool(data, 5, async (item) => {
+    if (item.imagemUrl && !ehCapaInutil(item.imagemUrl)) {
+      comCapa += 1;
+      return;
+    }
+    const imagem = await imagemDaPagina(item.urlInscricao);
+    if (imagem) {
+      updateOportunidade(item.id, { imagemUrl: imagem });
+      comCapa += 1;
+    }
+  });
+  persistNow();
+  return { total: data.length, comCapa };
+}
+
 export async function coletarFonte(fonteId: string) {
   const fonte = getFonte(fonteId);
   if (!fonte) {
@@ -464,67 +698,84 @@ export async function coletarFonte(fonteId: string) {
   }
 
   try {
-    let pagina = await fetchPublicPage(fonte.url);
     const modoBlog = false;
     let candidatos: Candidato[] = [];
     let page$ = cheerio.load("");
 
-    if (isJsonFeed(pagina.contentType, pagina.body)) {
-      candidatos = parseJsonFeed(pagina.body, fonte.tipoSugerido);
-    } else {
-      page$ = cheerio.load(pagina.body, { xml: isFeed(pagina.contentType, pagina.body) });
+    if (ehFonteSantanderOpenAcademy(fonte.url)) {
+      try {
+        candidatos = await coletarSantanderOpenAcademy();
+        if (candidatos.length > 0) {
+          updateFonte(fonte.id, { titulo: "Santander Open Academy" });
+        }
+      } catch {
+        candidatos = [];
+      }
+    }
 
-      if (isFeed(pagina.contentType, pagina.body)) {
-        candidatos = parseFeed(page$, fonte.tipoSugerido);
-        if (candidatos.length === 0) {
-          const siteLink = cleanText(page$("channel > link").first().text());
-          if (siteLink && siteLink !== fonte.url) {
+    if (candidatos.length === 0) {
+      let pagina = await fetchPublicPage(fonte.url);
+
+      if (isJsonFeed(pagina.contentType, pagina.body)) {
+        candidatos = parseJsonFeed(pagina.body, fonte.tipoSugerido);
+      } else {
+        page$ = cheerio.load(pagina.body, { xml: isFeed(pagina.contentType, pagina.body) });
+
+        if (isFeed(pagina.contentType, pagina.body)) {
+          candidatos = parseFeed(page$, fonte.tipoSugerido);
+          if (candidatos.length === 0) {
+            const siteLink = cleanText(page$("channel > link").first().text());
+            if (siteLink && siteLink !== fonte.url) {
+              try {
+                pagina = await fetchPublicPage(siteLink);
+                page$ = cheerio.load(pagina.body);
+                candidatos = [
+                  ...parseJsonLd(page$, fonte.tipoSugerido),
+                  ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
+                ];
+              } catch {
+                candidatos = [];
+              }
+            }
+          }
+        } else {
+          const feedUrl = discoverFeed(page$, pagina.finalUrl);
+          if (feedUrl) {
             try {
-              pagina = await fetchPublicPage(siteLink);
-              page$ = cheerio.load(pagina.body);
-              candidatos = [
-                ...parseJsonLd(page$, fonte.tipoSugerido),
-                ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
-              ];
+              const feedPage = await fetchPublicPage(feedUrl);
+              if (isJsonFeed(feedPage.contentType, feedPage.body)) {
+                candidatos = parseJsonFeed(feedPage.body, fonte.tipoSugerido);
+              } else {
+                const $feed = cheerio.load(feedPage.body, { xml: true });
+                candidatos = parseFeed($feed, fonte.tipoSugerido);
+              }
             } catch {
               candidatos = [];
             }
           }
-        }
-      } else {
-        const feedUrl = discoverFeed(page$, pagina.finalUrl);
-        if (feedUrl) {
-          try {
-            const feedPage = await fetchPublicPage(feedUrl);
-            if (isJsonFeed(feedPage.contentType, feedPage.body)) {
-              candidatos = parseJsonFeed(feedPage.body, fonte.tipoSugerido);
-            } else {
-              const $feed = cheerio.load(feedPage.body, { xml: true });
-              candidatos = parseFeed($feed, fonte.tipoSugerido);
-            }
-          } catch {
-            candidatos = [];
+          if (candidatos.length === 0) {
+            candidatos = [
+              ...parseJsonLd(page$, fonte.tipoSugerido),
+              ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
+            ];
+          }
+          if (!ehFonteSantanderOpenAcademy(fonte.url)) {
+            const propria = candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido);
+            if (propria) candidatos.push(propria);
           }
         }
-        if (candidatos.length === 0) {
-          candidatos = [
-            ...parseJsonLd(page$, fonte.tipoSugerido),
-            ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
-          ];
-        }
-        const propria = candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido);
-        if (propria) candidatos.push(propria);
       }
     }
 
     const unicos = new Map<string, Candidato>();
     for (const candidato of candidatos) {
       if (
-        pareceOportunidade({
-          titulo: candidato.titulo,
-          descricao: candidato.descricao,
-          url: candidato.url,
-        }) &&
+        (candidato.confiavel ||
+          pareceOportunidade({
+            titulo: candidato.titulo,
+            descricao: candidato.descricao,
+            url: candidato.url,
+          })) &&
         !unicos.has(candidato.url)
       ) {
         unicos.set(candidato.url, candidato);
@@ -541,10 +792,13 @@ export async function coletarFonte(fonteId: string) {
       if (pageTitle) updateFonte(fonte.id, { titulo: pageTitle.slice(0, 80) });
     }
 
-    const salvos = usados.slice(0, MAX_ITEMS).map((candidato) => {
+    const salvos = [];
+    for (const candidato of usados.slice(0, MAX_ITEMS)) {
       const current = getFonte(fonte.id) ?? fonte;
-      return upsertColetada(toOportunidade(candidato, current));
-    });
+      const tipo = current.tipoSugerido ?? candidato.tipo;
+      const completo = await completarImagemEvento(candidato, tipo);
+      salvos.push(upsertColetada(toOportunidade(completo, current)));
+    }
 
     const atualizada = updateFonte(fonte.id, {
       status: "ok",

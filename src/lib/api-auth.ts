@@ -1,7 +1,14 @@
 import type { NextRequest } from "next/server";
 
-import { checarLimite, encontrarChave, registrarUso, type ChaveApi } from "./chaves";
+import { clienteIp } from "./admin-auth";
+import { checarLimite, encontrarChave, registrarUso, type ChaveRegistro } from "./chaves";
 import { apiError } from "./http";
+import { LIMITES_IP } from "./limites-api";
+import {
+  checarJanela,
+  headersLimite,
+  type ResultadoLimite,
+} from "./rate-limit";
 
 function hostOf(url: string) {
   try {
@@ -39,11 +46,43 @@ export function extractApiKey(request: NextRequest) {
   return request.headers.get("x-api-key")?.trim() || null;
 }
 
-export function gatePublicApi(
+function recusarLimite(
+  limite: Extract<ResultadoLimite, { ok: false }>,
+  mensagemMinuto: string,
+  mensagemDia: string,
+  cors?: "public" | "chaves"
+) {
+  return apiError(
+    429,
+    "rate_limited",
+    limite.motivo === "minuto" ? mensagemMinuto : mensagemDia,
+    undefined,
+    { cors, headers: headersLimite(limite) }
+  );
+}
+
+export async function gateIpPublico(
   request: NextRequest
-): Response | { chave: ChaveApi | "site"; headers: HeadersInit } {
+): Promise<Response | { headers: Record<string, string> }> {
+  const limite = await checarJanela("ip", clienteIp(request), LIMITES_IP);
+  if (!limite.ok) {
+    return recusarLimite(
+      limite,
+      `Limite de ${limite.limite} consultas por minuto neste endereço. Espere um pouco.`,
+      `Limite de ${limite.limite} consultas por dia neste endereço.`
+    );
+  }
+  return { headers: headersLimite(limite) };
+}
+
+export async function gatePublicApi(
+  request: NextRequest
+): Promise<Response | { chave: ChaveRegistro | "site"; headers: HeadersInit }> {
+  const ipGate = await gateIpPublico(request);
+  if (ipGate instanceof Response) return ipGate;
+
   if (isSameOrigin(request)) {
-    return { chave: "site", headers: {} };
+    return { chave: "site", headers: ipGate.headers };
   }
 
   const raw = extractApiKey(request);
@@ -51,35 +90,35 @@ export function gatePublicApi(
     return apiError(
       401,
       "missing_api_key",
-      "Esta rota precisa de uma chave. Peça em /chave e envie Authorization: Bearer opt_… ou X-Api-Key."
+      "Esta rota precisa de uma chave. Peça em /chave e envie Authorization: Bearer opt_… ou X-Api-Key.",
+      undefined,
+      { headers: ipGate.headers }
     );
   }
 
-  const found = encontrarChave(raw);
+  const found = await encontrarChave(raw);
   if (!found || found.status !== "ativa") {
-    return apiError(401, "invalid_api_key", "Chave inválida ou revogada. Peça outra em /chave.");
-  }
-
-  const limite = checarLimite(found.id);
-  if (!limite.ok) {
     return apiError(
-      429,
-      "rate_limited",
-      limite.motivo === "minuto"
-        ? `Limite de ${limite.limite} consultas por minuto. Espere um pouco.`
-        : `Limite de ${limite.limite} consultas por dia nesta chave.`
+      401,
+      "invalid_api_key",
+      "Chave inválida ou revogada. Peça outra em /chave.",
+      undefined,
+      { headers: ipGate.headers }
     );
   }
 
-  registrarUso(found.chave);
+  const limite = await checarLimite(found.id);
+  if (!limite.ok) {
+    return recusarLimite(
+      limite,
+      `Limite de ${limite.limite} consultas por minuto nesta chave. Espere um pouco.`,
+      `Limite de ${limite.limite} consultas por dia nesta chave.`
+    );
+  }
+
+  await registrarUso(found.id);
   return {
     chave: found,
-    headers: {
-      "X-RateLimit-Limit": String(limite.limiteMinuto),
-      "X-RateLimit-Remaining": String(limite.restanteMinuto),
-      "X-RateLimit-Limit-Day": String(limite.limiteDia),
-      "X-RateLimit-Remaining-Day": String(limite.restanteDia),
-    },
+    headers: headersLimite(limite),
   };
 }
-

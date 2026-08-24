@@ -1,24 +1,31 @@
 import type { NextRequest } from "next/server";
 
+import { gateAdmin } from "@/lib/admin-auth";
 import { gatePublicApi } from "@/lib/api-auth";
-import { apiError, json, optionsResponse } from "@/lib/http";
+import { apiError, json, optionsResponse, requireJson } from "@/lib/http";
 import { createOportunidade, listOportunidades } from "@/lib/store";
 import { parseListQuery, validateOportunidade } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
 export function OPTIONS() {
-  return optionsResponse();
+  return optionsResponse("public");
 }
 
-export function GET(request: NextRequest) {
-  const gate = gatePublicApi(request);
+export async function GET(request: NextRequest) {
+  const gate = await gatePublicApi(request);
   if (gate instanceof Response) return gate;
   const filtros = parseListQuery(request.nextUrl.searchParams);
   return json(listOportunidades(filtros), { headers: gate.headers });
 }
 
 export async function POST(request: NextRequest) {
+  const gate = await gateAdmin(request);
+  if (gate instanceof Response) return gate;
+
+  const media = requireJson(request);
+  if (media) return media;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -36,6 +43,7 @@ export async function POST(request: NextRequest) {
     { data: created },
     {
       status: 201,
+      cors: "none",
       headers: { Location: `/api/oportunidades/${created.id}` },
     }
   );

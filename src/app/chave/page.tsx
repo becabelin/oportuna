@@ -3,6 +3,7 @@ import { pageSocial } from "@/lib/site";
 
 import { KeyRequestForm } from "@/components/key-request-form";
 import { Card, CardContent } from "@/components/ui/card";
+import { LIMITES_API, LIMITES_IP } from "@/lib/limites-api";
 
 export const metadata: Metadata = pageSocial(
   "/chave",
@@ -12,25 +13,26 @@ export const metadata: Metadata = pageSocial(
 
 export default function ChavePage() {
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+    <div className="mx-auto grid w-full max-w-[1120px] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
       <div>
-        <p className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
+        <p className="text-sm text-muted-foreground">
           para quem vai integrar
         </p>
-        <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
+        <h1 className="mt-4 font-heading text-4xl leading-[1.1] tracking-tight sm:text-5xl">
           Pede a chave, cola no app, puxa o mural.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-foreground sm:text-lg">
-          O site continua aberto. A chave é só para chamada de API — o tipo de
+          O site continua aberto. A chave é só para chamada de API, o tipo de
           coisa que um bot faria mil vezes. Assim a conta de servidor não some
           no primeiro script maluco.
         </p>
         <div className="mt-6 grid gap-3 text-sm leading-relaxed">
           {[
             ["Não cobra nada agora.", "Cada consulta é um pedacinho de função na Vercel. No plano Hobby isso entra no pacote grátis até o tráfego ficar grande."],
-            ["Teto por chave:", "120 chamadas por minuto, 5 mil por dia. Um app de verdade quase não encosta nisso. Um scraper encosta."],
-            ["Custo se crescer:", "o que pesa é invocação + banda, não “por bolsa”. Se estourar o grátis, sobe o plano ou a gente coloca um teto mais baixo — não é cobrança por aluno."],
-            ["Onde a chave mora:", "no computador, em data/chaves.json. Na Vercel o disco some entre deploys — para produção de verdade ainda precisa de um KV. Enquanto isso, peça de novo se a chave “sumir”."],
+            ["Teto por chave:", `${LIMITES_API.porMinuto} chamadas por minuto, ${LIMITES_API.porDia.toLocaleString("pt-BR")} por dia. Um app de verdade quase não encosta nisso. Um scraper encosta.`],
+            ["Teto por IP:", `${LIMITES_IP.porMinuto}/min e ${LIMITES_IP.porDia.toLocaleString("pt-BR")}/dia, mesmo no mural. Assim ninguém fura a fila forjando a origem do site.`],
+            ["Custo se crescer:", "o que pesa é invocação + banda, não “por bolsa”. Se estourar o grátis, sobe o plano ou a gente coloca um teto mais baixo. Não é cobrança por aluno."],
+            ["Onde a chave mora:", "só o hash fica guardado. Em disco local, em data/chaves.json; na Vercel, no Redis (Upstash). O texto opt_… aparece uma vez. Se vazar, revogue em /fontes."],
           ].map(([title, body]) => (
             <Card key={title} size="sm">
               <CardContent>

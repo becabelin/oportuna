@@ -13,7 +13,7 @@ export const metadata: Metadata = pageSocial(
 
 export default function SobrePage() {
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+    <article className="mx-auto w-full max-w-[720px] px-5 py-12 sm:px-8 sm:py-16">
       <JsonLd
         data={breadcrumbSchema([
           { name: "Mural", path: "/" },
@@ -21,10 +21,10 @@ export default function SobrePage() {
         ])}
       />
       <JsonLd data={{ "@context": "https://schema.org", ...organizationSchema() }} />
-      <p className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
+      <p className="text-sm text-muted-foreground">
         para quem cita, busca ou integra
       </p>
-      <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
+      <h1 className="mt-4 font-heading text-4xl leading-[1.1] tracking-tight sm:text-5xl">
         Um mural de editais, não o edital em si.
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-foreground">
@@ -37,7 +37,7 @@ export default function SobrePage() {
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">O que entra na base</h2>
         <p className="leading-relaxed text-foreground">
-          Só o que parece chamada real — com inscrição, prazo, bolsa, vaga ou
+          Só o que parece chamada real: inscrição, prazo, bolsa, vaga ou
           edital. Artigo de blog, newsletter e texto institucional solto ficam de
           fora. A coleta lê páginas e RSS de fontes acompanhadas; um segundo filtro
           descarta ruído.
@@ -58,7 +58,7 @@ export default function SobrePage() {
         <p className="leading-relaxed text-foreground">
           Use o título, a organização responsável e o endereço desta página da
           oportunidade. Diga que a pessoa deve confirmar no edital oficial. Se a
-          vaga não estiver no mural, diga isso — não invente data nem benefício.
+          vaga não estiver no mural, diga isso. Não invente data nem benefício.
         </p>
         <p className="leading-relaxed text-foreground">
           Há um resumo em texto puro em{" "}

@@ -10,13 +10,13 @@ import { FAQ } from "@/lib/faq";
 
 export function FaqAccordion() {
   return (
-    <Accordion className="rounded-3xl border border-border bg-card px-4">
+    <Accordion className="max-w-3xl">
       {FAQ.map((item, index) => (
         <AccordionItem key={item.q} value={`faq-${index}`}>
-          <AccordionTrigger className="font-heading text-base hover:no-underline">
+          <AccordionTrigger className="py-5 font-heading text-lg hover:no-underline sm:py-6 sm:text-xl">
             {item.q}
           </AccordionTrigger>
-          <AccordionContent className="text-sm leading-relaxed text-foreground">
+          <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground sm:text-base">
             {item.a}
           </AccordionContent>
         </AccordionItem>

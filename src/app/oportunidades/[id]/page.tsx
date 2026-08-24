@@ -1,32 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, Calendar, MapPin, Wallet } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
+import { CopyLinkButton } from "@/components/copy-link-button";
 import { JsonLd } from "@/components/json-ld";
-import { PrazoBadge, TipoBadge } from "@/components/opportunity-card";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { OpportunityCard } from "@/components/opportunity-card";
+import { SectionHeading } from "@/components/editorial";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { capitalizeTag, formatDate } from "@/lib/format";
+import { formatDate, formatDateShort } from "@/lib/format";
 import { subtituloVisivel } from "@/lib/triagem";
 import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
-import { getOportunidade } from "@/lib/store";
+import { getOportunidade, listOportunidades } from "@/lib/store";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
+import type { Oportunidade } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+type TocItem = { id: string; label: string };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
@@ -57,15 +52,83 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+function minutosLeitura(...textos: string[]) {
+  const palavras = textos.join(" ").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(palavras / 180));
+}
+
+function paragrafos(texto: string) {
+  const partes = texto
+    .split(/\n{2,}/)
+    .map((parte) => parte.trim())
+    .filter(Boolean);
+  return partes.length > 0 ? partes : [texto];
+}
+
+function dataMeta(item: Oportunidade) {
+  return item.prazoInscricao ?? item.criadoEm.slice(0, 10);
+}
+
+function relacionados(item: Oportunidade) {
+  const mesmoTipo = listOportunidades({
+    tipo: item.tipo,
+    status: "abertas",
+    limit: 8,
+    ordenar: "prazo",
+  }).data.filter((outro) => outro.id !== item.id);
+  if (mesmoTipo.length >= 3) return mesmoTipo.slice(0, 3);
+  const extra = listOportunidades({
+    status: "abertas",
+    limit: 12,
+    ordenar: "prazo",
+  }).data.filter(
+    (outro) => outro.id !== item.id && !mesmoTipo.some((igual) => igual.id === outro.id)
+  );
+  return [...mesmoTipo, ...extra].slice(0, 3);
+}
+
+function ArticleToc({ items, minutos }: { items: TocItem[]; minutos: number }) {
+  return (
+    <nav
+      aria-label="Nesta página"
+      className="rounded-2xl border border-border bg-card p-5 shadow-none contrast:border-white sm:p-6"
+    >
+      <p className="text-sm font-medium text-foreground">Neste edital</p>
+      <ol className="mt-4 space-y-2.5">
+        {items.map((item) => (
+          <li key={item.id}>
+            <a
+              href={`#${item.id}`}
+              className="text-sm leading-snug text-muted-foreground no-underline transition-colors hover:text-foreground"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-8 text-sm text-muted-foreground">{minutos} min de leitura</p>
+    </nav>
+  );
+}
+
 export default async function OpportunityPage({ params }: PageProps) {
   const { id } = await params;
   const item = getOportunidade(id);
   if (!item) notFound();
 
   const local = [item.cidade, item.pais].filter(Boolean).join(" · ");
+  const toc: TocItem[] = [
+    { id: "fatos", label: "O que você precisa saber" },
+    { id: "descricao", label: "Descrição" },
+    ...(item.requisitos.length > 0 ? [{ id: "requisitos", label: "Requisitos" }] : []),
+    { id: "inscricao", label: "Inscrição" },
+  ];
+  const minutos = minutosLeitura(item.descricao, item.requisitos.join(" "));
+  const mais = relacionados(item);
+  const data = dataMeta(item);
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+    <article className="mx-auto w-full max-w-[1080px] px-5 py-10 sm:px-8 sm:py-14">
       <JsonLd
         data={breadcrumbSchema([
           { name: "Mural", path: "/" },
@@ -73,138 +136,168 @@ export default async function OpportunityPage({ params }: PageProps) {
         ])}
       />
       <JsonLd data={opportunitySchema(item)} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/" />}>Mural</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{item.titulo}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <TipoBadge tipo={item.tipo} />
-        <PrazoBadge prazoInscricao={item.prazoInscricao} />
-      </div>
+      <nav aria-label="Localização" className="mb-6 text-sm text-muted-foreground">
+        <ol className="flex flex-wrap items-center gap-2">
+          <li>
+            <Link href="/" className="underline-offset-4 hover:text-foreground hover:underline">
+              Mural
+            </Link>
+          </li>
+          <li aria-hidden>/</li>
+          <li>
+            <span aria-current="page">{item.titulo}</span>
+          </li>
+        </ol>
+      </nav>
 
-      <h1 className="mt-4 font-heading text-3xl leading-tight tracking-tight text-balance sm:text-4xl">
-        {item.titulo}
-      </h1>
-      {subtituloVisivel(item) ? (
-        <p className="mt-3 text-lg leading-snug text-foreground">{item.subtitulo}</p>
-      ) : null}
-      <p className="mt-2 text-muted-foreground">{item.organizacao}</p>
-
-      <Card className="mt-8">
-      <CardContent className="pt-(--card-spacing)">
-      <dl className="grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-12 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-16">
         <div>
-          <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <Wallet className="size-3.5" aria-hidden />
-            Benefício
-          </dt>
-          <dd className="mt-1 text-sm">{item.beneficio ?? "Não informado"}</dd>
-        </div>
-        <div>
-          <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <MapPin className="size-3.5" aria-hidden />
-            Onde
-          </dt>
-          <dd className="mt-1 text-sm">
-            {local} · {MODALIDADE_LABEL[item.modalidade]}
-          </dd>
-        </div>
-        <div>
-          <dt className="flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            <Calendar className="size-3.5" aria-hidden />
-            Inscrições
-          </dt>
-          <dd className="mt-1 text-sm">
-            {item.prazoInscricao ? (
-              <>
-                até{" "}
-                <time dateTime={item.prazoInscricao}>{formatDate(item.prazoInscricao)}</time>
-              </>
-            ) : (
-              "fluxo contínuo"
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Perfil
-          </dt>
-          <dd className="mt-1 text-sm">
-            {item.area} · {NIVEL_LABEL[item.nivel]}
-            {item.vagas ? ` · ${item.vagas} vagas` : ""}
-          </dd>
-        </div>
-        {item.dataInicio ? (
-          <div>
-            <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Início
-            </dt>
-            <dd className="mt-1 text-sm">{formatDate(item.dataInicio)}</dd>
+          <div className="flex items-center justify-between gap-4 text-[13px] text-muted-foreground">
+            <span>{TIPO_LABEL[item.tipo]}</span>
+            <time dateTime={data}>{formatDateShort(data)}</time>
           </div>
-        ) : null}
-        {item.dataFim ? (
-          <div>
-            <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Término
-            </dt>
-            <dd className="mt-1 text-sm">{formatDate(item.dataFim)}</dd>
+
+          <h1 className="mt-5 font-heading text-[2.15rem] leading-[1.08] tracking-tight text-balance sm:text-5xl lg:text-[3.15rem]">
+            {item.titulo}
+          </h1>
+          {subtituloVisivel(item) ? (
+            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              {item.subtitulo}
+            </p>
+          ) : null}
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-8 contrast:border-white">
+            <p className="min-w-0 truncate text-sm">{item.organizacao}</p>
+            <CopyLinkButton />
           </div>
-        ) : null}
-      </dl>
-      </CardContent>
-      </Card>
 
-      <Separator className="my-8 bg-foreground/15" />
+          <div className="lg:hidden">
+            <div className="border-b border-border py-8 contrast:border-white">
+              <ArticleToc items={toc} minutos={minutos} />
+            </div>
+          </div>
 
-      <div className="space-y-4 text-[17px] leading-relaxed">
-        <p>{item.descricao}</p>
-      </div>
+          <div className="mt-10 divide-y divide-foreground/30 contrast:divide-white">
+          <section id="fatos" className="scroll-mt-28 pb-10">
+            <h2 className="font-heading text-2xl sm:text-[1.75rem]">O que você precisa saber</h2>
+            <dl className="mt-6 grid gap-6 sm:grid-cols-2">
+              <div>
+                <dt className="text-sm text-muted-foreground">Benefício</dt>
+                <dd className="mt-1 text-base">{item.beneficio ?? "Não informado"}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Onde</dt>
+                <dd className="mt-1 text-base">
+                  {local} · {MODALIDADE_LABEL[item.modalidade]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Inscrições</dt>
+                <dd className="mt-1 text-base">
+                  {item.prazoInscricao ? (
+                    <>
+                      até <time dateTime={item.prazoInscricao}>{formatDate(item.prazoInscricao)}</time>
+                    </>
+                  ) : (
+                    "fluxo contínuo"
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Perfil</dt>
+                <dd className="mt-1 text-base">
+                  {item.area} · {NIVEL_LABEL[item.nivel]}
+                  {item.vagas ? ` · ${item.vagas} vagas` : ""}
+                </dd>
+              </div>
+              {item.dataInicio ? (
+                <div>
+                  <dt className="text-sm text-muted-foreground">Início</dt>
+                  <dd className="mt-1 text-base">{formatDate(item.dataInicio)}</dd>
+                </div>
+              ) : null}
+              {item.dataFim ? (
+                <div>
+                  <dt className="text-sm text-muted-foreground">Término</dt>
+                  <dd className="mt-1 text-base">{formatDate(item.dataFim)}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
 
-      {item.requisitos.length > 0 ? (
-        <section className="mt-8">
-          <h2 className="font-heading text-2xl">Requisitos</h2>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed">
-            {item.requisitos.map((requisito) => (
-              <li key={requisito}>{requisito}</li>
+          <section id="descricao" className="max-w-[40rem] scroll-mt-28 space-y-5 py-10 text-[17px] leading-[1.75] sm:text-lg">
+            <h2 className="font-heading text-2xl sm:text-[1.75rem]">Descrição</h2>
+            {paragrafos(item.descricao).map((paragrafo, index) => (
+              <p key={index}>{paragrafo}</p>
             ))}
-          </ul>
+          </section>
+
+          {item.requisitos.length > 0 ? (
+            <section id="requisitos" className="scroll-mt-28 py-10">
+              <h2 className="font-heading text-2xl sm:text-[1.75rem]">Requisitos</h2>
+              <ul className="mt-5 list-disc space-y-2 pl-5 text-[17px] leading-relaxed sm:text-lg">
+                {item.requisitos.map((requisito) => (
+                  <li key={requisito}>{requisito}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          <section id="inscricao" className="scroll-mt-28 py-10">
+            <h2 className="font-heading text-2xl sm:text-[1.75rem]">Inscrição</h2>
+            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
+              Confirme datas, vagas e regras no site oficial. O prazo que vale é o do edital.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <a
+                href={item.urlInscricao}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants())}
+              >
+                Ir para a inscrição
+                <ArrowUpRight className="size-4" aria-hidden />
+                <span className="sr-only">(abre em nova aba)</span>
+              </a>
+              <Link href="/chave" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                JSON via API (precisa de chave)
+              </Link>
+              {item.fonteId ? (
+                <Link
+                  href={`/?fonteId=${item.fonteId}`}
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Outras desta fonte
+                </Link>
+              ) : null}
+            </div>
+          </section>
+
+          <p className="py-8 text-sm text-muted-foreground">
+            Publicado em{" "}
+            <time dateTime={item.criadoEm}>{formatDate(item.criadoEm.slice(0, 10))}</time>
+          </p>
+          </div>
+        </div>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-28">
+            <ArticleToc items={toc} minutos={minutos} />
+          </div>
+        </aside>
+      </div>
+
+      {mais.length > 0 ? (
+        <section className="mt-20 border-t border-border pt-12 contrast:border-white sm:mt-24">
+          <SectionHeading title="Mais para explorar" href="/" action="Ver mural" />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {mais.map((outro) => (
+              <OpportunityCard key={outro.id} item={outro} size="related" />
+            ))}
+          </div>
         </section>
       ) : null}
-
-      {item.tags.length > 0 ? (
-        <p className="mt-8 text-sm text-muted-foreground">
-          {item.tags.map((tag) => `#${capitalizeTag(tag).replaceAll(" ", "")}`).join("  ")}
-        </p>
-      ) : null}
-
-      <div className="mt-10 flex flex-wrap gap-2">
-        <a
-          href={item.urlInscricao}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(buttonVariants())}
-        >
-          Ir para a inscrição
-          <ArrowUpRight className="size-4" aria-hidden />
-          <span className="sr-only">(abre em nova aba)</span>
-        </a>
-        <Link href="/chave" className={cn(buttonVariants({ variant: "outline" }))}>
-          JSON via API (precisa de chave)
-        </Link>
-        {item.fonteId ? (
-          <Link href={`/?fonteId=${item.fonteId}`} className={cn(buttonVariants({ variant: "ghost" }))}>
-            Outras desta fonte
-          </Link>
-        ) : null}
-      </div>
     </article>
   );
 }

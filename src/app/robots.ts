@@ -5,13 +5,20 @@ import { absoluteUrl } from "@/lib/site";
 const AI_BOTS = [
   "GPTBot",
   "ChatGPT-User",
+  "OAI-SearchBot",
   "Google-Extended",
+  "Google-CloudVertexBot",
+  "GoogleOther",
   "PerplexityBot",
   "ClaudeBot",
   "anthropic-ai",
   "Applebot-Extended",
-  "CCBot",
+  "Amazonbot",
   "Bytespider",
+  "CCBot",
+  "DuckAssistBot",
+  "meta-externalagent",
+  "YouBot",
 ];
 
 export default function robots(): MetadataRoute.Robots {

@@ -1,9 +1,11 @@
 import type { Oportunidade } from "./types";
 
-export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo">> = [
+export const SEED: Array<
+  Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl">
+> = [
   {
     id: "pibic-cnpq-2026",
-    titulo: "PIBIC — Bolsa de Iniciação Científica CNPq",
+    titulo: "PIBIC: Bolsa de Iniciação Científica CNPq",
     tipo: "bolsa",
     organizacao: "CNPq",
     descricao:
@@ -30,7 +32,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "capes-ds-mestrado",
-    titulo: "Bolsa CAPES Demanda Social — Mestrado",
+    titulo: "Bolsa CAPES Demanda Social: Mestrado",
     tipo: "bolsa",
     organizacao: "CAPES",
     descricao:
@@ -110,7 +112,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "chevening-2027",
-    titulo: "Chevening Scholarship — Mestrado no Reino Unido",
+    titulo: "Chevening Scholarship: Mestrado no Reino Unido",
     tipo: "bolsa",
     organizacao: "UK Foreign, Commonwealth & Development Office",
     descricao:
@@ -137,7 +139,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fulbright-mestrado",
-    titulo: "Fulbright — Mestrado e Doutorado nos EUA",
+    titulo: "Fulbright: Mestrado e Doutorado nos EUA",
     tipo: "bolsa",
     organizacao: "Comissão Fulbright Brasil",
     descricao:
@@ -191,7 +193,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "daad-alemanha",
-    titulo: "DAAD Study Scholarships — Alemanha",
+    titulo: "DAAD Study Scholarships: Alemanha",
     tipo: "bolsa",
     organizacao: "DAAD",
     descricao:
@@ -215,32 +217,6 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
     vagas: null,
     criadoEm: "2026-04-22T12:00:00.000Z",
     atualizadoEm: "2026-04-22T12:00:00.000Z",
-  },
-  {
-    id: "santander-open-academy",
-    titulo: "Santander Open Academy — Bolsas de cursos",
-    tipo: "bolsa",
-    organizacao: "Santander Universidades",
-    descricao:
-      "Página de bolsas e auxílios da Santander Open Academy: editais de mobilidade, pesquisa, estágios e cursos curtos com Cambridge, MIT e Google. Novas turmas e bolsas abrem ao longo do ano; a inscrição é online.",
-    area: "Negócios",
-    nivel: "todos",
-    modalidade: "remoto",
-    pais: "Internacional",
-    cidade: null,
-    beneficio: "Curso gratuito (valor de mercado até R$ 5.000)",
-    prazoInscricao: "2026-09-08",
-    dataInicio: "2026-10-01",
-    dataFim: "2026-12-15",
-    urlInscricao: "https://www.santanderopenacademy.com/pt_br/sites/scholarships.html",
-    requisitos: [
-      "Ter 18 anos ou mais",
-      "Cadastro na plataforma Santander Open Academy",
-    ],
-    tags: ["Cursos", "Carreira", "Remoto"],
-    vagas: 5000,
-    criadoEm: "2026-08-01T12:00:00.000Z",
-    atualizadoEm: "2026-08-01T12:00:00.000Z",
   },
   {
     id: "campus-party-brasil",
@@ -290,7 +266,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "tdc-sao-paulo",
-    titulo: "The Developer's Conference — São Paulo",
+    titulo: "The Developer's Conference: São Paulo",
     tipo: "evento",
     organizacao: "The Developer's Conference",
     descricao:
@@ -313,7 +289,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "csbc-2026",
-    titulo: "CSBC — Congresso da Sociedade Brasileira de Computação",
+    titulo: "CSBC: Congresso da Sociedade Brasileira de Computação",
     tipo: "evento",
     organizacao: "SBC",
     descricao:
@@ -359,7 +335,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "nubank-estagio",
-    titulo: "Estágio em Engenharia — Nubank",
+    titulo: "Estágio em Engenharia: Nubank",
     tipo: "estagio",
     organizacao: "Nubank",
     descricao:
@@ -411,7 +387,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "brafitec",
-    titulo: "BRAFITEC — Intercâmbio Brasil–França em Engenharia",
+    titulo: "BRAFITEC: Intercâmbio Brasil–França em Engenharia",
     tipo: "intercambio",
     organizacao: "CAPES / Embaixada da França",
     descricao:
@@ -490,7 +466,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "google-certificates",
-    titulo: "Google Career Certificates — bolsas Coursera",
+    titulo: "Google Career Certificates: bolsas Coursera",
     tipo: "curso",
     organizacao: "Google / Coursera",
     descricao:
@@ -516,7 +492,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fiocruz-verao",
-    titulo: "Curso de Verão Fiocruz — Saúde Pública",
+    titulo: "Curso de Verão Fiocruz: Saúde Pública",
     tipo: "curso",
     organizacao: "Fiocruz",
     descricao:
@@ -542,7 +518,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "capes-print-encerrado",
-    titulo: "CAPES PrInt — Doutorado Sanduíche (edital 2025)",
+    titulo: "CAPES PrInt: Doutorado Sanduíche (edital 2025)",
     tipo: "bolsa",
     organizacao: "CAPES",
     descricao:
@@ -568,7 +544,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "uxconf-br-2026",
-    titulo: "UXConf BR 2026 — Design para germinar e regenerar",
+    titulo: "UXConf BR 2026: Design para germinar e regenerar",
     tipo: "evento",
     organizacao: "UXConf BR",
     descricao:
@@ -591,7 +567,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "dexconf-2026",
-    titulo: "DEXCONF 2026 — Experiências conectadas",
+    titulo: "DEXCONF 2026: Experiências conectadas",
     tipo: "evento",
     organizacao: "Mergo Escola de Design",
     descricao:
@@ -614,7 +590,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "link-festival-2026",
-    titulo: "Link Festival — acessibilidade digital",
+    titulo: "Link Festival: acessibilidade digital",
     tipo: "evento",
     organizacao: "Hand Talk",
     descricao:
@@ -637,7 +613,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "mulheres-de-produto",
-    titulo: "Mulheres de Produto — comunidade e eventos",
+    titulo: "Mulheres de Produto: comunidade e eventos",
     tipo: "evento",
     organizacao: "Mulheres de Produto",
     descricao:
@@ -660,7 +636,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "product-camp",
-    titulo: "Product Camp — evento de produto",
+    titulo: "Product Camp: evento de produto",
     tipo: "evento",
     organizacao: "Product Camp",
     descricao:
@@ -844,7 +820,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "estudar-fora",
-    titulo: "Estudar Fora — bolsas para universidades no exterior",
+    titulo: "Estudar Fora: bolsas para universidades no exterior",
     tipo: "intercambio",
     organizacao: "Estudar Fora",
     descricao:
@@ -867,7 +843,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "partiu-intercambio",
-    titulo: "Partiu Intercâmbio — estudar fora com bolsa",
+    titulo: "Partiu Intercâmbio: estudar fora com bolsa",
     tipo: "intercambio",
     organizacao: "Partiu Intercâmbio",
     descricao:
@@ -890,7 +866,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "bolsa-mais-brasil",
-    titulo: "Bolsa Mais Brasil — bolsas de estudo",
+    titulo: "Bolsa Mais Brasil: bolsas de estudo",
     tipo: "bolsa",
     organizacao: "Bolsa Mais Brasil",
     descricao:
@@ -913,7 +889,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fundacao-lemann-bolsas",
-    titulo: "Fundação Lemann — bolsas e oportunidades de liderança",
+    titulo: "Fundação Lemann: bolsas e oportunidades de liderança",
     tipo: "bolsa",
     organizacao: "Fundação Lemann",
     descricao:
@@ -936,7 +912,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "programaria",
-    titulo: "PrograMaria — cursos de tecnologia com diversidade",
+    titulo: "PrograMaria: cursos de tecnologia com diversidade",
     tipo: "curso",
     organizacao: "PrograMaria",
     descricao:
@@ -959,7 +935,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "womakerscode",
-    titulo: "WoMakersCode — bootcamps e mentorias para mulheres",
+    titulo: "WoMakersCode: bootcamps e mentorias para mulheres",
     tipo: "curso",
     organizacao: "WoMakersCode",
     descricao:
@@ -982,7 +958,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "ufsc-oportunidades-internacionais",
-    titulo: "UFSC — oportunidades e eventos internacionais",
+    titulo: "UFSC: oportunidades e eventos internacionais",
     tipo: "evento",
     organizacao: "UFSC",
     descricao:
@@ -1005,7 +981,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "carta-da-terra-jovens-lideres",
-    titulo: "Programa Jovens Líderes — Carta da Terra Internacional",
+    titulo: "Programa Jovens Líderes: Carta da Terra Internacional",
     tipo: "curso",
     organizacao: "Carta da Terra Internacional",
     descricao:
@@ -1028,7 +1004,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "rio2c",
-    titulo: "Rio2C — encontro de criatividade da América Latina",
+    titulo: "Rio2C: encontro de criatividade da América Latina",
     tipo: "evento",
     organizacao: "Rio2C",
     descricao:
@@ -1051,7 +1027,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "youth-europa-go-abroad",
-    titulo: "Portal Europeu da Juventude — ir para o estrangeiro",
+    titulo: "Portal Europeu da Juventude: ir para o estrangeiro",
     tipo: "intercambio",
     organizacao: "União Europeia",
     descricao:
@@ -1074,7 +1050,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "nm-edu-ferias",
-    titulo: "NM Educação — programas de férias para jovens",
+    titulo: "NM Educação: programas de férias para jovens",
     tipo: "intercambio",
     organizacao: "NM Educação Internacional",
     descricao:
@@ -1143,7 +1119,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "world-creativity-day-joinville",
-    titulo: "World Creativity Day — Joinville (Região Sul)",
+    titulo: "World Creativity Day: Joinville (Região Sul)",
     tipo: "evento",
     organizacao: "World Creativity Day Joinville / ACIJ",
     descricao:
@@ -1166,7 +1142,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "hacktown-2026",
-    titulo: "HackTown 2026 — 10 anos em Santa Rita do Sapucaí",
+    titulo: "HackTown 2026: 10 anos em Santa Rita do Sapucaí",
     tipo: "evento",
     organizacao: "HackTown",
     descricao:
@@ -1212,7 +1188,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "if-design-award-2027",
-    titulo: "iF Design Award 2027 — chamada para inscrições",
+    titulo: "iF Design Award 2027: chamada para inscrições",
     tipo: "concurso",
     organizacao: "iF International Forum Design",
     descricao:
@@ -1235,7 +1211,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "bda-premio-brasileiro-design-2026",
-    titulo: "BDA — Prêmio Brasileiro de Design 2026",
+    titulo: "BDA: Prêmio Brasileiro de Design 2026",
     tipo: "concurso",
     organizacao: "BDA",
     descricao:
@@ -1281,7 +1257,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "dfbw-award",
-    titulo: "DFBW Award — Design For a Better World",
+    titulo: "DFBW Award: Design For a Better World",
     tipo: "concurso",
     organizacao: "Design For a Better World",
     descricao:
@@ -1350,7 +1326,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "access-plus",
-    titulo: "Access+ — oportunidades educacionais para jovens",
+    titulo: "Access+: oportunidades educacionais para jovens",
     tipo: "bolsa",
     organizacao: "Access+",
     descricao:
@@ -1396,7 +1372,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "rise-for-the-world",
-    titulo: "Rise — programa global para jovens de 15 a 17 anos",
+    titulo: "Rise: programa global para jovens de 15 a 17 anos",
     tipo: "bolsa",
     organizacao: "Rise (Schmidt Futures / Rhodes Trust)",
     descricao:
@@ -1419,7 +1395,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "engajamundo",
-    titulo: "Engajamundo — jovens e impacto socioambiental",
+    titulo: "Engajamundo: jovens e impacto socioambiental",
     tipo: "curso",
     organizacao: "Engajamundo",
     descricao:
@@ -1442,7 +1418,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "prolider-instituto-four",
-    titulo: "ProLíder — formação de lideranças (Instituto Four)",
+    titulo: "ProLíder: formação de lideranças (Instituto Four)",
     tipo: "curso",
     organizacao: "Instituto Four",
     descricao:
@@ -1465,7 +1441,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "aiesec-brasil",
-    titulo: "AIESEC — intercâmbios voluntários e profissionais",
+    titulo: "AIESEC: intercâmbios voluntários e profissionais",
     tipo: "intercambio",
     organizacao: "AIESEC no Brasil",
     descricao:
@@ -1538,7 +1514,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "prouni-mec",
-    titulo: "ProUni — bolsas em universidades privadas",
+    titulo: "ProUni: bolsas em universidades privadas",
     tipo: "bolsa",
     organizacao: "MEC",
     descricao:
@@ -1561,7 +1537,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fies-mec",
-    titulo: "FIES — financiamento estudantil",
+    titulo: "FIES: financiamento estudantil",
     tipo: "bolsa",
     organizacao: "MEC",
     descricao:
@@ -1584,7 +1560,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fundacao-estudar",
-    titulo: "Fundação Estudar — bolsas e liderança",
+    titulo: "Fundação Estudar: bolsas e liderança",
     tipo: "bolsa",
     organizacao: "Fundação Estudar",
     descricao:
@@ -1607,7 +1583,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "obmep",
-    titulo: "OBMEP — Olimpíada Brasileira de Matemática",
+    titulo: "OBMEP: Olimpíada Brasileira de Matemática",
     tipo: "concurso",
     organizacao: "IMPA / OBMEP",
     descricao:
@@ -1653,7 +1629,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "obf-fisica",
-    titulo: "OBF — Olimpíada Brasileira de Física",
+    titulo: "OBF: Olimpíada Brasileira de Física",
     tipo: "concurso",
     organizacao: "SBF",
     descricao:
@@ -1680,7 +1656,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
     tipo: "estagio",
     organizacao: "Ministério do Trabalho e Emprego",
     descricao:
-      "Contrato de aprendizagem para jovens de 14 a 24 anos conjugando formação teórica e prática em empresas de diversos setores — não só tecnologia.",
+      "Contrato de aprendizagem para jovens de 14 a 24 anos conjugando formação teórica e prática em empresas de diversos setores, não só tecnologia.",
     area: "Multidisciplinar",
     nivel: "ensino-medio",
     modalidade: "presencial",
@@ -1699,7 +1675,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "gcub-mobilidade",
-    titulo: "GCUB — bolsas e mobilidade acadêmica",
+    titulo: "GCUB: bolsas e mobilidade acadêmica",
     tipo: "intercambio",
     organizacao: "GCUB",
     descricao:
@@ -1722,7 +1698,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "fiocruz-pos",
-    titulo: "Fiocruz — cursos e bolsas em saúde",
+    titulo: "Fiocruz: cursos e bolsas em saúde",
     tipo: "bolsa",
     organizacao: "Fiocruz",
     descricao:
@@ -1745,7 +1721,7 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "faperj-bolsas",
-    titulo: "FAPERJ — bolsas e editais no Rio de Janeiro",
+    titulo: "FAPERJ: bolsas e editais no Rio de Janeiro",
     tipo: "bolsa",
     organizacao: "FAPERJ",
     descricao:
@@ -1768,11 +1744,11 @@ export const SEED: Array<Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | 
   },
   {
     id: "sebrae-jovens",
-    titulo: "Sebrae — formação e empreendedorismo para jovens",
+    titulo: "Sebrae: formação e empreendedorismo para jovens",
     tipo: "curso",
     organizacao: "Sebrae",
     descricao:
-      "Cursos, mentorias e programas de empreendedorismo do Sebrae abertos a jovens e estudantes de qualquer área — negócios, serviços, agro e economia criativa.",
+      "Cursos, mentorias e programas de empreendedorismo do Sebrae abertos a jovens e estudantes de qualquer área: negócios, serviços, agro e economia criativa.",
     area: "Negócios",
     nivel: "todos",
     modalidade: "hibrido",

@@ -1,22 +1,31 @@
 import type { NextRequest } from "next/server";
 
+import { gateAdmin } from "@/lib/admin-auth";
 import { adicionarEColetar } from "@/lib/coleta";
-import { isTipo } from "@/lib/validate";
 import { listFontes } from "@/lib/fontes";
-import { apiError, json, optionsResponse } from "@/lib/http";
+import { apiError, json, optionsResponse, requireJson } from "@/lib/http";
 import { assertPublicHttpUrl } from "@/lib/ssrf";
+import { isTipo } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
 export function OPTIONS() {
-  return optionsResponse();
+  return optionsResponse("none");
 }
 
-export function GET() {
-  return json({ data: listFontes() });
+export async function GET(request: NextRequest) {
+  const gate = await gateAdmin(request);
+  if (gate instanceof Response) return gate;
+  return json({ data: listFontes() }, { cors: "none" });
 }
 
 export async function POST(request: NextRequest) {
+  const gate = await gateAdmin(request);
+  if (gate instanceof Response) return gate;
+
+  const media = requireJson(request);
+  if (media) return media;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -51,6 +60,6 @@ export async function POST(request: NextRequest) {
       oportunidades: resultado.oportunidades,
       erro: resultado.erro ?? null,
     },
-    { status: 201 }
+    { status: 201, cors: "none" }
   );
 }

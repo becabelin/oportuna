@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
+import { AcessoRestrito } from "@/components/acesso-restrito";
+import { ChavesAdmin } from "@/components/chaves-admin";
 import { FontesManager } from "@/components/fontes-manager";
+import { paginaAdminLiberada } from "@/lib/admin-page";
 
 export const metadata: Metadata = {
   title: "Manutenção da base",
@@ -8,12 +11,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function FontesPage() {
+export default async function FontesPage() {
+  if (!(await paginaAdminLiberada())) {
+    return <AcessoRestrito />;
+  }
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
-        Uso interno
-      </p>
+    <div className="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+      <p className="text-sm text-muted-foreground">Uso interno</p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight">Fontes da base</h1>
       <p className="mt-3 text-muted-foreground">
         Quem consome a API não vê esta tela. Aqui a Trilha da Oportunidade atualiza
@@ -21,6 +26,9 @@ export default function FontesPage() {
       </p>
       <div className="mt-8">
         <FontesManager />
+      </div>
+      <div className="mt-12">
+        <ChavesAdmin />
       </div>
     </div>
   );

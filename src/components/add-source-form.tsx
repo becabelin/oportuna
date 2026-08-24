@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Link2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { ApiError, Fonte, Oportunidade } from "@/lib/types";
 
@@ -58,25 +59,40 @@ export function AddSourceForm({ compact = false }: { compact?: boolean }) {
 
   return (
     <form onSubmit={onSubmit} className={compact ? "grid gap-2" : "grid gap-3"}>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
-          <Link2 className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="url"
-            required
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            placeholder="https://site-de-bolsas.edu/editais"
-            className="h-10 pl-8"
-            aria-label="URL da fonte"
-          />
+      <Field>
+        <FieldLabel htmlFor="fonte-url">URL da fonte</FieldLabel>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="relative flex-1">
+            <Link2 aria-hidden className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="fonte-url"
+              type="url"
+              name="url"
+              autoComplete="url"
+              required
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://site-de-bolsas.edu/editais"
+              className="pl-8"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "fonte-erro" : message ? "fonte-ok" : undefined}
+            />
+          </div>
+          <Button type="submit" disabled={pending}>
+            {pending ? "Coletando…" : "Adicionar e coletar"}
+          </Button>
         </div>
-        <Button type="submit" disabled={pending} className="h-10">
-          {pending ? "Coletando…" : "Adicionar e coletar"}
-        </Button>
-      </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {message ? <p className="text-sm font-semibold text-foreground">{message}</p> : null}
+      </Field>
+      {error ? (
+        <p id="fonte-erro" role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+      {message ? (
+        <p id="fonte-ok" role="status" className="text-sm font-semibold text-foreground">
+          {message}
+        </p>
+      ) : null}
     </form>
   );
 }

@@ -16,6 +16,7 @@ import {
   FONT_STEPS,
   isFontScale,
   isTheme,
+  MOTION_KEY,
   nextFontScale,
   THEME_KEY,
   type FontScale,
@@ -25,10 +26,12 @@ import {
 type A11yContextValue = {
   theme: Theme;
   font: FontScale;
+  motionPause: boolean;
   setTheme: (theme: Theme) => void;
   increaseFont: () => void;
   decreaseFont: () => void;
   resetFont: () => void;
+  toggleMotion: () => void;
   canIncrease: boolean;
   canDecrease: boolean;
   announcement: string;
@@ -51,63 +54,101 @@ function readStoredFont(): FontScale {
   return isFontScale(parsed) ? parsed : 100;
 }
 
+function readStoredMotionPause(): boolean {
+  if (typeof window === "undefined") return false;
+  const stored = window.localStorage.getItem(MOTION_KEY);
+  if (stored === "pause") return true;
+  if (stored === "play") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function A11yProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
   const [font, setFontState] = useState<FontScale>(100);
+  const [motionPause, setMotionPause] = useState(false);
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
     const nextTheme = readStoredTheme();
     const nextFont = readStoredFont();
+    const nextPause = readStoredMotionPause();
     setThemeState(nextTheme);
     setFontState(nextFont);
-    applyDocumentPrefs(nextTheme, nextFont);
+    setMotionPause(nextPause);
+    applyDocumentPrefs(nextTheme, nextFont, nextPause);
   }, []);
 
-  const persist = useCallback((nextTheme: Theme, nextFont: FontScale, message: string) => {
-    setThemeState(nextTheme);
-    setFontState(nextFont);
-    applyDocumentPrefs(nextTheme, nextFont);
-    window.localStorage.setItem(THEME_KEY, nextTheme);
-    window.localStorage.setItem(FONT_KEY, String(nextFont));
-    setAnnouncement(message);
-  }, []);
+  const persist = useCallback(
+    (nextTheme: Theme, nextFont: FontScale, nextPause: boolean, message: string) => {
+      setThemeState(nextTheme);
+      setFontState(nextFont);
+      setMotionPause(nextPause);
+      applyDocumentPrefs(nextTheme, nextFont, nextPause);
+      window.localStorage.setItem(THEME_KEY, nextTheme);
+      window.localStorage.setItem(FONT_KEY, String(nextFont));
+      window.localStorage.setItem(MOTION_KEY, nextPause ? "pause" : "play");
+      setAnnouncement(message);
+    },
+    []
+  );
 
   const setTheme = useCallback(
     (next: Theme) => {
       const labels = { light: "Modo claro", dark: "Modo escuro", contrast: "Alto contraste" };
-      persist(next, font, `${labels[next]} ativado.`);
+      persist(next, font, motionPause, `${labels[next]} ativado.`);
     },
-    [font, persist]
+    [font, motionPause, persist]
   );
 
   const increaseFont = useCallback(() => {
     const next = nextFontScale(font, 1);
-    persist(theme, next, `Texto em ${next} por cento.`);
-  }, [font, persist, theme]);
+    persist(theme, next, motionPause, `Texto em ${next} por cento.`);
+  }, [font, motionPause, persist, theme]);
 
   const decreaseFont = useCallback(() => {
     const next = nextFontScale(font, -1);
-    persist(theme, next, `Texto em ${next} por cento.`);
-  }, [font, persist, theme]);
+    persist(theme, next, motionPause, `Texto em ${next} por cento.`);
+  }, [font, motionPause, persist, theme]);
 
   const resetFont = useCallback(() => {
-    persist(theme, 100, "Tamanho do texto padrão, 100 por cento.");
-  }, [persist, theme]);
+    persist(theme, 100, motionPause, "Tamanho do texto padrão, 100 por cento.");
+  }, [motionPause, persist, theme]);
+
+  const toggleMotion = useCallback(() => {
+    const next = !motionPause;
+    persist(
+      theme,
+      font,
+      next,
+      next ? "Animações pausadas." : "Animações retomadas."
+    );
+  }, [font, motionPause, persist, theme]);
 
   const value = useMemo<A11yContextValue>(
     () => ({
       theme,
       font,
+      motionPause,
       setTheme,
       increaseFont,
       decreaseFont,
       resetFont,
+      toggleMotion,
       canIncrease: font < FONT_STEPS[FONT_STEPS.length - 1],
       canDecrease: font > FONT_STEPS[0],
       announcement,
     }),
-    [announcement, decreaseFont, font, increaseFont, resetFont, setTheme, theme]
+    [
+      announcement,
+      decreaseFont,
+      font,
+      increaseFont,
+      motionPause,
+      resetFont,
+      setTheme,
+      theme,
+      toggleMotion,
+    ]
   );
 
   return (

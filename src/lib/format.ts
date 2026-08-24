@@ -12,6 +12,29 @@ export function formatDate(iso: string | null): string {
   return dateFormatter.format(new Date(`${iso}T00:00:00Z`));
 }
 
+const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatDateShort(iso: string | null): string {
+  if (!iso) return "Fluxo contínuo";
+  return shortDateFormatter.format(new Date(`${iso}T00:00:00Z`));
+}
+
+/** Label curto para cards: deixa claro que a data é o prazo de inscrição. */
+export function formatPrazoInscricao(iso: string | null): string {
+  if (!iso) return "Inscrições contínuas";
+  const days = daysUntil(iso);
+  const data = shortDateFormatter.format(new Date(`${iso}T00:00:00Z`));
+  if (days < 0) return `Inscrição encerrou em ${data}`;
+  if (days === 0) return "Inscrição encerra hoje";
+  if (days === 1) return "Inscrição encerra amanhã";
+  return `Inscrição até ${data}`;
+}
+
 function todayUtc(): Date {
   const now = new Date();
   return new Date(

@@ -25,7 +25,9 @@ export default function NotFound() {
         <EmptyMedia variant="icon">
           <Sticker aria-hidden />
         </EmptyMedia>
-        <EmptyTitle className="font-heading text-4xl">Essa página não está no mural.</EmptyTitle>
+        <EmptyTitle className="font-heading text-4xl">
+          <h1>Essa página não está no mural.</h1>
+        </EmptyTitle>
         <EmptyDescription>
           O link pode ter expirado ou o identificador está errado. Volte ao catálogo e busque
           de novo.

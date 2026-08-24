@@ -20,21 +20,12 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -46,6 +37,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
+import { TIPO_DOT } from "@/lib/tipo-visual";
 import type { Oportunidade, PaginaOportunidades, TipoOportunidade } from "@/lib/types";
 import { MODALIDADES, NIVEIS, TIPOS } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -62,10 +54,33 @@ type CatalogProps = {
   initialResult?: PaginaOportunidades;
   initialTaxonomia?: Taxonomia;
   initialQuery?: string;
+  pageSize?: number;
 };
 
+const MURAL_PAGE_SIZE = 15;
+
+function filterKey(query: string) {
+  const params = new URLSearchParams(query);
+  params.delete("page");
+  params.delete("limit");
+  return params.toString();
+}
+
+function listQuery(query: string, page: number, pageSize: number) {
+  const params = new URLSearchParams(query);
+  params.set("limit", String(pageSize));
+  if (page <= 1) params.delete("page");
+  else params.set("page", String(page));
+  return params.toString();
+}
+
+function mergeItems(current: Oportunidade[], incoming: Oportunidade[]) {
+  const seen = new Set(current.map((item) => item.id));
+  return [...current, ...incoming.filter((item) => !seen.has(item.id))];
+}
+
 const selectTriggerClass =
-  "h-11 min-h-11 w-full gap-2 rounded-xl border border-border/40 bg-background px-3.5 py-2.5 pr-3.5 text-base font-medium data-[size=default]:h-11";
+  "h-11 min-h-11 w-full gap-2 rounded-full border border-foreground/50 bg-background px-3.5 py-2.5 pr-3.5 text-sm font-medium hover:border-foreground data-[size=default]:h-11 contrast:border-2 contrast:border-white";
 
 function FilterSelect({
   id,
@@ -102,15 +117,18 @@ export function OpportunityCatalog({
   initialResult,
   initialTaxonomia,
   initialQuery,
+  pageSize = MURAL_PAGE_SIZE,
 }: CatalogProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [result, setResult] = useState<PaginaOportunidades | null>(initialResult ?? null);
+  const [items, setItems] = useState<Oportunidade[]>(initialResult?.data ?? []);
   const [taxonomia, setTaxonomia] = useState<Taxonomia | null>(initialTaxonomia ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialResult);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const query = searchParams.toString();
@@ -122,7 +140,7 @@ export function OpportunityCatalog({
       setError(null);
       try {
         const [listRes, taxRes] = await Promise.all([
-          fetch(`/api/oportunidades?${query}`),
+          fetch(`/api/oportunidades?${listQuery(query, 1, pageSize)}`),
           fetch("/api/taxonomia"),
         ]);
         if (!listRes.ok) throw new Error("Falha ao listar oportunidades.");
@@ -131,18 +149,21 @@ export function OpportunityCatalog({
         const taxJson = (await taxRes.json()) as { data: Taxonomia };
         if (!cancelled) {
           setResult(listJson);
+          setItems(listJson.data);
           setTaxonomia(taxJson.data);
         }
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Erro inesperado.");
           setResult(null);
+          setItems([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
-    if (!(initialResult && query === (initialQuery ?? ""))) {
+    const sameFilters = Boolean(initialResult) && filterKey(query) === filterKey(initialQuery ?? "");
+    if (!sameFilters) {
       void load();
     }
     const onUpdate = () => {
@@ -153,7 +174,7 @@ export function OpportunityCatalog({
       cancelled = true;
       window.removeEventListener("oportuna:atualizou", onUpdate);
     };
-  }, [query, initialQuery, initialResult]);
+  }, [query, initialQuery, initialResult, pageSize]);
 
   function updateParams(patch: Record<string, string | null>) {
     const next = new URLSearchParams(searchParams.toString());
@@ -178,12 +199,12 @@ export function OpportunityCatalog({
     }).length;
   }, [searchParams]);
 
-  const filterFields = (
+  const filterFields = (idPrefix: string) => (
     <FieldGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <Field>
-        <FieldLabel htmlFor="filtro-area">Área</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-area`}>Área</FieldLabel>
         <FilterSelect
-          id="filtro-area"
+          id={`${idPrefix}-area`}
           value={searchParams.get("area") ?? "all"}
           onValueChange={(value) => updateParams({ area: value === "all" ? null : value })}
           items={[
@@ -193,9 +214,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="filtro-nivel">Nível</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-nivel`}>Nível</FieldLabel>
         <FilterSelect
-          id="filtro-nivel"
+          id={`${idPrefix}-nivel`}
           value={searchParams.get("nivel") ?? "all"}
           onValueChange={(value) => updateParams({ nivel: value === "all" ? null : value })}
           items={[
@@ -205,9 +226,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="filtro-modalidade">Modalidade</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-modalidade`}>Modalidade</FieldLabel>
         <FilterSelect
-          id="filtro-modalidade"
+          id={`${idPrefix}-modalidade`}
           value={searchParams.get("modalidade") ?? "all"}
           onValueChange={(value) =>
             updateParams({ modalidade: value === "all" ? null : value })
@@ -222,9 +243,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="filtro-pais">País</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-pais`}>País</FieldLabel>
         <FilterSelect
-          id="filtro-pais"
+          id={`${idPrefix}-pais`}
           value={searchParams.get("pais") ?? "all"}
           onValueChange={(value) => updateParams({ pais: value === "all" ? null : value })}
           items={[
@@ -234,9 +255,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="filtro-prazo">Prazo</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-prazo`}>Prazo</FieldLabel>
         <FilterSelect
-          id="filtro-prazo"
+          id={`${idPrefix}-prazo`}
           value={searchParams.get("status") ?? "abertas"}
           onValueChange={(value) =>
             updateParams({ status: value === "abertas" ? null : value })
@@ -249,9 +270,9 @@ export function OpportunityCatalog({
         />
       </Field>
       <Field>
-        <FieldLabel htmlFor="filtro-ordenar">Ordenar</FieldLabel>
+        <FieldLabel htmlFor={`${idPrefix}-ordenar`}>Ordenar</FieldLabel>
         <FilterSelect
-          id="filtro-ordenar"
+          id={`${idPrefix}-ordenar`}
           value={searchParams.get("ordenar") ?? "prazo"}
           onValueChange={(value) =>
             updateParams({ ordenar: value === "prazo" ? null : value })
@@ -266,44 +287,57 @@ export function OpportunityCatalog({
     </FieldGroup>
   );
 
-  const totalPages = result?.meta.totalPages ?? 1;
-  const currentPage = result?.meta.page ?? 1;
+  const hasMore = Boolean(result && items.length < result.meta.total);
 
-  function pageHref(page: number) {
-    const next = new URLSearchParams(searchParams.toString());
-    if (page <= 1) next.delete("page");
-    else next.set("page", String(page));
-    const qs = next.toString();
-    return qs ? `${pathname}?${qs}` : pathname;
+  async function loadMore() {
+    if (!result || loadingMore || items.length >= result.meta.total) return;
+    const nextPage = Math.floor(items.length / pageSize) + 1;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const listRes = await fetch(`/api/oportunidades?${listQuery(query, nextPage, pageSize)}`);
+      if (!listRes.ok) throw new Error("Falha ao listar oportunidades.");
+      const listJson = (await listRes.json()) as PaginaOportunidades;
+      setResult(listJson);
+      setItems((current) => mergeItems(current, listJson.data));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado.");
+    } finally {
+      setLoadingMore(false);
+    }
   }
+
+  const tipoChipClass =
+    "min-h-11 rounded-full border border-foreground/50 bg-transparent px-3 font-medium text-muted-foreground hover:border-foreground hover:bg-muted/60 data-[pressed]:border-foreground data-[pressed]:bg-foreground data-[pressed]:text-background data-[pressed]:hover:bg-foreground contrast:border-2 contrast:border-white";
 
   return (
     <div className="flex flex-col gap-6">
       <ToggleGroup
         multiple={false}
+        aria-label="Tipo de oportunidade"
         value={selectedTipo ? [selectedTipo] : ["todas"]}
         onValueChange={(groupValue) => {
           const next = groupValue[0];
           if (!next || next === "todas") updateParams({ tipo: null });
           else updateParams({ tipo: next });
         }}
-        variant="outline"
+        variant="default"
         size="sm"
         spacing={2}
         className="flex w-full flex-wrap justify-start"
       >
-        <ToggleGroupItem
-          value="todas"
-          className="min-h-11 rounded-xl border border-border px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
-        >
+        <ToggleGroupItem value="todas" className={tipoChipClass}>
           Todas
         </ToggleGroupItem>
         {TIPOS.map((tipo) => (
-          <ToggleGroupItem
-            key={tipo}
-            value={tipo}
-            className="min-h-11 rounded-xl border border-border px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
-          >
+          <ToggleGroupItem key={tipo} value={tipo} className={tipoChipClass}>
+            <span
+              className={cn(
+                "size-2 shrink-0 rounded-full group-data-[pressed]/toggle:ring-2 group-data-[pressed]/toggle:ring-background",
+                TIPO_DOT[tipo]
+              )}
+              aria-hidden
+            />
             {TIPO_LABEL[tipo]}
             {taxonomia ? (
               <Badge variant="secondary" className="ml-1 h-5 rounded-md px-1.5 text-xs">
@@ -317,7 +351,7 @@ export function OpportunityCatalog({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <Field className="flex-1">
           <FieldLabel htmlFor="busca">Busca</FieldLabel>
-          <InputGroup className="h-11 min-h-11 rounded-xl border border-border bg-background shadow-none">
+          <InputGroup className="h-11 min-h-11 rounded-full border border-foreground/50 bg-background shadow-none hover:border-foreground has-[[data-slot=input-group-control]:focus-visible]:border-foreground contrast:border-2 contrast:border-white">
             <InputGroupAddon>
               <Search aria-hidden />
             </InputGroupAddon>
@@ -325,6 +359,7 @@ export function OpportunityCatalog({
               id="busca"
               defaultValue={searchParams.get("q") ?? ""}
               placeholder="CNPq, mestrado, hackathon…"
+              aria-describedby="busca-ajuda"
               onChange={(event) => {
                 const value = event.target.value;
                 window.clearTimeout((window as unknown as { __oportunaT?: number }).__oportunaT);
@@ -335,6 +370,9 @@ export function OpportunityCatalog({
               }}
             />
           </InputGroup>
+          <p id="busca-ajuda" className="sr-only">
+            Busca por título, organização, área ou palavras do edital. O prazo que vale é o do site oficial.
+          </p>
         </Field>
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger
@@ -351,27 +389,29 @@ export function OpportunityCatalog({
             }
           />
           <SheetContent side="bottom" className="gap-0 rounded-t-3xl border border-border">
-            <SheetHeader className="border-b-2 border-foreground/10">
+            <SheetHeader className="border-b border-border">
               <SheetTitle className="font-heading text-2xl">Filtros do mural</SheetTitle>
               <SheetDescription>
                 Área, prazo, país e ordem. O que vale no edital oficial continua valendo.
               </SheetDescription>
             </SheetHeader>
-            <div className="overflow-y-auto p-4">{filterFields}</div>
+            <div className="overflow-y-auto p-4">{filterFields("filtro-mobile")}</div>
           </SheetContent>
         </Sheet>
       </div>
 
-      <div className="hidden rounded-2xl border border-border bg-card p-4 shadow-[0_10px_28px_rgba(0,26,76,0.07)] lg:block">
-        {filterFields}
+      <div className="hidden p-1 lg:block">
+        {filterFields("filtro")}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p role="status" aria-live="polite" aria-atomic="true" className="text-sm text-muted-foreground">
           {loading
             ? "Carregando oportunidades…"
             : result
-              ? `${result.meta.total} ${result.meta.total === 1 ? "oportunidade" : "oportunidades"}`
+              ? items.length < result.meta.total
+                ? `${items.length} de ${result.meta.total} ${result.meta.total === 1 ? "oportunidade" : "oportunidades"}`
+                : `${result.meta.total} ${result.meta.total === 1 ? "oportunidade" : "oportunidades"}`
               : null}
         </p>
         {activeFilters > 0 ? (
@@ -401,22 +441,20 @@ export function OpportunityCatalog({
       ) : null}
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-border/20 bg-card p-4 shadow-none"
-            >
-              <Skeleton className="h-5 w-24" />
-              <Skeleton className="mt-4 h-6 w-5/6" />
-              <Skeleton className="mt-2 h-4 w-1/2" />
-              <Skeleton className="mt-6 h-16 w-full" />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="grid gap-2 rounded-2xl border border-border bg-card p-5 shadow-none sm:p-6">
+              <Skeleton className="h-3 w-2/5" />
+              <Skeleton className="h-6 w-11/12" />
+              <Skeleton className="h-6 w-4/5" />
+              <Skeleton className="mt-1 h-3 w-full" />
+              <Skeleton className="h-3 w-5/6" />
             </div>
           ))}
         </div>
       ) : null}
 
-      {!loading && result && result.data.length === 0 ? (
+      {!loading && result && items.length === 0 ? (
         <Empty className="rounded-2xl border border-dashed border-border bg-card py-16 shadow-none">
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -441,44 +479,27 @@ export function OpportunityCatalog({
         </Empty>
       ) : null}
 
-      {!loading && result && result.data.length > 0 ? (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {result.data.map((item: Oportunidade) => (
-            <li key={item.id}>
-              <OpportunityCard item={item} />
+      {!loading && items.length > 0 ? (
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {items.map((item: Oportunidade) => (
+            <li key={item.id} className="h-full">
+              <OpportunityCard item={item} size="compact" />
             </li>
           ))}
         </ul>
       ) : null}
 
-      {result && totalPages > 1 ? (
-        <>
-          <Separator className="bg-foreground/20" />
-          <Pagination>
-            <PaginationContent>
-              {currentPage > 1 ? (
-                <PaginationItem>
-                  <PaginationPrevious href={pageHref(currentPage - 1)} text="Anterior" />
-                </PaginationItem>
-              ) : null}
-              {Array.from({ length: totalPages }).map((_, index) => {
-                const page = index + 1;
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink href={pageHref(page)} isActive={currentPage === page}>
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-              {currentPage < totalPages ? (
-                <PaginationItem>
-                  <PaginationNext href={pageHref(currentPage + 1)} text="Próxima" />
-                </PaginationItem>
-              ) : null}
-            </PaginationContent>
-          </Pagination>
-        </>
+      {!loading && hasMore ? (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            onClick={() => void loadMore()}
+            disabled={loadingMore}
+            aria-busy={loadingMore}
+          >
+            {loadingMore ? "Carregando…" : "Ver mais"}
+          </Button>
+        </div>
       ) : null}
     </div>
   );

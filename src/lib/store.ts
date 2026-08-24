@@ -1,5 +1,18 @@
 import { capitalizeTags, isOpen, slugify } from "./format";
-import { ehSubtituloMolde, gerarSubtitulo, pareceOportunidade } from "./triagem";
+import {
+  ehGanchoMarketing,
+  ehHubSantanderOpenAcademy,
+  ehLixoDeColeta,
+  ehNomeDeFonte,
+  ehSubtituloMolde,
+  enxugarFicha,
+  enxugarTituloNoticia,
+  gerarSubtitulo,
+  limparTextoColetado,
+  pareceOportunidade,
+  pareceTitulo,
+  titulosParecidos,
+} from "./triagem";
 import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
 import type {
@@ -14,38 +27,76 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __oportunaStore?: Store };
+const globalForStore = globalThis as unknown as { __trilhaDedup3?: Store };
 
 function withOrigem(
-  item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo"> & Partial<Oportunidade>
+  item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl"> &
+    Partial<Oportunidade>
 ): Oportunidade {
-  const organizacao = item.organizacao;
+  const ficha = enxugarFicha(item.titulo, item.descricao);
+  const organizacao =
+    ehNomeDeFonte(item.organizacao) && ficha.instituicao
+      ? ficha.instituicao
+      : item.organizacao;
+  const cidadeGuardada = item.cidade?.trim() || "";
+  const cidade =
+    ficha.cidade ||
+    (cidadeGuardada && !/\b(fellowship|level \d)\b/i.test(cidadeGuardada) ? cidadeGuardada : null);
+  const titulo = enxugarTituloNoticia(ficha.titulo);
+  const descricao = limparTextoColetado(ficha.descricao);
   const tags = capitalizeTags(
     (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada")
   );
+  const atual = item.subtitulo?.trim() ?? "";
+  const manterAtual =
+    Boolean(atual) &&
+    !ehSubtituloMolde(atual) &&
+    !pareceTitulo(atual, titulo) &&
+    !pareceTitulo(atual, item.titulo) &&
+    !ehGanchoMarketing(atual) &&
+    !/\binstitu(?:i)?tion\s*:/i.test(atual) &&
+    !/\b(fellowship|level \d|doctorate|technical training)\b/i.test(atual) &&
+    !/o post\s+.+\s+apareceu primeiro/i.test(atual);
+  const resumoFicha = [ficha.instituicao, ficha.cidade].filter(Boolean).join(", ");
+  const gerado = gerarSubtitulo({
+    titulo,
+    descricao,
+    tipo: item.tipo,
+    organizacao,
+    prazoInscricao: item.prazoInscricao,
+  });
   return {
     ...item,
+    titulo,
+    descricao,
+    organizacao,
+    cidade,
     tags,
-    subtitulo: (() => {
-      const gerado = gerarSubtitulo({
-        titulo: item.titulo,
-        descricao: item.descricao,
-        tipo: item.tipo,
-        organizacao,
-        prazoInscricao: item.prazoInscricao,
-      });
-      const atual = item.subtitulo?.trim() ?? "";
-      if (atual && !ehSubtituloMolde(atual)) return atual;
-      return gerado;
-    })(),
+    subtitulo: manterAtual ? atual : resumoFicha || gerado,
     origem: item.origem ?? "manual",
     fonteId: item.fonteId ?? null,
     fonteUrl: item.fonteUrl ?? null,
+    imagemUrl: item.imagemUrl ?? null,
   };
 }
 
+function mesmaUrl(a: string, b: string) {
+  const cortar = (value: string) => {
+    try {
+      const url = new URL(value);
+      return `${url.origin}${url.pathname}`.replace(/\/+$/, "").toLowerCase();
+    } catch {
+      return value.replace(/\/+$/, "").toLowerCase();
+    }
+  };
+  return cortar(a) === cortar(b);
+}
+
 function valeNoMural(item: Oportunidade) {
+  if (ehHubSantanderOpenAcademy(item.urlInscricao)) return false;
   if (item.origem !== "coleta") return true;
+  if (item.fonteUrl && mesmaUrl(item.urlInscricao, item.fonteUrl)) return false;
+  if (ehLixoDeColeta(item)) return false;
   return pareceOportunidade({
     titulo: item.titulo,
     descricao: item.descricao,
@@ -53,11 +104,41 @@ function valeNoMural(item: Oportunidade) {
   });
 }
 
+function pontuacaoDeItem(item: Oportunidade) {
+  return (
+    (item.origem === "manual" ? 10 : 0) +
+    (item.descricao.length > 120 ? 2 : 0) +
+    (item.prazoInscricao ? 1 : 0) +
+    (item.subtitulo.length > 40 ? 1 : 0)
+  );
+}
+
+function removerDuplicatas(store: Store) {
+  const ordered = [...store.items.values()].sort(
+    (a, b) => pontuacaoDeItem(b) - pontuacaoDeItem(a)
+  );
+  const kept: Oportunidade[] = [];
+  let mudou = false;
+  for (const item of ordered) {
+    if (kept.some((atual) => titulosParecidos(atual.titulo, item.titulo))) {
+      store.items.delete(item.id);
+      mudou = true;
+      continue;
+    }
+    kept.push(item);
+  }
+  return mudou;
+}
+
 function createStore(): Store {
   const snapshot = readSnapshot();
   if (snapshot && snapshot.oportunidades.length > 0) {
     return {
-      items: new Map(snapshot.oportunidades.map((item) => [item.id, withOrigem(item)])),
+      items: new Map(
+        snapshot.oportunidades
+          .filter((item) => valeNoMural(item))
+          .map((item) => [item.id, withOrigem(item)])
+      ),
     };
   }
   return {
@@ -68,44 +149,57 @@ function createStore(): Store {
 function sanitizar(store: Store) {
   let mudou = false;
   for (const [id, item] of [...store.items.entries()]) {
-    const next = withOrigem(item);
-    if (!valeNoMural(next)) {
+    if (!valeNoMural(item)) {
       store.items.delete(id);
       mudou = true;
       continue;
     }
+    const next = withOrigem(item);
     if (
       next.subtitulo !== item.subtitulo ||
-      next.tags.join("|") !== item.tags.join("|")
+      next.tags.join("|") !== item.tags.join("|") ||
+      next.titulo !== item.titulo ||
+      next.descricao !== item.descricao ||
+      next.cidade !== item.cidade ||
+      next.organizacao !== item.organizacao
     ) {
       store.items.set(id, next);
       mudou = true;
     }
   }
+  if (removerDuplicatas(store)) mudou = true;
   if (mudou) persistOportunidades([...store.items.values()]);
 }
 
 function getStore(): Store {
-  if (!globalForStore.__oportunaStore) {
-    globalForStore.__oportunaStore = createStore();
-    sanitizar(globalForStore.__oportunaStore);
+  if (!globalForStore.__trilhaDedup3) {
+    globalForStore.__trilhaDedup3 = createStore();
+    sanitizar(globalForStore.__trilhaDedup3);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      globalForStore.__oportunaStore.items.set(item.id, withOrigem(item));
+      const current = globalForStore.__trilhaDedup3.items.get(item.id);
+      globalForStore.__trilhaDedup3.items.set(
+        item.id,
+        withOrigem({
+          ...item,
+          imagemUrl: current?.imagemUrl ?? null,
+        })
+      );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__oportunaStore.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaDedup3.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__oportunaStore.items.delete(id);
+        globalForStore.__trilhaDedup3.items.delete(id);
         added = true;
       }
     }
-    if (added) persistOportunidades([...globalForStore.__oportunaStore.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaDedup3)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaDedup3.items.values()]);
   }
-  return globalForStore.__oportunaStore;
+  return globalForStore.__trilhaDedup3;
 }
 
 function allItems() {
@@ -265,6 +359,10 @@ export function upsertColetada(input: NovaOportunidade): Oportunidade {
   if (existing?.origem === "manual") {
     return existing;
   }
+  const rival = [...getStore().items.values()].find((item) =>
+    titulosParecidos(item.titulo, input.titulo)
+  );
+  if (rival?.origem === "manual") return rival;
   if (existing) {
     return (
       updateOportunidade(existing.id, {
@@ -272,9 +370,11 @@ export function upsertColetada(input: NovaOportunidade): Oportunidade {
         origem: "coleta",
         fonteId: input.fonteId,
         fonteUrl: input.fonteUrl,
+        imagemUrl: input.imagemUrl || existing.imagemUrl,
       }) ?? existing
     );
   }
+  if (rival) return rival;
   return createOportunidade({ ...input, origem: "coleta" });
 }
 

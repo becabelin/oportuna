@@ -1,25 +1,29 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
+import { HeroMesh } from "@/components/cover-field";
 import { FaqAccordion } from "@/components/faq-accordion";
+import { FeaturedMiniCard, OpportunityCard } from "@/components/opportunity-card";
 import { JsonLd } from "@/components/json-ld";
+import { LogoTicker } from "@/components/logo-ticker";
 import { OpportunityCatalog } from "@/components/opportunity-catalog";
-import { buttonVariants } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
+import { SectionHeading, SiteContainer } from "@/components/editorial";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FAQ } from "@/lib/faq";
 import { faqSchema, itemListSchema } from "@/lib/schema";
-import { pageSocial, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { pageSocial, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site";
 import { listOportunidades, taxonomia } from "@/lib/store";
 import { TIPO_LABEL } from "@/lib/taxonomia";
 import { parseListQuery } from "@/lib/validate";
-import { cn } from "@/lib/utils";
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  ...pageSocial("/", `${SITE_NAME} — ${SITE_TAGLINE}`, SITE_DESCRIPTION),
-  title: { absolute: `${SITE_NAME} — ${SITE_TAGLINE}` },
+  ...pageSocial("/", SITE_TITLE, SITE_DESCRIPTION),
+  title: { absolute: SITE_TITLE },
 };
 
 function toQuery(raw: Record<string, string | string[] | undefined>) {
@@ -40,7 +44,8 @@ export default async function HomePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = toQuery(await searchParams);
-  const initialResult = listOportunidades(parseListQuery(params));
+  const filtros = parseListQuery(params);
+  const initialResult = listOportunidades({ ...filtros, page: 1, limit: 15 });
   const tax = taxonomia();
   const initialTaxonomia = {
     tipos: tax.tipos.map((item) => ({ ...item, label: TIPO_LABEL[item.id] })),
@@ -49,74 +54,153 @@ export default async function HomePage({
     abertas: tax.abertas,
     total: tax.total,
   };
+  const featured = initialResult.data[0];
+  const picks = initialResult.data.slice(0, 3);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12">
+    <div className="flex flex-col bg-background">
       <JsonLd data={itemListSchema(initialResult.data)} />
       <JsonLd data={faqSchema(FAQ.map((item) => ({ q: item.q, a: item.a })))} />
-      <section className="rounded-[2rem] bg-secondary px-5 py-10 sm:px-12 sm:py-14">
-        <p className="inline-flex rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
-          mural aberto · API com chave
-        </p>
-        <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-[1.1] text-balance sm:text-6xl">
-          Bolsas, eventos e editais numa trilha só.
-        </h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg">
-          Mestrado, editais abertos, olimpíadas e programas para jovens em todas
-          as áreas — humanas, exatas, saúde, negócios e mais, não só tecnologia.
-          Consulte de graça. Para plugar no app, peça uma chave. O prazo que vale
-          é o do edital oficial.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/chave" className={cn(buttonVariants({ size: "lg" }))}>
-            Quero uma chave
-          </Link>
-          <Link href="/docs" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
-            Como usar a API
-          </Link>
-        </div>
+
+      <section className="relative isolate min-h-[28rem] overflow-hidden sm:min-h-[32rem] lg:min-h-[36rem]">
+        <HeroMesh />
+        <SiteContainer className="relative flex min-h-[28rem] flex-col justify-between gap-10 py-12 sm:min-h-[32rem] sm:py-16 lg:min-h-[36rem] lg:py-20">
+          <Reveal eager className="max-w-xl">
+            <h1 className="font-heading text-[2.6rem] leading-[1.05] tracking-tight text-white text-balance sm:text-5xl lg:text-[3.4rem]">
+              Bolsas, eventos e editais numa trilha só
+            </h1>
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-white sm:text-lg">
+              Um mural público de bolsas, eventos, cursos, estágios, intercâmbios e
+              concursos. Sem cadastro. O prazo que vale é o do edital oficial.
+            </p>
+          </Reveal>
+          {featured ? (
+            <Reveal eager delay={140} className="flex justify-end">
+              <FeaturedMiniCard item={featured} />
+            </Reveal>
+          ) : null}
+        </SiteContainer>
       </section>
 
-      <section aria-labelledby="mural-heading">
-        <div className="mb-6">
-          <h2 id="mural-heading" className="font-heading text-3xl">
-            O mural agora
+      <Reveal>
+        <LogoTicker />
+      </Reveal>
+
+      <SiteContainer className="py-14 sm:py-16">
+        <Reveal as="section" aria-labelledby="o-que-e-heading" className="grid items-start gap-6 border-b border-border pb-14 sm:gap-8 sm:pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          <h2
+            id="o-que-e-heading"
+            className="font-heading text-[1.85rem] leading-[1.12] tracking-tight text-balance sm:text-[2.35rem]"
+          >
+            Um mural de editais, não o edital em si.
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Inscrições abertas, com subtítulo para achar rápido. O prazo que vale é o do edital oficial.
-          </p>
-        </div>
-        <Suspense fallback={<CatalogSkeleton />}>
-          <OpportunityCatalog
-            initialResult={initialResult}
-            initialTaxonomia={initialTaxonomia}
-            initialQuery={params.toString()}
+          <div>
+            <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
+              A Trilha junta chamadas reais, com inscrição, prazo ou vaga, num
+              catálogo em português, de graça e sem conta. Você lê o resumo aqui e
+              se inscreve no site da organização.
+            </p>
+            <Link
+              href="/sobre"
+              className="mt-4 inline-flex min-h-11 items-center text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Como a Trilha funciona →
+            </Link>
+          </div>
+        </Reveal>
+
+        {picks.length > 0 ? (
+          <Reveal as="section" aria-labelledby="destaques-heading" className="pt-14 sm:pt-16">
+            <SectionHeading
+              id="destaques-heading"
+              title="Destaques"
+              href="#mural"
+              action="Ver o mural"
+              description="Três aberturas para começar. O mural completo, com filtro por tipo, vem em seguida."
+            />
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {picks.map((item) => (
+                <OpportunityCard key={item.id} item={item} size="pick" />
+              ))}
+            </div>
+          </Reveal>
+        ) : null}
+      </SiteContainer>
+
+      <SiteContainer className="border-t border-border py-14 sm:py-16">
+        <Reveal as="section" aria-labelledby="mural-heading" id="mural">
+          <SectionHeading
+            id="mural-heading"
+            title="O mural agora"
+            href="/docs"
+            action="Como usar a API"
+            description="Filtre por tipo ou busque por nome. Cada card abre o resumo; a inscrição fica no link oficial."
           />
-        </Suspense>
+          <Suspense fallback={<CatalogSkeleton />}>
+            <OpportunityCatalog
+              initialResult={initialResult}
+              initialTaxonomia={initialTaxonomia}
+              initialQuery={params.toString()}
+            />
+          </Suspense>
+        </Reveal>
+      </SiteContainer>
+
+      <section
+        id="sobre-a-criadora"
+        className="border-t-4 border-[#FDB409] bg-linear-to-r from-[#001A4C] via-[#001A4C] to-[#5E2EC4] contrast:border-y contrast:border-white contrast:bg-background"
+      >
+        <SiteContainer className="flex justify-end py-16 sm:py-20">
+          <Reveal as="figure" className="w-full max-w-xl">
+            <blockquote className="font-heading text-3xl leading-[1.2] tracking-tight text-white text-balance sm:text-[2.6rem]">
+              Decidi criar a Trilha da Oportunidade para isso chegar em mais pessoas.
+            </blockquote>
+            <p className="mt-5 text-base leading-relaxed text-white/85 sm:text-lg contrast:text-white">
+              Bolsas, eventos e editais num mural público, em português e de graça.
+              Você lê o resumo aqui. A inscrição e o prazo que valem estão no site da
+              organização.
+            </p>
+            <figcaption className="mt-8 flex items-center gap-3 text-sm text-white">
+              <span className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-[#FDB409] contrast:border-white">
+                <Image
+                  src="/rebeca-sousa.jpg"
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-cover object-[center_18%]"
+                />
+              </span>
+              <span>
+                Rebeca Sousa
+                <span className="mt-0.5 block text-[#FDB409] contrast:text-white">
+                  criadora da Trilha da Oportunidade
+                </span>
+              </span>
+            </figcaption>
+          </Reveal>
+        </SiteContainer>
       </section>
 
-      <section aria-labelledby="faq-heading" className="grid gap-4 border-t-2 border-foreground/15 pt-10">
-        <h2 id="faq-heading" className="font-heading text-3xl">
-          Perguntas que a busca costuma fazer
-        </h2>
-        <FaqAccordion />
-      </section>
+      <SiteContainer className="py-14 sm:py-16">
+        <Reveal as="section" aria-labelledby="faq-heading">
+          <SectionHeading id="faq-heading" title="Perguntas frequentes" />
+          <FaqAccordion />
+        </Reveal>
+      </SiteContainer>
     </div>
   );
 }
 
 function CatalogSkeleton() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="rounded-2xl border border-border/20 bg-card p-4 shadow-none"
-        >
-          <Skeleton className="h-5 w-24" />
-          <Skeleton className="mt-4 h-6 w-5/6" />
-          <Skeleton className="mt-2 h-4 w-1/2" />
-          <Skeleton className="mt-6 h-16 w-full" />
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={index} className="grid gap-2 rounded-2xl border border-border bg-card p-5 shadow-none sm:p-6">
+          <Skeleton className="h-3 w-2/5" />
+          <Skeleton className="h-6 w-11/12" />
+          <Skeleton className="h-6 w-4/5" />
+          <Skeleton className="mt-1 h-3 w-full" />
+          <Skeleton className="h-3 w-5/6" />
         </div>
       ))}
     </div>

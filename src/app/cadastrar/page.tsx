@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { AcessoRestrito } from "@/components/acesso-restrito";
 import { CreateOpportunityForm } from "@/components/create-opportunity-form";
+import { paginaAdminLiberada } from "@/lib/admin-page";
 
 export const metadata: Metadata = {
   title: "Cadastrar oportunidade",
@@ -8,17 +10,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function CadastrarPage() {
+export default async function CadastrarPage() {
+  if (!(await paginaAdminLiberada())) {
+    return <AcessoRestrito />;
+  }
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
-        Novo edital
-      </p>
+    <div className="mx-auto w-full max-w-2xl px-5 py-12 sm:px-8 sm:py-16">
+      <p className="text-sm text-muted-foreground">Novo edital</p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight">Cadastrar oportunidade</h1>
       <p className="mt-3 text-muted-foreground">
         Inclusão avulsa na base, para um edital que não veio da coleta automática.
       </p>
-      <div className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-[0_10px_28px_rgba(0,26,76,0.07)] sm:p-6">
+      <div className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-6">
         <CreateOpportunityForm />
       </div>
     </div>

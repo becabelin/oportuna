@@ -13,7 +13,7 @@ import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
   SITE_NAME,
-  SITE_TAGLINE,
+  SITE_TITLE,
   siteUrl,
 } from "@/lib/site";
 
@@ -22,14 +22,16 @@ import "./globals.css";
 const lexend = Lexend({
   variable: "--font-lexend",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
+  adjustFontFallback: false,
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    default: SITE_TITLE,
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -43,12 +45,12 @@ export const metadata: Metadata = {
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icon/32", sizes: "32x32", type: "image/png" },
       { url: "/icon/192", sizes: "192x192", type: "image/png" },
+      { url: "/icon/512", sizes: "512x512", type: "image/png" },
     ],
     apple: "/apple-icon",
   },
   manifest: "/manifest.webmanifest",
   alternates: {
-    canonical: "/",
     types: {
       "application/rss+xml": "/feed.xml",
       "text/plain": "/llms.txt",
@@ -58,13 +60,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: SITE_TITLE,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -89,7 +100,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SkipLink />
             <JsonLd data={websiteSchema()} />
             <SiteHeader />
-            <main id="conteudo" tabIndex={-1} className="flex flex-1 flex-col outline-none">
+            <main id="conteudo" tabIndex={-1} className="flex flex-1 flex-col">
               {children}
             </main>
             <SiteFooter />

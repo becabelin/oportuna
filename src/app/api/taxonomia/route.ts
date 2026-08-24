@@ -11,8 +11,8 @@ export function OPTIONS() {
   return optionsResponse();
 }
 
-export function GET(request: NextRequest) {
-  const gate = gatePublicApi(request);
+export async function GET(request: NextRequest) {
+  const gate = await gatePublicApi(request);
   if (gate instanceof Response) return gate;
   const data = taxonomia();
   return json(
