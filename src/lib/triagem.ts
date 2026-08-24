@@ -1,4 +1,3 @@
-import { formatDate } from "./format";
 import type { TipoOportunidade } from "./types";
 
 /** Palavras que indicam edital, vaga ou chamada — não texto de blog. */
@@ -34,15 +33,6 @@ export const HOSTS_ARTIGO = [
   "anthropic.com",
   "medium.com",
 ];
-
-const TIPO_FRASE: Record<TipoOportunidade, string> = {
-  bolsa: "Bolsa",
-  evento: "Evento",
-  curso: "Curso com inscrição aberta",
-  estagio: "Estágio",
-  intercambio: "Intercâmbio",
-  concurso: "Concurso ou prêmio",
-};
 
 export function hostDeUrl(url: string) {
   try {
@@ -84,6 +74,27 @@ export function pareceOportunidade(input: {
   return true;
 }
 
+function normalizarTexto(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function pareceTitulo(frase: string, titulo: string) {
+  const a = normalizarTexto(frase);
+  const b = normalizarTexto(titulo);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.startsWith(b) || b.startsWith(a)) return true;
+  return false;
+}
+
+const PREFIXO_TIPO =
+  /^(bolsa|evento|curso com inscri[cç][aã]o aberta|est[aá]gio|interc[aâ]mbio|concurso ou pr[eê]mio|oportunidade)\s+da\s+/i;
+
 function primeiraFraseUtil(texto: string, titulo: string) {
   const limpo = texto
     .replace(/How To Apply.*/gi, "")
@@ -98,15 +109,40 @@ function primeiraFraseUtil(texto: string, titulo: string) {
     .map((item) => item.trim())
     .filter((item) => item.length >= 40 && item.length <= 180)
     .filter((item) => !/home|about|contact|subscribe|privacy/i.test(item))
-    .filter((item) => item.toLowerCase() !== titulo.toLowerCase());
+    .filter((item) => !pareceTitulo(item, titulo))
+    .filter((item) => !PREFIXO_TIPO.test(item));
 
-  return frases[0] ?? (limpo.length >= 40 ? limpo.slice(0, 160).trim() : "");
+  if (frases[0]) return frases[0];
+  const recorte = limpo.length >= 40 ? limpo.slice(0, 160).trim() : "";
+  if (recorte && !pareceTitulo(recorte, titulo) && !PREFIXO_TIPO.test(recorte)) {
+    return recorte;
+  }
+  return "";
 }
 
 function capitalizar(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return trimmed;
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+export function ehSubtituloMolde(texto: string) {
+  return PREFIXO_TIPO.test(texto.trim());
+}
+
+export function subtituloVisivel(item: {
+  titulo: string;
+  descricao: string;
+  subtitulo: string;
+}) {
+  const sub = item.subtitulo.trim();
+  if (!sub) return false;
+  if (ehSubtituloMolde(sub)) return false;
+  if (pareceTitulo(sub, item.titulo)) return false;
+  const desc = item.descricao.trim();
+  const subBase = sub.replace(/[.!?]+$/, "");
+  if (desc.startsWith(subBase)) return false;
+  return true;
 }
 
 export function gerarSubtitulo(input: {
@@ -116,21 +152,9 @@ export function gerarSubtitulo(input: {
   organizacao: string;
   prazoInscricao: string | null;
 }) {
-  const tipo = TIPO_FRASE[input.tipo] ?? "Oportunidade";
-  const prazo = input.prazoInscricao
-    ? `Inscrições até ${formatDate(input.prazoInscricao)}`
-    : "Confira o prazo no edital";
   const frase = primeiraFraseUtil(input.descricao, input.titulo);
-  const org = input.organizacao.replace(/\s+blog$/i, "").trim() || "a organização";
-
-  let texto: string;
-  if (frase) {
-    const corpo = /[.!?]$/.test(frase) ? frase : `${frase}.`;
-    texto = `${tipo} da ${org}. ${corpo} ${prazo}.`;
-  } else {
-    const titulo = input.titulo.replace(/\s*\|\s*/g, " — ").slice(0, 90);
-    texto = `${tipo} da ${org}: ${titulo}. ${prazo}.`;
-  }
-
-  return capitalizar(texto.replace(/\s+/g, " ").trim()).slice(0, 220);
+  if (!frase) return "";
+  const corpo = /[.!?]$/.test(frase) ? frase : `${frase}.`;
+  return capitalizar(corpo.replace(/\s+/g, " ").trim()).slice(0, 220);
 }
+

@@ -16,7 +16,8 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatDate, capitalizeTag } from "@/lib/format";
+import { capitalizeTag, formatDate } from "@/lib/format";
+import { subtituloVisivel } from "@/lib/triagem";
 import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { getOportunidade } from "@/lib/store";
@@ -92,7 +93,9 @@ export default async function OpportunityPage({ params }: PageProps) {
       <h1 className="mt-4 font-heading text-3xl leading-tight tracking-tight text-balance sm:text-4xl">
         {item.titulo}
       </h1>
-      <p className="mt-3 text-lg leading-snug text-foreground">{item.subtitulo}</p>
+      {subtituloVisivel(item) ? (
+        <p className="mt-3 text-lg leading-snug text-foreground">{item.subtitulo}</p>
+      ) : null}
       <p className="mt-2 text-muted-foreground">{item.organizacao}</p>
 
       <Card className="mt-8">

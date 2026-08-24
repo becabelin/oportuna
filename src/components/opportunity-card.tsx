@@ -72,7 +72,6 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
             <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
         </CardTitle>
-        <p className="text-sm leading-snug text-foreground">{item.subtitulo}</p>
         <CardDescription className="line-clamp-1">{item.organizacao}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">

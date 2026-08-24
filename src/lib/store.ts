@@ -1,5 +1,5 @@
 import { capitalizeTags, isOpen, slugify } from "./format";
-import { gerarSubtitulo, pareceOportunidade } from "./triagem";
+import { ehSubtituloMolde, gerarSubtitulo, pareceOportunidade } from "./triagem";
 import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
 import type {
@@ -26,15 +26,18 @@ function withOrigem(
   return {
     ...item,
     tags,
-    subtitulo:
-      item.subtitulo?.trim() ||
-      gerarSubtitulo({
+    subtitulo: (() => {
+      const gerado = gerarSubtitulo({
         titulo: item.titulo,
         descricao: item.descricao,
         tipo: item.tipo,
         organizacao,
         prazoInscricao: item.prazoInscricao,
-      }),
+      });
+      const atual = item.subtitulo?.trim() ?? "";
+      if (atual && !ehSubtituloMolde(atual)) return atual;
+      return gerado;
+    })(),
     origem: item.origem ?? "manual",
     fonteId: item.fonteId ?? null,
     fonteUrl: item.fonteUrl ?? null,
