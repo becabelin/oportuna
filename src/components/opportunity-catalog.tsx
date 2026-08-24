@@ -79,7 +79,11 @@ function FilterSelect({
   items: { value: string; label: string }[];
 }) {
   return (
-    <Select value={value} onValueChange={(next) => onValueChange(next ?? "all")}>
+    <Select
+      value={value}
+      onValueChange={(next) => onValueChange(next ?? "all")}
+      items={items}
+    >
       <SelectTrigger id={id} className={selectTriggerClass}>
         <SelectValue />
       </SelectTrigger>
