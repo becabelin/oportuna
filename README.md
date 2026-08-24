@@ -71,6 +71,8 @@ Em produção, defina `NEXT_PUBLIC_SITE_URL` com o domínio canônico (ex.: `htt
 
 O mural da home é HTML de servidor: buscadores e modelos leem títulos e subtítulos sem executar o app. Cada oportunidade tem URL própria, dados estruturados (JSON-LD), imagem Open Graph e prazo em `<time>`.
 
+A imagem de compartilhamento (`/opengraph-image`, `/twitter-image`, 1200×630) usa a logo oficial em fundo branco. Cada edital tem a sua.
+
 Rotas para indexação e citação:
 
 - `/sitemap.xml` — mural, páginas estáticas e cada edital

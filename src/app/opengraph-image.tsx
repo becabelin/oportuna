@@ -1,15 +1,27 @@
 import { ImageResponse } from "next/og";
 
-import { logoFullDataUrl } from "@/lib/brand-assets";
+import { ogLockupDataUrl } from "@/lib/brand-assets";
+import {
+  loadOgFonts,
+  OG_GOLD,
+  OG_LOCKUP_SIZE,
+  OG_NAVY,
+  OG_SIZE,
+  OG_WHITE,
+} from "@/lib/og-brand";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
-export const size = { width: 1200, height: 630 };
+export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const logoSrc = await logoFullDataUrl();
+  const [logoSrc, fonts] = await Promise.all([ogLockupDataUrl(), loadOgFonts()]);
+  const logoWidth = 1040;
+  const logoHeight = Math.round(
+    (logoWidth * OG_LOCKUP_SIZE.height) / OG_LOCKUP_SIZE.width
+  );
 
   return new ImageResponse(
     (
@@ -19,25 +31,43 @@ export default async function OpenGraphImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          background: "#F6EEDC",
-          color: "#1B2A4A",
-          padding: 72,
-          border: "16px solid #1B2A4A",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 28,
+          background: OG_WHITE,
+          color: OG_NAVY,
+          padding: "48px 64px",
+          fontFamily: "Fredoka",
         }}
       >
-        <img src={logoSrc} width={360} height={240} alt={SITE_NAME} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ fontSize: 58, fontWeight: 800, lineHeight: 1.05, maxWidth: 980 }}>
-            {SITE_TAGLINE}
-          </div>
-          <div style={{ fontSize: 26, maxWidth: 860 }}>
-            Catálogo público de bolsas, eventos, estágios e intercâmbios. Confirme sempre no edital
-            oficial.
-          </div>
+        <div
+          style={{
+            display: "flex",
+            height: 8,
+            width: 88,
+            borderRadius: 999,
+            background: OG_GOLD,
+          }}
+        />
+        <img
+          src={logoSrc}
+          alt={SITE_NAME}
+          width={logoWidth}
+          height={logoHeight}
+        />
+        <div
+          style={{
+            display: "flex",
+            fontSize: 30,
+            fontWeight: 600,
+            lineHeight: 1.25,
+            letterSpacing: -0.2,
+          }}
+        >
+          {SITE_TAGLINE}
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, fonts }
   );
 }

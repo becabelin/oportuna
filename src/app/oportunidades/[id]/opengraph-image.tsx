@@ -1,13 +1,21 @@
 import { ImageResponse } from "next/og";
 
-import { logoIconDataUrl } from "@/lib/brand-assets";
+import { ogLockupDataUrl } from "@/lib/brand-assets";
+import {
+  loadOgFonts,
+  OG_GOLD,
+  OG_LOCKUP_SIZE,
+  OG_NAVY,
+  OG_SIZE,
+  OG_WHITE,
+} from "@/lib/og-brand";
 import { SITE_NAME } from "@/lib/site";
 import { getOportunidade } from "@/lib/store";
 import { TIPO_LABEL } from "@/lib/taxonomia";
 
 export const runtime = "nodejs";
 export const alt = `Oportunidade na ${SITE_NAME}`;
-export const size = { width: 1200, height: 630 };
+export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default async function OpportunityOgImage({
@@ -21,7 +29,11 @@ export default async function OpportunityOgImage({
   const extra = item
     ? `${TIPO_LABEL[item.tipo]} · ${item.organizacao}`
     : SITE_NAME;
-  const iconSrc = await logoIconDataUrl();
+  const [logoSrc, fonts] = await Promise.all([ogLockupDataUrl(), loadOgFonts()]);
+  const logoWidth = 520;
+  const logoHeight = Math.round(
+    (logoWidth * OG_LOCKUP_SIZE.height) / OG_LOCKUP_SIZE.width
+  );
 
   return new ImageResponse(
     (
@@ -32,37 +44,47 @@ export default async function OpportunityOgImage({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#F6EEDC",
-          color: "#1B2A4A",
-          padding: 72,
-          border: "16px solid #1B2A4A",
+          background: OG_WHITE,
+          color: OG_NAVY,
+          padding: "56px 64px",
+          fontFamily: "Fredoka",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 26, fontWeight: 800 }}>
-          <img src={iconSrc} width={48} height={48} alt="" />
-          {SITE_NAME}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <img
+          src={logoSrc}
+          alt={SITE_NAME}
+          width={logoWidth}
+          height={logoHeight}
+        />
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div
             style={{
-              fontSize: 22,
-              fontWeight: 800,
-              textTransform: "uppercase",
-              background: "#F5B942",
-              color: "#1B2A4A",
-              padding: "8px 16px",
+              display: "flex",
               alignSelf: "flex-start",
-              border: "3px solid #1B2A4A",
+              background: OG_GOLD,
+              color: OG_NAVY,
+              borderRadius: 999,
+              padding: "10px 20px",
+              fontSize: 22,
+              fontWeight: 700,
             }}
           >
-            {extra}
+            {extra.length > 72 ? `${extra.slice(0, 69)}…` : extra}
           </div>
-          <div style={{ fontSize: 54, fontWeight: 800, lineHeight: 1.08, maxWidth: 1000 }}>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 48,
+              fontWeight: 700,
+              lineHeight: 1.12,
+              maxWidth: 1040,
+            }}
+          >
             {titulo.length > 110 ? `${titulo.slice(0, 107)}…` : titulo}
           </div>
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, fonts }
   );
 }
