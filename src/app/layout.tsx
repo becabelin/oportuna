@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Nunito } from "next/font/google";
+import { Fredoka, Nunito } from "next/font/google";
 
 import { A11yProvider } from "@/components/a11y-provider";
 import { JsonLd } from "@/components/json-ld";
@@ -23,11 +23,13 @@ import "./globals.css";
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
 });
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -79,7 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${nunito.variable} ${bricolage.variable} h-full antialiased`}
+      className={`${nunito.variable} ${fredoka.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREFS_BOOTSTRAP }} />

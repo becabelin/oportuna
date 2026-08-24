@@ -14,7 +14,7 @@ export default function ChavePage() {
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
       <div>
-        <p className="inline-block -rotate-2 rounded-md border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-black uppercase">
+        <p className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
           para quem vai integrar
         </p>
         <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">

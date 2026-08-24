@@ -51,9 +51,9 @@ export function KeyRequestForm() {
 
   if (result) {
     return (
-      <Card className="border-2 border-foreground shadow-[6px_6px_0_0_var(--foreground)]">
+      <Card className="border border-border shadow-[0_12px_32px_rgba(0,26,76,0.08)]">
         <CardHeader>
-          <p className="w-fit -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+          <p className="w-fit rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
             chave na mão
           </p>
           <CardTitle className="font-heading text-2xl">
@@ -65,7 +65,7 @@ export function KeyRequestForm() {
           A chave só aparece esta vez. Sem ela o app não consulta a base. Limite:{" "}
           {result.limites.porMinuto} chamadas/minuto e {result.limites.porDia}/dia.
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-xl border-2 border-foreground/20 bg-muted p-3 text-sm break-all">
+        <pre className="mt-4 overflow-x-auto rounded-xl border border-border/20 bg-muted p-3 text-sm break-all">
           {result.chave}
         </pre>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -98,7 +98,7 @@ export function KeyRequestForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0_0_var(--foreground)] sm:p-6">
+    <form onSubmit={onSubmit} className="grid gap-4 rounded-3xl border border-border bg-card p-5 sm:p-6 sm:p-6">
       <FieldGroup className="grid gap-4">
       <p className="text-sm text-foreground">
         Sai na hora. Sem fila. Usamos o email só se a chave der problema — não tem

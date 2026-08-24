@@ -22,7 +22,7 @@ export default function SobrePage() {
         ])}
       />
       <JsonLd data={{ "@context": "https://schema.org", ...organizationSchema() }} />
-      <p className="inline-block -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+      <p className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
         para quem cita, busca ou integra
       </p>
       <h1 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">

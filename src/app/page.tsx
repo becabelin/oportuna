@@ -55,29 +55,19 @@ export default async function HomePage({
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12">
       <JsonLd data={itemListSchema(initialResult.data)} />
       <JsonLd data={faqSchema(FAQ.map((item) => ({ q: item.q, a: item.a })))} />
-      <section className="relative overflow-hidden rounded-[1.6rem] border-2 border-foreground bg-[color-mix(in_oklch,var(--secondary),white_35%)] px-5 py-8 shadow-[8px_8px_0_0_var(--foreground)] sm:px-10 sm:py-10">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-1 right-10 hidden h-7 w-24 rotate-12 border border-foreground/10 bg-[#F4E1B5]/80 shadow-sm sm:block"
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute right-6 bottom-6 hidden rotate-6 rounded-md border-2 border-foreground bg-accent px-2 py-1 text-[10px] font-black uppercase sm:block"
-        >
-          recorte
-        </span>
-        <p className="inline-block -rotate-2 rounded-md border-2 border-foreground bg-primary px-2 py-0.5 text-xs font-black tracking-wide text-primary-foreground uppercase">
+      <section className="rounded-[2rem] bg-secondary px-5 py-10 sm:px-12 sm:py-14">
+        <p className="inline-flex rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
           mural aberto · API com chave
         </p>
-        <h1 className="mt-4 max-w-3xl font-heading text-[2.4rem] leading-[1.05] text-balance sm:text-6xl">
-          Ache a próxima bolsa como quem folheia um caderno de recortes.
+        <h1 className="mt-5 max-w-3xl font-heading text-4xl leading-[1.1] text-balance sm:text-6xl">
+          Bolsas, eventos e editais numa trilha só.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg">
-          A Trilha da Oportunidade junta bolsas, eventos, estágios, intercâmbios e
-          concursos num mural público. Você consulta de graça. Quem for plugar num
-          app pede uma chave. O prazo que vale é o do edital oficial.
+          A Trilha da Oportunidade junta oportunidades de estudo e carreira num
+          mural público. Consulte de graça. Para plugar no app, peça uma chave.
+          O prazo que vale é o do edital oficial.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/chave" className={cn(buttonVariants({ size: "lg" }))}>
             Quero uma chave
           </Link>
@@ -121,7 +111,7 @@ function CatalogSkeleton() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]"
+          className="rounded-2xl border border-border/20 bg-card p-4 shadow-none"
         >
           <Skeleton className="h-5 w-24" />
           <Skeleton className="mt-4 h-6 w-5/6" />

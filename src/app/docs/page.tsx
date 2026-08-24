@@ -65,7 +65,7 @@ const queryParams = [
 export default function DocsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="inline-block -rotate-1 rounded-md border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-black uppercase">
+      <p className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs font-bold">
         REST · precisa de chave
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API da Trilha</h1>
@@ -86,7 +86,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Uma chamada</h2>
-        <pre className="mt-4 overflow-x-auto rounded-2xl border-2 border-foreground bg-foreground p-4 text-sm text-background shadow-[5px_5px_0_0_#f5b942]">
+        <pre className="mt-4 overflow-x-auto rounded-2xl border border-border bg-foreground p-4 text-sm text-background shadow-none">
           <code>
             {`curl -H "Authorization: Bearer opt_SUA_CHAVE" \\
   "https://SEU_HOST/api/oportunidades?status=abertas&limit=todas"`}
@@ -117,7 +117,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Endpoints</h2>
-        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-foreground bg-card shadow-[5px_5px_0_0_var(--foreground)]">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-[0_10px_28px_rgba(0,26,76,0.07)]">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -150,7 +150,7 @@ export default function DocsPage() {
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Filtros</h2>
-        <div className="mt-4 overflow-hidden rounded-2xl border-2 border-foreground/15 bg-card">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border/15 bg-card">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">

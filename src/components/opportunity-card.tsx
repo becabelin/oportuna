@@ -22,12 +22,12 @@ import type { Oportunidade, TipoOportunidade } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const TIPO_TONE: Record<TipoOportunidade, string> = {
-  bolsa: "-rotate-2 border-foreground bg-[#F7C948] text-foreground",
-  evento: "rotate-2 border-foreground bg-primary text-primary-foreground",
-  curso: "-rotate-1 border-foreground bg-[#7BDFF2] text-foreground",
-  estagio: "rotate-1 border-foreground bg-[#C4B5FD] text-foreground",
-  intercambio: "-rotate-2 border-foreground bg-[#FFD6DC] text-foreground",
-  concurso: "rotate-2 border-foreground bg-[#86EFAC] text-foreground",
+  bolsa: "border-[#001A4C] bg-primary text-primary-foreground",
+  evento: "border-transparent bg-accent text-accent-foreground",
+  curso: "border-[#001A4C] bg-secondary text-secondary-foreground",
+  estagio: "border-transparent bg-[#001A4C] text-white",
+  intercambio: "border-transparent bg-accent text-accent-foreground",
+  concurso: "border-[#001A4C] bg-primary text-primary-foreground",
 };
 
 export function TipoBadge({ tipo }: { tipo: TipoOportunidade }) {
@@ -58,7 +58,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
 
   return (
     <article className="h-full">
-    <Card className="h-full bg-card transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5">
+    <Card className="h-full bg-card transition-shadow hover:shadow-[0_12px_36px_rgba(0,26,76,0.1)]">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />

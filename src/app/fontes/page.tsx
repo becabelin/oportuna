@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function FontesPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="inline-block rotate-1 rounded-md border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-black uppercase">
+      <p className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
         Uso interno
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight">Fontes da base</h1>

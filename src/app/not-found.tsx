@@ -19,7 +19,7 @@ export default function NotFound() {
         <EmptyMedia variant="icon">
           <Sticker />
         </EmptyMedia>
-        <EmptyTitle className="font-heading text-4xl">Esse recorte não está no mural.</EmptyTitle>
+        <EmptyTitle className="font-heading text-4xl">Essa página não está no mural.</EmptyTitle>
         <EmptyDescription>
           O link pode ter expirado ou o identificador está errado. Volte ao catálogo e busque
           de novo.

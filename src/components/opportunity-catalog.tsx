@@ -65,7 +65,7 @@ type CatalogProps = {
 };
 
 const selectTriggerClass =
-  "h-9 w-full rounded-xl border-2 border-foreground/30 bg-background font-medium";
+  "h-9 w-full rounded-xl border border-border/30 bg-background font-medium";
 
 function FilterSelect({
   value,
@@ -282,7 +282,7 @@ export function OpportunityCatalog({
       >
         <ToggleGroupItem
           value="todas"
-          className="min-h-11 rounded-xl border-2 border-foreground px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
+          className="min-h-11 rounded-xl border border-border px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
         >
           Todas
         </ToggleGroupItem>
@@ -290,7 +290,7 @@ export function OpportunityCatalog({
           <ToggleGroupItem
             key={tipo}
             value={tipo}
-            className="min-h-11 rounded-xl border-2 border-foreground px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
+            className="min-h-11 rounded-xl border border-border px-3 font-bold data-[pressed]:bg-primary data-[pressed]:text-primary-foreground"
           >
             {TIPO_LABEL[tipo]}
             {taxonomia ? (
@@ -305,7 +305,7 @@ export function OpportunityCatalog({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <Field className="flex-1">
           <FieldLabel htmlFor="busca">Busca</FieldLabel>
-          <InputGroup className="h-11 min-h-11 rounded-xl border-2 border-foreground bg-background shadow-[3px_3px_0_0_var(--foreground)]">
+          <InputGroup className="h-11 min-h-11 rounded-xl border border-border bg-background shadow-none">
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>
@@ -338,7 +338,7 @@ export function OpportunityCatalog({
               </Button>
             }
           />
-          <SheetContent side="bottom" className="gap-0 rounded-t-3xl border-2 border-foreground">
+          <SheetContent side="bottom" className="gap-0 rounded-t-3xl border border-border">
             <SheetHeader className="border-b-2 border-foreground/10">
               <SheetTitle className="font-heading text-2xl">Filtros do mural</SheetTitle>
               <SheetDescription>
@@ -350,7 +350,7 @@ export function OpportunityCatalog({
         </Sheet>
       </div>
 
-      <div className="hidden rounded-2xl border-2 border-foreground bg-card p-4 shadow-[5px_5px_0_0_var(--foreground)] lg:block">
+      <div className="hidden rounded-2xl border border-border bg-card p-4 shadow-[0_10px_28px_rgba(0,26,76,0.07)] lg:block">
         {filterFields}
       </div>
 
@@ -377,7 +377,7 @@ export function OpportunityCatalog({
       {error ? (
         <Alert
           variant="destructive"
-          className="border-2 border-destructive shadow-[5px_5px_0_0_var(--destructive)]"
+          className="border border-destructive shadow-none"
         >
           <Filter />
           <AlertTitle>Não foi possível carregar as oportunidades.</AlertTitle>
@@ -393,7 +393,7 @@ export function OpportunityCatalog({
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-2xl border-2 border-foreground/20 bg-card p-4 shadow-[4px_4px_0_0_oklch(0.24_0.04_40_/_0.12)]"
+              className="rounded-2xl border border-border/20 bg-card p-4 shadow-none"
             >
               <Skeleton className="h-5 w-24" />
               <Skeleton className="mt-4 h-6 w-5/6" />
@@ -405,7 +405,7 @@ export function OpportunityCatalog({
       ) : null}
 
       {!loading && result && result.data.length === 0 ? (
-        <Empty className="rounded-2xl border-2 border-dashed border-foreground/40 bg-card py-16 shadow-[5px_5px_0_0_oklch(0.24_0.04_40_/_0.08)]">
+        <Empty className="rounded-2xl border border-dashed border-border bg-card py-16 shadow-none">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <Sticker />

@@ -10,7 +10,7 @@ import { FAQ } from "@/lib/faq";
 
 export function FaqAccordion() {
   return (
-    <Accordion className="rounded-2xl border-2 border-foreground bg-card px-4 shadow-[5px_5px_0_0_var(--foreground)]">
+    <Accordion className="rounded-3xl border border-border bg-card px-4">
       {FAQ.map((item, index) => (
         <AccordionItem key={item.q} value={`faq-${index}`}>
           <AccordionTrigger className="font-heading text-base hover:no-underline">

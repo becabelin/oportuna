@@ -25,7 +25,7 @@ const NAV = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link
           href="/"
@@ -69,7 +69,7 @@ export function SiteHeader() {
             >
               <Menu />
             </SheetTrigger>
-            <SheetContent side="right" className="border-2 border-foreground">
+            <SheetContent side="right" className="border border-border">
               <SheetHeader>
                 <SheetTitle>
                   <BrandMark compact />

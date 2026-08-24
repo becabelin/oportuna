@@ -2,9 +2,9 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-export const BRAND_NAVY = "#1B2A4A";
-export const BRAND_STAR = "#F5B942";
-export const BRAND_PURPLE = "#6B3AED";
+export const BRAND_NAVY = "#001A4C";
+export const BRAND_STAR = "#FDB409";
+export const BRAND_PURPLE = "#5E2EC4";
 
 export function BrandIcon({ className }: { className?: string }) {
   return (

@@ -22,7 +22,7 @@ export function A11yToolbar({ compact = false }: { compact?: boolean }) {
       <div
         role="group"
         aria-label="Aparência"
-        className="flex items-center rounded-xl border-2 border-foreground bg-card p-0.5 shadow-[2px_2px_0_0_var(--foreground)]"
+        className="flex items-center rounded-xl border border-border bg-card p-0.5 shadow-none"
       >
         {THEME_OPTIONS.map((option) => {
           const Icon = option.icon;
@@ -51,7 +51,7 @@ export function A11yToolbar({ compact = false }: { compact?: boolean }) {
       <div
         role="group"
         aria-label="Tamanho do texto"
-        className="flex items-center rounded-xl border-2 border-foreground bg-card p-0.5 shadow-[2px_2px_0_0_var(--foreground)]"
+        className="flex items-center rounded-xl border border-border bg-card p-0.5 shadow-none"
       >
         <Button
           type="button"
