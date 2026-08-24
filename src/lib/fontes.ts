@@ -283,6 +283,102 @@ export const SEED_FONTES: Array<
     tipoSugerido: "intercambio",
     areaSugerida: "Multidisciplinar",
   },
+  {
+    url: "https://www.fipecafi.org/Mestrado-Profissional",
+    titulo: "FIPECAFI — Mestrado Profissional",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Negócios",
+  },
+  {
+    url: "https://pep.ufc.br/pt/edital-n-o-01-2026-selecao-para-mestrado-profissional-em-economia-turma-2026-1-atualizacao-26-02-2026/",
+    titulo: "UFC PEP — Mestrado Profissional em Economia 2026.1",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Negócios",
+  },
+  {
+    url: "https://mestrado-doutorado.fgv.br/curso/mestrado-profissional/sao-paulo/financas-e-economia",
+    titulo: "FGV — Mestrado Profissional em Finanças e Economia",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Negócios",
+  },
+  {
+    url: "https://www.sp.senac.br/bolsas-de-estudo",
+    titulo: "Senac São Paulo — Bolsas de estudo",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://tabula.com.br/blog/post/estudar-fora-paises-universidades-gratuitas-ou-com-bolsa-de-estudos",
+    titulo: "Tábula — Universidades gratuitas e bolsas no exterior",
+    tipoSugerido: "intercambio",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://partiuintercambio.org/bolsas-de-estudo-2026-intercambio-gratuito/",
+    titulo: "Partiu Intercâmbio — Bolsas 2026",
+    tipoSugerido: "intercambio",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://querobolsa.com.br/revista/senac-oferece-mais-de-45-mil-cursos-gratuitos",
+    titulo: "Senac — Cursos gratuitos (Quero Bolsa)",
+    tipoSugerido: "curso",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://noticias.portaldaindustria.com.br/noticias/educacao/petrobras-e-senai-abrem-480-vagas-em-cursos-tecnicos-gratuitos-com-bolsa-de-ate-r-858/",
+    titulo: "Petrobras e SENAI — Cursos técnicos com bolsa",
+    tipoSugerido: "curso",
+    areaSugerida: "Engenharia",
+  },
+  {
+    url: "https://www.icara.sc.gov.br/noticias/noticia?post=icara-oferece-bolsas-100-gratuitas-para-curso-de-fonoaudiologia-56406",
+    titulo: "Içara (SC) — Bolsas de Fonoaudiologia",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Saúde",
+  },
+  {
+    url: "https://catracalivre.com.br/educacao/uniube-oferece-2-mil-bolsas-de-estudo-100-gratuitas/",
+    titulo: "Uniube — 2 mil bolsas integrais",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://g1.globo.com/ba/bahia/blogdoemprego/noticia/2026/03/26/curso-gratuito-na-bahia.ghtml",
+    titulo: "Cursos gratuitos na Bahia (G1)",
+    tipoSugerido: "curso",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://forbes.com.br/carreira/2026/02/santander-e-alura-oferecem-36-mil-bolsas-de-estudo-em-tecnologia-e-ia/",
+    titulo: "Santander e Alura — Bolsas em tecnologia e IA",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Ciência da Computação",
+  },
+  {
+    url: "https://www.cnnbrasil.com.br/educacao/mover-e-ef-abrem-11-mil-bolsas-gratuitas-de-6-idiomas-para-pessoas-negras/",
+    titulo: "Mover e EF — Bolsas de idiomas para pessoas negras",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://meutudo.com.br/blog/universidade-gratuita/",
+    titulo: "Universidades gratuitas no Brasil (Meu Tudo)",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://agendasorocaba.com.br/listas-novidades/senac-sorocaba-oferece-339-bolsas-de-estudo-gratuitas-ate-junho/",
+    titulo: "Senac Sorocaba — Bolsas de estudo",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Multidisciplinar",
+  },
+  {
+    url: "https://itforum.com.br/noticias/novas-vagas-bolsas-estudo/",
+    titulo: "IT Forum — Vagas e bolsas de estudo",
+    tipoSugerido: "bolsa",
+    areaSugerida: "Ciência da Computação",
+  },
 ]
 
 function createStore(): FontesStore {
@@ -331,6 +427,7 @@ function touch() {
 }
 
 export function listFontes() {
+  ensureSeedFontes();
   return [...getStore().items.values()].sort((a, b) =>
     a.criadaEm.localeCompare(b.criadaEm)
   );
@@ -342,7 +439,10 @@ export function getFonte(id: string) {
 
 export function findFonteByUrl(url: string) {
   const normalized = normalizeUrl(url);
-  return listFontes().find((fonte) => normalizeUrl(fonte.url) === normalized) ?? null;
+  return (
+    [...getStore().items.values()].find((fonte) => normalizeUrl(fonte.url) === normalized) ??
+    null
+  );
 }
 
 export function normalizeUrl(raw: string) {

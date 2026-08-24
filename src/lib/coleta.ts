@@ -288,6 +288,33 @@ function discoverFeed($: cheerio.CheerioAPI, baseUrl: string) {
   }
 }
 
+function candidatoDaPagina(
+  $: cheerio.CheerioAPI,
+  finalUrl: string,
+  fallbackTipo: TipoOportunidade | null
+): Candidato | null {
+  const titulo = cleanText(
+    $("meta[property='og:title']").attr("content") ||
+      $("h1").first().text() ||
+      $("title").first().text()
+  );
+  const descricao = cleanText(
+    $("meta[property='og:description']").attr("content") ||
+      $("meta[name='description']").attr("content") ||
+      $("article p, main p, p").first().text()
+  );
+  const blob = `${titulo}\n${descricao}\n${finalUrl}`;
+  if (!titulo || titulo.length < 12) return null;
+  if (!KEYWORD.test(blob)) return null;
+  return {
+    titulo: titulo.slice(0, 140),
+    descricao: (descricao || titulo).slice(0, 800),
+    url: finalUrl,
+    prazo: pickDeadline(blob),
+    tipo: inferTipo(blob, fallbackTipo),
+  };
+}
+
 function toOportunidade(
   candidato: Candidato,
   fonte: Fonte
@@ -386,6 +413,8 @@ export async function coletarFonte(fonteId: string) {
             ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
           ];
         }
+        const propria = candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido);
+        if (propria) candidatos.push(propria);
       }
     }
 
