@@ -39,7 +39,7 @@ export function BrandMark({
         src="/logo-trilha-da-oportunidade.png"
         alt="Trilha da Oportunidade"
         width={640}
-        height={427}
+        height={267}
         sizes={sizes}
         className={cn(frame, "dark:hidden contrast:hidden")}
         priority
@@ -48,7 +48,7 @@ export function BrandMark({
         src="/logo-trilha-da-oportunidade-escuro.png"
         alt=""
         width={640}
-        height={427}
+        height={270}
         sizes={sizes}
         className={cn(frame, "hidden dark:block contrast:block")}
         aria-hidden
