@@ -44,7 +44,14 @@ export const metadata: Metadata = {
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
   category: "education",
-  icons: { icon: "/icon" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon/32", sizes: "32x32", type: "image/png" },
+      { url: "/icon/192", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-icon",
+  },
   manifest: "/manifest.webmanifest",
   alternates: {
     canonical: "/",

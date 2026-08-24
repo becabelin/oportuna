@@ -9,10 +9,14 @@ export default function manifest(): MetadataRoute.Manifest {
     description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
-    background_color: "#f6eedc",
-    theme_color: "#1b2a4a",
+    background_color: "#ffffff",
+    theme_color: "#001A4C",
     lang: "pt-BR",
     categories: ["education", "news"],
-    icons: [{ src: "/icon", sizes: "32x32", type: "image/png" }],
+    icons: [
+      { src: "/icon/32", sizes: "32x32", type: "image/png" },
+      { src: "/icon/192", sizes: "192x192", type: "image/png" },
+      { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
   };
 }
