@@ -3,7 +3,6 @@ import { ImageResponse } from "next/og";
 import { ogLockupDataUrl } from "@/lib/brand-assets";
 import {
   loadOgFonts,
-  OG_GOLD,
   OG_LOCKUP_SIZE,
   OG_NAVY,
   OG_SIZE,
@@ -18,7 +17,7 @@ export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
   const [logoSrc, fonts] = await Promise.all([ogLockupDataUrl(), loadOgFonts()]);
-  const logoWidth = 1040;
+  const logoWidth = 980;
   const logoHeight = Math.round(
     (logoWidth * OG_LOCKUP_SIZE.height) / OG_LOCKUP_SIZE.width
   );
@@ -33,22 +32,13 @@ export default async function OpenGraphImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 28,
+          gap: 36,
           background: OG_WHITE,
           color: OG_NAVY,
-          padding: "48px 64px",
+          padding: "56px 72px",
           fontFamily: "Fredoka",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            height: 8,
-            width: 88,
-            borderRadius: 999,
-            background: OG_GOLD,
-          }}
-        />
         <img
           src={logoSrc}
           alt={SITE_NAME}
@@ -58,10 +48,12 @@ export default async function OpenGraphImage() {
         <div
           style={{
             display: "flex",
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: 600,
-            lineHeight: 1.25,
+            lineHeight: 1.3,
             letterSpacing: -0.2,
+            textAlign: "center",
+            maxWidth: 900,
           }}
         >
           {SITE_TAGLINE}
