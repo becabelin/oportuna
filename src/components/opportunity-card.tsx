@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -58,7 +57,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
 
   return (
     <article className="h-full">
-    <Card className="h-full bg-card transition-shadow hover:shadow-[0_12px_36px_rgba(0,26,76,0.1)]">
+    <Card className="relative h-full cursor-pointer bg-card transition-shadow hover:shadow-[0_12px_36px_rgba(0,26,76,0.1)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           <TipoBadge tipo={item.tipo} />
@@ -67,7 +66,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
         <CardTitle className="text-lg leading-snug">
           <Link
             href={`/oportunidades/${item.id}`}
-            className="hover:underline hover:underline-offset-4"
+            className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
           >
             <h3 className="font-heading text-lg leading-snug">{item.titulo}</h3>
           </Link>
@@ -93,14 +92,11 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
           </li>
         </ul>
       </CardContent>
-      <CardFooter className="justify-between text-xs text-muted-foreground">
+      <CardFooter className="text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <CalendarClock className="size-3.5" />
           {item.tags.slice(0, 2).map(capitalizeTag).join(" · ") || "Sem tags"}
         </span>
-        <Button variant="link" size="sm" nativeButton={false} render={<Link href={`/oportunidades/${item.id}`} />} className="h-auto px-0">
-          Ver edital
-        </Button>
       </CardFooter>
     </Card>
     </article>
