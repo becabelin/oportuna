@@ -428,6 +428,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__oportunaStore = createStore();
+  globalForStore.__trilhaDedup3 = createStore();
   touch();
 }
