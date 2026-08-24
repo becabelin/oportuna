@@ -12,13 +12,8 @@ export function generateImageMetadata() {
 
 function Mark({ size }: { size: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-    >
-      <rect width="64" height="64" rx="16" fill="#FFFFFF" />
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="14" fill="#001A4C" />
       <path
         d="M30.2 23.1 25.2 24.7 21.8 26.4 19.9 28.0 19.4 29.7 20.1 31.4 21.6 33.0 22.9 34.7 23.8 36.3 24.3 38.0 24.4 39.7 24.0 41.3 23.4 43.0 22.4 44.7 21.1 46.3 19.5 48.0 17.7 49.6 15.7 51.3 13.5 53.0 11.1 54.6 8.6 56.3 24.1 56.3 25.8 54.6 27.4 53.0 28.8 51.3 30.0 49.6 30.9 48.0 31.7 46.3 32.3 44.7 32.6 43.0 32.7 41.3 32.5 39.7 31.8 38.0 30.8 36.3 29.3 34.7 27.3 33.0 25.2 31.4 23.7 29.7 23.4 28.0 24.6 26.4 27.2 24.7 31.1 23.1Z"
         fill="#5E2EC4"
@@ -29,7 +24,7 @@ function Mark({ size }: { size: number }) {
       />
       <path
         d="M34.5 23.1 31.8 24.7 30.3 26.4 30.2 28.0 31.8 29.7 34.7 31.4 37.5 33.0 39.8 34.7 41.8 36.3 43.2 38.0 44.4 39.7 45.2 41.3 45.8 43.0 46.1 44.7 46.2 46.3 46.1 48.0 45.9 49.6 45.5 51.3 44.8 53.0 44.1 54.6 43.2 56.3 57.5 56.3 57.7 54.6 57.8 53.0 57.7 51.3 57.5 49.6 57.2 48.0 56.6 46.3 56.0 44.7 55.1 43.0 54.0 41.3 52.7 39.7 50.9 38.0 49.0 36.3 46.5 34.7 43.6 33.0 40.1 31.4 36.4 29.7 33.8 28.0 33.0 26.4 33.7 24.7 35.3 23.1Z"
-        fill="#001A4C"
+        fill="#F5F0E8"
       />
       <path
         d="M34 6.2 36.6 13.8 44.5 14.1 38.3 18.9 40.4 26.6 34 22.3 27.6 26.6 29.7 18.9 23.5 14.1 31.4 13.8Z"
@@ -42,9 +37,13 @@ function Mark({ size }: { size: number }) {
   );
 }
 
-export default async function Icon({ id }: { id: string | Promise<string> }) {
-  const resolvedId = await Promise.resolve(id);
-  const size = String(resolvedId) === "192" ? 192 : 32;
+export default async function Icon({
+  id,
+}: {
+  id: Promise<string>;
+}) {
+  const iconId = await id;
+  const size = iconId === "192" ? 192 : 32;
   return new ImageResponse(
     (
       <div
@@ -54,7 +53,7 @@ export default async function Icon({ id }: { id: string | Promise<string> }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#FFFFFF",
+          background: "#001A4C",
         }}
       >
         <Mark size={size} />
