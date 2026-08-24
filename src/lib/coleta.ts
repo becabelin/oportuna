@@ -17,7 +17,8 @@ import {
   deleteByFonte,
   upsertColetada,
 } from "./store";
-import type { Fonte, NovaOportunidade, TipoOportunidade } from "./types";
+import type { Fonte, Modalidade, Nivel, NovaOportunidade, TipoOportunidade } from "./types";
+import { AREAS } from "./taxonomia";
 
 const USER_AGENT =
   "TrilhaDaOportunidade/1.0 (agregador educacional; +https://github.com/becabelin/trilha-da-oportunidade)";
@@ -53,8 +54,8 @@ function hostnameLabel(url: string) {
 
 export function inferTipo(text: string, fallback: TipoOportunidade | null): TipoOportunidade {
   const value = text.toLowerCase();
-  if (/est[aá]gio|internship/.test(value)) return "estagio";
-  if (/interc[aâ]mbio|exchange|erasmus|mobilidade/.test(value)) return "intercambio";
+  if (/est[aá]gio|internship|jovem aprendiz|aprendizagem profissional/.test(value)) return "estagio";
+  if (/interc[aâ]mbio|exchange|erasmus|mobilidade|pec-g|pec-pg/.test(value)) return "intercambio";
   if (/hackathon|congresso|confer[eê]ncia|evento|summit|festival|workshop|webinar|design day|\bcamp\b/i.test(value)) {
     return "evento";
   }
@@ -62,8 +63,104 @@ export function inferTipo(text: string, fallback: TipoOportunidade | null): Tipo
     return "curso";
   }
   if (/concurso|olimp[ií]ada|pr[eê]mio|award|prize/.test(value)) return "concurso";
-  if (/bolsa|scholarship|fellow|grant|funding|edital/.test(value)) return "bolsa";
+  if (/bolsa|scholarship|fellow|grant|funding|edital|mestrado|doutorado|prouni|fies/.test(value)) {
+    return "bolsa";
+  }
   return fallback ?? "bolsa";
+}
+
+export function inferNivel(text: string, fallback: Nivel = "todos"): Nivel {
+  const value = text.toLowerCase();
+  if (
+    /ensino m[eé]dio|ensino-medio|high school|15 a 17|15–17|jovem de 15|obmep|obi\b|obf\b|obq\b/.test(
+      value
+    )
+  ) {
+    return "ensino-medio";
+  }
+  if (
+    /mestrado|doutorado|p[oó]s-?gradua|stricto sensu|lato sensu|mba\b|master'?s|phd\b|graduate school|demanda social/.test(
+      value
+    )
+  ) {
+    return "pos-graduacao";
+  }
+  if (
+    /gradua[cç][aã]o|undergrad|bachelor|licenciatura|bacharelado|inicia[cç][aã]o cient[ií]fica|pibic|prouni|fies/.test(
+      value
+    )
+  ) {
+    return "graduacao";
+  }
+  return fallback;
+}
+
+export function inferArea(text: string, fallback: string): string {
+  const value = text.toLowerCase();
+  const rules: Array<{ area: (typeof AREAS)[number]; re: RegExp }> = [
+    {
+      area: "Ciência da Computação",
+      re: /computa[cç]|software|programa[cç]|intelig[eê]ncia artificial|\bia\b|dados|hackathon|inform[aá]tica|obi\b|ux |produto digital|alura/,
+    },
+    {
+      area: "UX e Produto",
+      re: /\bux\b|user experience|product design|product manager|design system|figma/,
+    },
+    {
+      area: "Engenharia",
+      re: /engenharia|senai|petrobras|rob[oó]tica|obr\b/,
+    },
+    {
+      area: "Saúde",
+      re: /sa[uú]de|medicina|enfermagem|fonoaudiolog|farm[aá]cia|biomedicina|fiocruz|neuroci[eê]ncia/,
+    },
+    {
+      area: "Ciências Exatas",
+      re: /matem[aá]tica|f[ií]sica|qu[ií]mica|estat[ií]stica|obmep|obf\b|obq\b|embrapa|astronomia/,
+    },
+    {
+      area: "Ciências Humanas",
+      re: /hist[oó]ria|sociologia|filosofia|letras|pedagogia|direito|ci[eê]ncias sociais|antropologia|geografia humana/,
+    },
+    {
+      area: "Negócios",
+      re: /neg[oó]cios|administra[cç]|economia|finan[cç]|empreendedor|sebrae|mba|lideran[cç]/,
+    },
+    {
+      area: "Artes e Design",
+      re: /artes? |design gr[aá]fico|arquitetura|cinema|m[uú]sica|fotografia|moda/,
+    },
+    {
+      area: "Meio Ambiente",
+      re: /meio ambiente|ambiental|clima|sustentab|ecologia|engajamundo/,
+    },
+  ];
+  for (const rule of rules) {
+    if (rule.re.test(value)) return rule.area;
+  }
+  return fallback || "Multidisciplinar";
+}
+
+export function inferModalidade(text: string, fallback: Modalidade = "remoto"): Modalidade {
+  const value = text.toLowerCase();
+  if (/h[ií]brido|hybrid/.test(value)) return "hibrido";
+  if (/presencial|on-?site|in person|campus/.test(value)) return "presencial";
+  if (/remoto|online|ead|distance|virtual/.test(value)) return "remoto";
+  return fallback;
+}
+
+export function inferPais(text: string, fallback = "Internacional"): string {
+  const value = text.toLowerCase();
+  if (/brasil|brazil|capes|cnpq|fapesp|faperj|fapemig|prouni|fies|mec\b|senac|senai/.test(value)) {
+    return "Brasil";
+  }
+  if (/reino unido|united kingdom|chevening|uk\b/.test(value)) return "Reino Unido";
+  if (/alemanha|germany|daad/.test(value)) return "Alemanha";
+  if (/estados unidos|united states|fulbright|\busa\b/.test(value)) return "Estados Unidos";
+  if (/fran[cç]a|france/.test(value)) return "França";
+  if (/portugal/.test(value)) return "Portugal";
+  if (/europa|erasmus|uni[aã]o europeia/.test(value)) return "União Europeia";
+  return fallback;
 }
 
 function cleanText(value: string) {
@@ -321,6 +418,8 @@ function toOportunidade(
 ): NovaOportunidade {
   const organizacao = fonte.titulo || hostnameLabel(fonte.url);
   const tipo = fonte.tipoSugerido ?? candidato.tipo;
+  const blob = `${candidato.titulo}\n${candidato.descricao}\n${candidato.url}\n${fonte.titulo ?? ""}\n${fonte.url}`;
+  const areaFallback = fonte.areaSugerida || "Multidisciplinar";
   return {
     titulo: candidato.titulo,
     subtitulo: gerarSubtitulo({
@@ -333,10 +432,10 @@ function toOportunidade(
     tipo,
     organizacao,
     descricao: candidato.descricao,
-    area: fonte.areaSugerida || "Multidisciplinar",
-    nivel: "todos",
-    modalidade: "remoto",
-    pais: "Internacional",
+    area: inferArea(blob, areaFallback),
+    nivel: inferNivel(blob, "todos"),
+    modalidade: inferModalidade(blob, "remoto"),
+    pais: inferPais(blob, /gov\.br|fapesp|faperj|fapemig|senac|senai|\.br\//i.test(fonte.url) ? "Brasil" : "Internacional"),
     cidade: null,
     beneficio: null,
     prazoInscricao: candidato.prazo,

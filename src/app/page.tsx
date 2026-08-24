@@ -62,9 +62,10 @@ export default async function HomePage({
           Bolsas, eventos e editais numa trilha só.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg">
-          A Trilha da Oportunidade junta oportunidades de estudo e carreira num
-          mural público. Consulte de graça. Para plugar no app, peça uma chave.
-          O prazo que vale é o do edital oficial.
+          Mestrado, editais abertos, olimpíadas e programas para jovens em todas
+          as áreas — humanas, exatas, saúde, negócios e mais, não só tecnologia.
+          Consulte de graça. Para plugar no app, peça uma chave. O prazo que vale
+          é o do edital oficial.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/chave" className={cn(buttonVariants({ size: "lg" }))}>

@@ -1,20 +1,22 @@
 export const SITE_NAME = "Trilha da Oportunidade";
 export const SITE_TAGLINE = "Bolsas, eventos e editais numa trilha só";
 export const SITE_DESCRIPTION =
-  "Catálogo público de bolsas de estudo, eventos, cursos, estágios, intercâmbios e concursos. Consulte o mural de graça. Para plugar no app, peça uma chave da API.";
+  "Catálogo público de bolsas de mestrado, editais abertos, cursos, estágios, intercâmbios e iniciativas para jovens em todas as áreas de estudo — não só tecnologia. Consulte o mural de graça.";
 export const SITE_KEYWORDS = [
   "bolsas de estudo",
-  "editais",
+  "bolsas de mestrado",
+  "editais abertos",
+  "iniciativas para jovens",
   "intercâmbio",
   "estágio",
   "concursos estudantis",
   "eventos acadêmicos",
   "oportunidades para estudantes",
-  "API de bolsas",
-  "CNPq",
   "CAPES",
-  "Chevening",
-  "Fulbright",
+  "FAPESP",
+  "CNPq",
+  "ProUni",
+  "OBMEP",
   "Trilha da Oportunidade",
 ];
 export const SITE_GITHUB = "https://github.com/becabelin/trilha-da-oportunidade";
