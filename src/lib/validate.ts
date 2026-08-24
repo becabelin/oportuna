@@ -6,6 +6,7 @@ import type {
   TipoOportunidade,
 } from "./types";
 import { MODALIDADES, NIVEIS, TIPOS } from "./types";
+import { capitalizeTags } from "./format";
 import { gerarSubtitulo } from "./triagem";
 
 export function isTipo(value: unknown): value is TipoOportunidade {
@@ -189,7 +190,7 @@ export function validateOportunidade(
     dataFim: (input.dataFim as string | null) ?? null,
     urlInscricao: String(input.urlInscricao).trim(),
     requisitos: asStringArray(input.requisitos) ?? [],
-    tags: asStringArray(input.tags) ?? [],
+    tags: capitalizeTags(asStringArray(input.tags) ?? []),
     vagas: typeof input.vagas === "number" ? input.vagas : null,
     origem: input.origem === "coleta" ? "coleta" : "manual",
     fonteId: typeof input.fonteId === "string" ? input.fonteId : null,

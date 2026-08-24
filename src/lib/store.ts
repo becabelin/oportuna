@@ -1,5 +1,4 @@
-import { isOpen } from "./format";
-import { slugify } from "./format";
+import { capitalizeTags, isOpen, slugify } from "./format";
 import { gerarSubtitulo, pareceOportunidade } from "./triagem";
 import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
@@ -21,7 +20,9 @@ function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo"> & Partial<Oportunidade>
 ): Oportunidade {
   const organizacao = item.organizacao;
-  const tags = (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada");
+  const tags = capitalizeTags(
+    (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada")
+  );
   return {
     ...item,
     tags,

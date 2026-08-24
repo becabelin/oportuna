@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { capitalizeTag } from "@/lib/format";
 import { AREAS, MODALIDADE_LABEL, NIVEL_LABEL, PAISES, TIPO_LABEL } from "@/lib/taxonomia";
 import type { ApiError, Oportunidade } from "@/lib/types";
 import { MODALIDADES, NIVEIS, TIPOS } from "@/lib/types";
@@ -69,7 +70,7 @@ export function CreateOpportunityForm() {
       requisitos: split(form.get("requisitos")),
       tags: String(form.get("tags") ?? "")
         .split(",")
-        .map((tag) => tag.trim())
+        .map((tag) => capitalizeTag(tag))
         .filter(Boolean),
       vagas: form.get("vagas") ? Number(form.get("vagas")) : null,
     };
@@ -237,7 +238,7 @@ export function CreateOpportunityForm() {
 
       <div className="grid gap-1.5">
         <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-        <Input id="tags" name="tags" placeholder="mestrado, pesquisa, internacional" />
+        <Input id="tags" name="tags" placeholder="Mestrado, Pesquisa, Internacional" />
       </div>
 
       <div className="flex gap-2">

@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { prazoLabel } from "@/lib/format";
+import { prazoLabel, capitalizeTag } from "@/lib/format";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
 import type { Oportunidade, TipoOportunidade } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -97,7 +97,7 @@ export function OpportunityCard({ item }: { item: Oportunidade }) {
       <CardFooter className="justify-between text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <CalendarClock className="size-3.5" />
-          {item.tags.slice(0, 2).join(" · ") || "Sem tags"}
+          {item.tags.slice(0, 2).map(capitalizeTag).join(" · ") || "Sem tags"}
         </span>
         <Button variant="link" size="sm" nativeButton={false} render={<Link href={`/oportunidades/${item.id}`} />} className="h-auto px-0">
           Ver edital

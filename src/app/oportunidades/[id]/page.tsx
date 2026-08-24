@@ -16,7 +16,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatDate } from "@/lib/format";
+import { formatDate, capitalizeTag } from "@/lib/format";
 import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { getOportunidade } from "@/lib/store";
@@ -178,7 +178,7 @@ export default async function OpportunityPage({ params }: PageProps) {
 
       {item.tags.length > 0 ? (
         <p className="mt-8 text-sm text-muted-foreground">
-          {item.tags.map((tag) => `#${tag.replaceAll(" ", "")}`).join("  ")}
+          {item.tags.map((tag) => `#${capitalizeTag(tag).replaceAll(" ", "")}`).join("  ")}
         </p>
       ) : null}
 

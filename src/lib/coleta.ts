@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 
 import { pickDeadline } from "./dates";
-import { isOpen } from "./format";
+import { capitalizeTags, isOpen } from "./format";
 import {
   createFonte,
   deleteFonte,
@@ -317,7 +317,7 @@ function toOportunidade(
     dataFim: null,
     urlInscricao: candidato.url,
     requisitos: [],
-    tags: [fonte.titulo ?? hostnameLabel(fonte.url)],
+    tags: capitalizeTags([fonte.titulo ?? hostnameLabel(fonte.url)]),
     vagas: null,
     origem: "coleta",
     fonteId: fonte.id,

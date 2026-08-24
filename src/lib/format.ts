@@ -62,3 +62,23 @@ export function slugify(value: string) {
     .replace(/(^-|-$)/g, "")
     .slice(0, 48);
 }
+
+export function capitalizeTag(value: string) {
+  const tag = value.trim();
+  if (!tag) return tag;
+  return tag.charAt(0).toLocaleUpperCase("pt-BR") + tag.slice(1);
+}
+
+export function capitalizeTags(values: string[]) {
+  const seen = new Set<string>();
+  const tags: string[] = [];
+  for (const value of values) {
+    const tag = capitalizeTag(value);
+    if (!tag) continue;
+    const key = tag.toLocaleLowerCase("pt-BR");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tags.push(tag);
+  }
+  return tags;
+}
