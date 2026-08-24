@@ -65,7 +65,7 @@ type CatalogProps = {
 };
 
 const selectTriggerClass =
-  "h-9 w-full rounded-xl border border-border/30 bg-background font-medium";
+  "h-11 min-h-11 w-full gap-2 rounded-xl border border-border/40 bg-background px-3.5 py-2.5 pr-3.5 text-base font-medium data-[size=default]:h-11";
 
 function FilterSelect({
   id,
