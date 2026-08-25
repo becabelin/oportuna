@@ -110,7 +110,7 @@ function canHydrateFromServer(
   query: string,
   initialQuery: string | undefined,
   pageSize: number
-) {
+): initialResult is PaginaOportunidades {
   if (!initialResult) return false;
   if (filterKey(query) !== filterKey(initialQuery ?? "")) return false;
   return (
