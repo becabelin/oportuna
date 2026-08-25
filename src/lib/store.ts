@@ -27,7 +27,7 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaFiapMeetup?: Store };
+const globalForStore = globalThis as unknown as { __trilhaGeminiEstudantes2026?: Store };
 
 function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
@@ -188,15 +188,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaFiapMeetup) {
-    globalForStore.__trilhaFiapMeetup = createStore();
-    sanitizar(globalForStore.__trilhaFiapMeetup);
+  if (!globalForStore.__trilhaGeminiEstudantes2026) {
+    globalForStore.__trilhaGeminiEstudantes2026 = createStore();
+    sanitizar(globalForStore.__trilhaGeminiEstudantes2026);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaFiapMeetup.items.get(item.id);
-      globalForStore.__trilhaFiapMeetup.items.set(
+      const current = globalForStore.__trilhaGeminiEstudantes2026.items.get(item.id);
+      globalForStore.__trilhaGeminiEstudantes2026.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -205,17 +205,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaFiapMeetup.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaGeminiEstudantes2026.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaFiapMeetup.items.delete(id);
+        globalForStore.__trilhaGeminiEstudantes2026.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaFiapMeetup)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaFiapMeetup.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaGeminiEstudantes2026)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaGeminiEstudantes2026.items.values()]);
   }
-  return globalForStore.__trilhaFiapMeetup;
+  return globalForStore.__trilhaGeminiEstudantes2026;
 }
 
 function allItems() {
@@ -462,6 +462,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaFiapMeetup = createStore();
+  globalForStore.__trilhaGeminiEstudantes2026 = createStore();
   touch();
 }
