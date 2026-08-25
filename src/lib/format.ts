@@ -35,16 +35,26 @@ export function formatPrazoInscricao(iso: string | null): string {
   return `Inscrição até ${data}`;
 }
 
-function todayUtc(): Date {
-  const now = new Date();
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  );
+const FUSO_MURAL = "America/Sao_Paulo";
+
+function hojeIso(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSO_MURAL,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export function daysUntil(iso: string): number {
+  const hoje = new Date(`${hojeIso()}T00:00:00Z`);
   const target = new Date(`${iso}T00:00:00Z`);
-  return Math.round((target.getTime() - todayUtc().getTime()) / 86_400_000);
+  return Math.round((target.getTime() - hoje.getTime()) / 86_400_000);
+}
+
+export function encerraHoje(prazoInscricao: string | null): boolean {
+  if (!prazoInscricao) return false;
+  return daysUntil(prazoInscricao) === 0;
 }
 
 export function isOpen(oportunidade: Pick<Oportunidade, "prazoInscricao">) {

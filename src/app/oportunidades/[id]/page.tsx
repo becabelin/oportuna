@@ -6,9 +6,9 @@ import { ArrowUpRight } from "lucide-react";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { JsonLd } from "@/components/json-ld";
 import { OpportunityCard } from "@/components/opportunity-card";
-import { SectionHeading } from "@/components/editorial";
+import { PrazoTexto, SectionHeading } from "@/components/editorial";
 import { buttonVariants } from "@/components/ui/button";
-import { formatDate, formatDateShort } from "@/lib/format";
+import { encerraHoje, formatDate, formatDateShort } from "@/lib/format";
 import { subtituloVisivel } from "@/lib/triagem";
 import { breadcrumbSchema, opportunitySchema } from "@/lib/schema";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -155,7 +155,11 @@ export default async function OpportunityPage({ params }: PageProps) {
         <div>
           <div className="flex items-center justify-between gap-4 text-[13px] text-muted-foreground">
             <span>{TIPO_LABEL[item.tipo]}</span>
-            <time dateTime={data}>{formatDateShort(data)}</time>
+            {encerraHoje(item.prazoInscricao) ? (
+              <PrazoTexto prazoInscricao={item.prazoInscricao} />
+            ) : (
+              <time dateTime={data}>{formatDateShort(data)}</time>
+            )}
           </div>
 
           <h1 className="mt-5 font-heading text-[2.15rem] leading-[1.08] tracking-tight text-balance sm:text-5xl lg:text-[3.15rem]">
@@ -195,13 +199,7 @@ export default async function OpportunityPage({ params }: PageProps) {
               <div>
                 <dt className="text-sm text-muted-foreground">Inscrições</dt>
                 <dd className="mt-1 text-base">
-                  {item.prazoInscricao ? (
-                    <>
-                      até <time dateTime={item.prazoInscricao}>{formatDate(item.prazoInscricao)}</time>
-                    </>
-                  ) : (
-                    "fluxo contínuo"
-                  )}
+                  <PrazoTexto prazoInscricao={item.prazoInscricao} />
                 </dd>
               </div>
               <div>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { SiteContainer } from "@/components/editorial";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MURAL_GRID_CLASS, MURAL_PAGE_SIZE_MAX } from "@/lib/mural";
 import { cn } from "@/lib/utils";
 
 function Status({ label, children }: { label: string; children: ReactNode }) {
@@ -31,14 +32,14 @@ export function CardSkeleton({ className }: { className?: string }) {
 }
 
 export function CardSkeletonGrid({
-  count = 8,
+  count = MURAL_PAGE_SIZE_MAX,
   className,
 }: {
   count?: number;
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", className)}>
+    <div className={cn(MURAL_GRID_CLASS, className)}>
       {Array.from({ length: count }).map((_, index) => (
         <CardSkeleton key={index} />
       ))}

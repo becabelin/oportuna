@@ -1,11 +1,31 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { formatPrazoInscricao } from "@/lib/format";
+import { encerraHoje, formatPrazoInscricao } from "@/lib/format";
 import { TIPO_LABEL } from "@/lib/taxonomia";
 import { TIPO_DOT } from "@/lib/tipo-visual";
 import type { TipoOportunidade } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+export function PrazoTexto({
+  prazoInscricao,
+  className,
+}: {
+  prazoInscricao: string | null;
+  className?: string;
+}) {
+  const urgente = encerraHoje(prazoInscricao);
+  const classes = cn(className, urgente && "font-medium text-destructive");
+  const texto = formatPrazoInscricao(prazoInscricao);
+  if (!prazoInscricao) {
+    return <span className={classes}>{texto}</span>;
+  }
+  return (
+    <time dateTime={prazoInscricao} className={classes}>
+      {texto}
+    </time>
+  );
+}
 
 export function CategoryMeta({
   tipo,
@@ -31,11 +51,7 @@ export function CategoryMeta({
         {TIPO_LABEL[tipo]}
       </span>
       <span aria-hidden>·</span>
-      {prazoInscricao ? (
-        <time dateTime={prazoInscricao}>{formatPrazoInscricao(prazoInscricao)}</time>
-      ) : (
-        <span>{formatPrazoInscricao(null)}</span>
-      )}
+      <PrazoTexto prazoInscricao={prazoInscricao} />
     </p>
   );
 }

@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { CategoryMeta } from "@/components/editorial";
-import { formatPrazoInscricao } from "@/lib/format";
+import { CategoryMeta, PrazoTexto } from "@/components/editorial";
 import { TIPO_LABEL } from "@/lib/taxonomia";
 import { TIPO_DOT } from "@/lib/tipo-visual";
 import { gerarResumoCard } from "@/lib/triagem";
@@ -18,15 +17,7 @@ export function TipoBadge({ tipo }: { tipo: TipoOportunidade }) {
 }
 
 export function PrazoBadge({ prazoInscricao }: { prazoInscricao: string | null }) {
-  return (
-    <span className="text-sm text-muted-foreground">
-      {prazoInscricao ? (
-        <time dateTime={prazoInscricao}>{formatPrazoInscricao(prazoInscricao)}</time>
-      ) : (
-        formatPrazoInscricao(null)
-      )}
-    </span>
-  );
+  return <PrazoTexto prazoInscricao={prazoInscricao} className="text-sm text-muted-foreground" />;
 }
 
 export function FeaturedMiniCard({ item }: { item: Oportunidade }) {

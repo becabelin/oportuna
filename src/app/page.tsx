@@ -13,6 +13,7 @@ import { Reveal } from "@/components/reveal";
 import { SectionHeading, SiteContainer } from "@/components/editorial";
 import { CardSkeletonGrid } from "@/components/page-skeleton";
 import { FAQ } from "@/lib/faq";
+import { MURAL_PAGE_SIZE_MAX } from "@/lib/mural";
 import { faqSchema, itemListSchema } from "@/lib/schema";
 import { pageSocial, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site";
 import { listOportunidades, taxonomia } from "@/lib/store";
@@ -45,7 +46,11 @@ export default async function HomePage({
 }) {
   const params = toQuery(await searchParams);
   const filtros = parseListQuery(params);
-  const initialResult = listOportunidades({ ...filtros, page: 1, limit: 15 });
+  const initialResult = listOportunidades({
+    ...filtros,
+    page: 1,
+    limit: MURAL_PAGE_SIZE_MAX,
+  });
   const tax = taxonomia();
   const initialTaxonomia = {
     tipos: tax.tipos.map((item) => ({ ...item, label: TIPO_LABEL[item.id] })),
@@ -137,7 +142,7 @@ export default async function HomePage({
             action="Como usar a API"
               description="Filtre por tipo ou busque por nome. Cada card abre o resumo e o caminho para a inscrição."
           />
-          <Suspense fallback={<CardSkeletonGrid />}>
+            <Suspense fallback={<CardSkeletonGrid count={MURAL_PAGE_SIZE_MAX} />}>
             <OpportunityCatalog
               initialResult={initialResult}
               initialTaxonomia={initialTaxonomia}

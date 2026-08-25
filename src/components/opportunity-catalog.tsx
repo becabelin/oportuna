@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Filter, Search, SlidersHorizontal, Sticker, X } from "lucide-react";
@@ -36,6 +36,12 @@ import {
 } from "@/components/ui/sheet";
 import { CardSkeletonGrid } from "@/components/page-skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  MURAL_GRID_CLASS,
+  MURAL_PAGE_SIZE_MAX,
+  muralColumnsFromWidth,
+  muralPageSize,
+} from "@/lib/mural";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
 import { TIPO_DOT } from "@/lib/tipo-visual";
 import type { Oportunidade, PaginaOportunidades, TipoOportunidade } from "@/lib/types";
@@ -57,7 +63,61 @@ type CatalogProps = {
   pageSize?: number;
 };
 
-const MURAL_PAGE_SIZE = 15;
+function useMuralPageSize() {
+  const [size, setSize] = useState(MURAL_PAGE_SIZE_MAX);
+
+  useEffect(() => {
+    const update = () => {
+      setSize(muralPageSize(muralColumnsFromWidth(window.innerWidth)));
+    };
+    update();
+    const medias = [
+      window.matchMedia("(min-width: 1280px)"),
+      window.matchMedia("(min-width: 1024px)"),
+      window.matchMedia("(min-width: 640px)"),
+    ];
+    for (const media of medias) {
+      media.addEventListener("change", update);
+    }
+    return () => {
+      for (const media of medias) {
+        media.removeEventListener("change", update);
+      }
+    };
+  }, []);
+
+  return size;
+}
+
+function hydrateFromServer(
+  initialResult: PaginaOportunidades,
+  pageSize: number
+): PaginaOportunidades {
+  const data = initialResult.data.slice(0, pageSize);
+  return {
+    ...initialResult,
+    data,
+    meta: {
+      ...initialResult.meta,
+      limit: pageSize,
+      page: 1,
+    },
+  };
+}
+
+function canHydrateFromServer(
+  initialResult: PaginaOportunidades | undefined,
+  query: string,
+  initialQuery: string | undefined,
+  pageSize: number
+) {
+  if (!initialResult) return false;
+  if (filterKey(query) !== filterKey(initialQuery ?? "")) return false;
+  return (
+    pageSize <= initialResult.data.length ||
+    initialResult.data.length >= initialResult.meta.total
+  );
+}
 
 function filterKey(query: string) {
   const params = new URLSearchParams(query);
@@ -117,14 +177,20 @@ export function OpportunityCatalog({
   initialResult,
   initialTaxonomia,
   initialQuery,
-  pageSize = MURAL_PAGE_SIZE,
+  pageSize: pageSizeProp,
 }: CatalogProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const autoPageSize = useMuralPageSize();
+  const pageSize = pageSizeProp ?? autoPageSize;
 
-  const [result, setResult] = useState<PaginaOportunidades | null>(initialResult ?? null);
-  const [items, setItems] = useState<Oportunidade[]>(initialResult?.data ?? []);
+  const [result, setResult] = useState<PaginaOportunidades | null>(() =>
+    initialResult ? hydrateFromServer(initialResult, pageSize) : null
+  );
+  const [items, setItems] = useState<Oportunidade[]>(() =>
+    initialResult ? initialResult.data.slice(0, pageSize) : []
+  );
   const [taxonomia, setTaxonomia] = useState<Taxonomia | null>(initialTaxonomia ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialResult);
@@ -132,7 +198,6 @@ export function OpportunityCatalog({
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const query = searchParams.toString();
-  const prevQuery = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,14 +228,10 @@ export function OpportunityCatalog({
         if (!cancelled) setLoading(false);
       }
     }
-    const queryChanged = prevQuery.current !== null && prevQuery.current !== query;
-    prevQuery.current = query;
-
-    const serverMatchesQuery =
-      Boolean(initialResult) && filterKey(query) === filterKey(initialQuery ?? "");
-    if (!queryChanged && serverMatchesQuery && initialResult) {
-      setResult(initialResult);
-      setItems(initialResult.data);
+    if (canHydrateFromServer(initialResult, query, initialQuery, pageSize)) {
+      const hydrated = hydrateFromServer(initialResult, pageSize);
+      setResult(hydrated);
+      setItems(hydrated.data);
       if (initialTaxonomia) setTaxonomia(initialTaxonomia);
       setLoading(false);
       setError(null);
@@ -452,7 +513,7 @@ export function OpportunityCatalog({
         </Alert>
       ) : null}
 
-      {loading ? <CardSkeletonGrid /> : null}
+      {loading ? <CardSkeletonGrid count={pageSize} /> : null}
 
       {!loading && result && items.length === 0 ? (
         <Empty className="rounded-2xl border border-dashed border-border bg-card py-16 shadow-none">
@@ -480,7 +541,7 @@ export function OpportunityCatalog({
       ) : null}
 
       {!loading && items.length > 0 ? (
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul className={MURAL_GRID_CLASS}>
           {items.map((item: Oportunidade) => (
             <li key={item.id} className="h-full">
               <OpportunityCard item={item} size="compact" />
