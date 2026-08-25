@@ -103,6 +103,12 @@ export const SEED_FONTES: Array<
     tipoSugerido: "evento",
     areaSugerida: "UX e Produto",
   },
+  {
+    url: "https://www.meetup.com/fiapmeetups/",
+    titulo: "FIAP Meetups",
+    tipoSugerido: "evento",
+    areaSugerida: "Ciência da Computação",
+  },
 {
     url: "https://www.santanderopenacademy.com/pt_br/sites/scholarships.html",
     titulo: "Santander Open Academy",

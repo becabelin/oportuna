@@ -8,7 +8,7 @@ import { LIMITES_API, LIMITES_IP } from "@/lib/limites-api";
 export const metadata: Metadata = pageSocial(
   "/chave",
   "Pedir chave da API",
-  "Gere de graça uma chave para consultar bolsas, eventos e editais da Trilha da Oportunidade no seu aplicativo. Teto por chave para não estourar o servidor."
+  "Gere de graça uma chave para consultar bolsas, eventos e editais da Trilha da Oportunidade no seu aplicativo."
 );
 
 export default function ChavePage() {
@@ -22,16 +22,15 @@ export default function ChavePage() {
           Pede a chave, cola no app, puxa o mural.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-foreground sm:text-lg">
-          O site continua aberto. A chave é só para chamada de API, o tipo de
-          coisa que um bot faria mil vezes. Assim a conta de servidor não some
-          no primeiro script maluco.
+          O mural no site continua aberto. A chave libera a API para o seu app
+          consultar a base, com um teto que protege o servidor.
         </p>
         <div className="mt-6 grid gap-3 text-sm leading-relaxed">
           {[
-            ["Não cobra nada agora.", "Cada consulta é um pedacinho de função na Vercel. No plano Hobby isso entra no pacote grátis até o tráfego ficar grande."],
-            ["Teto por chave:", `${LIMITES_API.porMinuto} chamadas por minuto, ${LIMITES_API.porDia.toLocaleString("pt-BR")} por dia. Um app de verdade quase não encosta nisso. Um scraper encosta.`],
-            ["Teto por IP:", `${LIMITES_IP.porMinuto}/min e ${LIMITES_IP.porDia.toLocaleString("pt-BR")}/dia, mesmo no mural. Assim ninguém fura a fila forjando a origem do site.`],
-            ["Custo se crescer:", "o que pesa é invocação + banda, não “por bolsa”. Se estourar o grátis, sobe o plano ou a gente coloca um teto mais baixo. Não é cobrança por aluno."],
+            ["Grátis para começar.", "Cada consulta é um pedacinho de função na Vercel. No plano Hobby isso entra no pacote até o tráfego crescer."],
+            ["Teto por chave:", `${LIMITES_API.porMinuto} chamadas por minuto, ${LIMITES_API.porDia.toLocaleString("pt-BR")} por dia. Cabe um app de verdade.`],
+            ["Teto por IP:", `${LIMITES_IP.porMinuto}/min e ${LIMITES_IP.porDia.toLocaleString("pt-BR")}/dia, inclusive no mural, para a fila continuar justa.`],
+            ["Custo se crescer:", "O que pesa é invocação e banda. Se o tráfego crescer, sobe o plano ou aperta o teto. A chave continua sendo o acesso à base."],
             ["Onde a chave mora:", "só o hash fica guardado. Em disco local, em data/chaves.json; na Vercel, no Redis (Upstash). O texto opt_… aparece uma vez. Se vazar, revogue em /fontes."],
           ].map(([title, body]) => (
             <Card key={title} size="sm">

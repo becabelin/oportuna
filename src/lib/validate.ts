@@ -200,6 +200,7 @@ export function validateOportunidade(
     origem: input.origem === "coleta" ? "coleta" : "manual",
     fonteId: typeof input.fonteId === "string" ? input.fonteId : null,
     fonteUrl: typeof input.fonteUrl === "string" ? input.fonteUrl : null,
+    enriquecidoEm: typeof input.enriquecidoEm === "string" ? input.enriquecidoEm : null,
   };
 
   return { ok: true, data };

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { HeroMesh } from "@/components/cover-field";
+import { DotGlobe, HeroMesh } from "@/components/cover-field";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { FeaturedMiniCard, OpportunityCard } from "@/components/opportunity-card";
 import { JsonLd } from "@/components/json-ld";
@@ -11,7 +11,7 @@ import { LogoTicker } from "@/components/logo-ticker";
 import { OpportunityCatalog } from "@/components/opportunity-catalog";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading, SiteContainer } from "@/components/editorial";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CardSkeletonGrid } from "@/components/page-skeleton";
 import { FAQ } from "@/lib/faq";
 import { faqSchema, itemListSchema } from "@/lib/schema";
 import { pageSocial, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site";
@@ -71,7 +71,8 @@ export default async function HomePage({
             </h1>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-white sm:text-lg">
               Um mural público de bolsas, eventos, cursos, estágios, intercâmbios e
-              concursos. Sem cadastro. O prazo que vale é o do edital oficial.
+              concursos. Leia o resumo aqui e siga para a inscrição no site da
+              organização.
             </p>
           </Reveal>
           {featured ? (
@@ -92,13 +93,13 @@ export default async function HomePage({
             id="o-que-e-heading"
             className="font-heading text-[1.85rem] leading-[1.12] tracking-tight text-balance sm:text-[2.35rem]"
           >
-            Um mural de editais, não o edital em si.
+            Um mural com as chamadas abertas, prontas para você ler.
           </h2>
           <div>
             <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
               A Trilha junta chamadas reais, com inscrição, prazo ou vaga, num
-              catálogo em português, de graça e sem conta. Você lê o resumo aqui e
-              se inscreve no site da organização.
+              catálogo em português e de graça. Você lê o resumo aqui e se
+              inscreve no site da organização.
             </p>
             <Link
               href="/sobre"
@@ -134,9 +135,9 @@ export default async function HomePage({
             title="O mural agora"
             href="/docs"
             action="Como usar a API"
-            description="Filtre por tipo ou busque por nome. Cada card abre o resumo; a inscrição fica no link oficial."
+              description="Filtre por tipo ou busque por nome. Cada card abre o resumo e o caminho para a inscrição."
           />
-          <Suspense fallback={<CatalogSkeleton />}>
+          <Suspense fallback={<CardSkeletonGrid />}>
             <OpportunityCatalog
               initialResult={initialResult}
               initialTaxonomia={initialTaxonomia}
@@ -150,15 +151,14 @@ export default async function HomePage({
         id="sobre-a-criadora"
         className="border-t-4 border-[#FDB409] bg-linear-to-r from-[#001A4C] via-[#001A4C] to-[#5E2EC4] contrast:border-y contrast:border-white contrast:bg-background"
       >
-        <SiteContainer className="flex justify-end py-16 sm:py-20">
-          <Reveal as="figure" className="w-full max-w-xl">
+        <SiteContainer className="grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr]">
+          <Reveal as="figure">
             <blockquote className="font-heading text-3xl leading-[1.2] tracking-tight text-white text-balance sm:text-[2.6rem]">
               Decidi criar a Trilha da Oportunidade para isso chegar em mais pessoas.
             </blockquote>
-            <p className="mt-5 text-base leading-relaxed text-white/85 sm:text-lg contrast:text-white">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg contrast:text-white">
               Bolsas, eventos e editais num mural público, em português e de graça.
-              Você lê o resumo aqui. A inscrição e o prazo que valem estão no site da
-              organização.
+              Você lê o resumo aqui e segue para a inscrição no site da organização.
             </p>
             <figcaption className="mt-8 flex items-center gap-3 text-sm text-white">
               <span className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-[#FDB409] contrast:border-white">
@@ -178,6 +178,9 @@ export default async function HomePage({
               </span>
             </figcaption>
           </Reveal>
+          <Reveal delay={120} className="flex justify-center lg:justify-end">
+            <DotGlobe />
+          </Reveal>
         </SiteContainer>
       </section>
 
@@ -191,18 +194,3 @@ export default async function HomePage({
   );
 }
 
-function CatalogSkeleton() {
-  return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="grid gap-2 rounded-2xl border border-border bg-card p-5 shadow-none sm:p-6">
-          <Skeleton className="h-3 w-2/5" />
-          <Skeleton className="h-6 w-11/12" />
-          <Skeleton className="h-6 w-4/5" />
-          <Skeleton className="mt-1 h-3 w-full" />
-          <Skeleton className="h-3 w-5/6" />
-        </div>
-      ))}
-    </div>
-  );
-}

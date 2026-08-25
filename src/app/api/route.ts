@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       },
       endpoints: {
         "POST /api/chaves": "Emite uma chave (nome, email, projeto)",
-        "GET /api": "Este índice (sem chave)",
+        "GET /api": "Este índice (aberto)",
         "GET /api/taxonomia": "Tipos, áreas, níveis, modalidades e países com contagem",
         "GET /api/oportunidades":
           "Lista a base. Query: q, tipo, area, nivel, modalidade, pais, status, ordenar, page, limit (use limit=todas para o acervo inteiro)",

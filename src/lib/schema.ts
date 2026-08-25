@@ -64,7 +64,7 @@ export function websiteSchema() {
         "@id": `${absoluteUrl("/")}#base`,
         name: `Base de oportunidades da ${SITE_NAME}`,
         description:
-          "Acervo de bolsas, eventos, cursos, estágios, intercâmbios e concursos com inscrição ainda aberta ou recente. Sempre confirme prazo e regras no edital oficial.",
+          "Acervo de bolsas, eventos, cursos, estágios, intercâmbios e concursos com inscrição aberta ou recente. O resumo fica no mural; prazo e regras, no site da organização.",
         url: absoluteUrl("/"),
         license: "https://creativecommons.org/licenses/by/4.0/",
         creator: { "@id": `${absoluteUrl("/")}#organizacao` },

@@ -31,7 +31,7 @@ const endpoints = [
   {
     method: "GET",
     path: "/api",
-    desc: "Índice da API. Este não precisa de chave.",
+    desc: "Índice da API. Aberto.",
   },
   {
     method: "GET",
@@ -71,7 +71,7 @@ export default function DocsPage() {
       </p>
       <h1 className="mt-4 font-heading text-4xl tracking-tight sm:text-5xl">API da Trilha</h1>
       <p className="mt-3 text-foreground">
-        O mural no site é livre. Para o <em>seu</em> app consultar a base, manda a
+        O mural no site é aberto. Para o <em>seu</em> app consultar a base, manda a
         chave no header. CORS liberado. Datas em{" "}
         <code className="rounded-md bg-muted px-1.5 py-0.5 text-sm">AAAA-MM-DD</code>.
         Teto: {LIMITES_API.porMinuto}/min e {LIMITES_API.porDia}/dia por chave.
@@ -102,17 +102,17 @@ export default function DocsPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl">Custo, sem enrolação</h2>
+        <h2 className="font-heading text-2xl">Custo, direto</h2>
         <div className="mt-4 space-y-3 text-sm leading-relaxed text-foreground">
           <p>
             Cada GET na API gasta um pouquinho de servidor (função) e de banda. No
-            Hobby da Vercel isso é de graça até um volume alto. Pensa em centenas
-            de milhares de chamadas no mês, não em um app de faculdade.
+            Hobby da Vercel isso é de graça até um volume alto, na casa de centenas
+            de milhares de chamadas no mês.
           </p>
           <p>
-            A chave não é para te cobrar. É para um robô não baixar o mural 80 mil
-            vezes e queimar o plano. Se um dia o tráfego real crescer, a gente
-            aperta o teto ou sobe o plano. Não existe “R$ por bolsa”.
+            A chave identifica o app e protege o plano. Se o tráfego real crescer,
+            a gente aperta o teto ou sobe o plano. A consulta continua sendo o
+            acesso à base.
           </p>
         </div>
       </section>

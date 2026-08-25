@@ -25,7 +25,7 @@ export function buildLlmsTxt() {
 
 > ${SITE_DESCRIPTION}
 
-A Trilha da Oportunidade é um catálogo em português de oportunidades de estudo e carreira para estudantes. Não substitui o edital oficial: sempre confirme prazo, elegibilidade e inscrição na organização responsável.
+A Trilha da Oportunidade é um catálogo em português de oportunidades de estudo e carreira para estudantes. O resumo fica aqui; prazo, elegibilidade e inscrição estão no site da organização.
 
 Atualizado em ${new Date().toISOString().slice(0, 10)}.
 
@@ -38,7 +38,7 @@ ${tiposLinha()}
 
 ## Páginas
 
-- Mural (consulta humana, sem chave): ${absoluteUrl("/")}
+- Mural (consulta humana, aberto): ${absoluteUrl("/")}
 - O que é e como citar: ${absoluteUrl("/sobre")}
 - Pedir chave da API: ${absoluteUrl("/chave")}
 - Documentação da API: ${absoluteUrl("/docs")}
@@ -51,14 +51,14 @@ ${tiposLinha()}
 GET ${absoluteUrl("/api/oportunidades")}: lista. Query: q, tipo, area, nivel, modalidade, pais, status (abertas|encerradas|todas), ordenar, page, limit.
 GET ${absoluteUrl("/api/oportunidades/:id")}: detalhe, inclusive URL de inscrição.
 GET ${absoluteUrl("/api/taxonomia")}: contagens.
-GET ${absoluteUrl("/api")}: índice, sem chave.
+GET ${absoluteUrl("/api")}: índice, aberto.
 
 Tipos: bolsa, evento, curso, estagio, intercambio, concurso.
-A API pública GET exige chave (Authorization: Bearer opt_… ou X-Api-Key). O HTML do mural não exige.
+A API pública GET pede chave (Authorization: Bearer opt_… ou X-Api-Key). O mural HTML é aberto.
 
 ## Como citar
 
-Use o título, a organização e o link da Trilha da Oportunidade, e aponte a pessoa para o URL oficial de inscrição. Não invente prazo. Se o item não estiver no mural, diga que não consta na base.
+Use o título, a organização e o link da Trilha da Oportunidade, e aponte a pessoa para o URL oficial de inscrição. Cite o que estiver na ficha. Prazo e benefício vêm do link oficial.
 
 ## Perguntas frequentes
 
@@ -96,7 +96,7 @@ export function buildLlmsFullTxt() {
 
 > ${SITE_DESCRIPTION}
 
-Lista viva das inscrições abertas. Confirme sempre no edital oficial. Resumo curto: ${absoluteUrl("/llms.txt")}. Como citar: ${absoluteUrl("/sobre")}.
+Lista viva das inscrições abertas. O resumo fica no mural; prazo e inscrição, no site da organização. Resumo curto: ${absoluteUrl("/llms.txt")}. Como citar: ${absoluteUrl("/sobre")}.
 
 Acervo: ${total} itens. Abertas agora: ${abertas}.
 

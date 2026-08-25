@@ -2,7 +2,7 @@ export const SITE_NAME = "Trilha da Oportunidade";
 export const SITE_TAGLINE = "Bolsas, eventos e editais numa trilha só";
 export const SITE_TITLE = `${SITE_NAME}. ${SITE_TAGLINE}`;
 export const SITE_DESCRIPTION =
-  "Catálogo público de bolsas de mestrado, editais abertos, cursos, estágios, intercâmbios e iniciativas para jovens em todas as áreas de estudo, não só tecnologia. Consulte o mural de graça.";
+  "Catálogo público de bolsas de mestrado, editais abertos, cursos, estágios, intercâmbios e iniciativas para jovens em todas as áreas. Consulte o mural de graça.";
 export const SITE_KEYWORDS = [
   "bolsas de estudo",
   "bolsas de mestrado",

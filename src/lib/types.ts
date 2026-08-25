@@ -46,6 +46,7 @@ export type Oportunidade = {
   origem: OrigemOportunidade;
   fonteId: string | null;
   fonteUrl: string | null;
+  enriquecidoEm?: string | null;
   criadoEm: string;
   atualizadoEm: string;
 };

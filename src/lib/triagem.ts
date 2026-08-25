@@ -2,7 +2,7 @@ import type { TipoOportunidade } from "./types";
 
 /** Palavras que indicam edital, vaga ou chamada, não texto de blog. */
 export const SINAL_OPORTUNIDADE =
-  /bolsa|bolsas|scholarship|scholarships|fellow(?:s|ship)?|edital|editais|inscri[cç][oõ]es|inscri[cç][aã]o|candidat(?:ura|e-se|as)|prazo de inscri|application deadline|apply now|how to apply|grant\b|funding|internship|internships|est[aá]gio|est[aá]gios|trainee|interc[aâ]mbio|exchange program|erasmus|mobilidade acad|hackathon|hack ?day|congresso|confer[eê]ncia|call for (?:papers|entries|application|proposals)|open call|chamada|concurso|olimp[ií]ada|pr[eê]mio|award|prize|fully funded|tuition(?:-|\s)?free|summer school|winter school|bootcamp|processo seletivo|vagas? (?:abertas|remuneradas)|mentoria com inscri|programa de bolsas|programa de est[aá]gio|youth (?:summit|forum|program)|volunteer (?:program|opportunity)|curso(?:s)? gratuit|universidade(?:s)? gratuita|vagas? em cursos?|mestrado|doutorado|p[oó]s-?gradua[cç][aã]o|inicia[cç][aã]o cient[ií]fica|pibic|prouni|fies|jovem aprendiz|para jovens|juventude/i;
+  /bolsa|bolsas|scholarship|scholarships|fellow(?:s|ship)?|edital|editais|inscri[cç][oõ]es|inscri[cç][aã]o|candidat(?:ura|e-se|as)|prazo de inscri|application deadline|apply now|how to apply|grant\b|funding|internship|internships|est[aá]gio|est[aá]gios|trainee|interc[aâ]mbio|exchange program|erasmus|mobilidade acad|hackathon|hack ?day|congresso|confer[eê]ncia|meetup|call for (?:papers|entries|application|proposals)|open call|chamada|concurso|olimp[ií]ada|pr[eê]mio|award|prize|fully funded|tuition(?:-|\s)?free|summer school|winter school|bootcamp|processo seletivo|vagas? (?:abertas|remuneradas)|mentoria com inscri|programa de bolsas|programa de est[aá]gio|youth (?:summit|forum|program)|volunteer (?:program|opportunity)|curso(?:s)? gratuit|universidade(?:s)? gratuita|vagas? em cursos?|mestrado|doutorado|p[oó]s-?gradua[cç][aã]o|inicia[cç][aã]o cient[ií]fica|pibic|prouni|fies|jovem aprendiz|para jovens|juventude/i;
 
 const SINAL_FORTE =
   /bolsa|scholarship|fellowship|edital|inscri[cç]|fully funded|internship|est[aá]gio|interc[aâ]mbio|exchange program|hackathon|call for applications|processo seletivo|candidat|open call|chamada p[uú]blica|programa de bolsas|youth program|curso(?:s)? gratuit|universidade(?:s)? gratuita|mestrado|doutorado|olimp[ií]ada/i;
@@ -107,7 +107,9 @@ export function limparTextoColetado(texto: string) {
     .replace(/\s*O post\s+.+\s+apareceu primeiro em\s+.+$/i, "")
     .replace(/\s*\]\]>\s*/g, "")
     .replace(/\s*saiba como participar\s*/gi, " ")
-    .replace(/\s+/g, " ")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
@@ -196,7 +198,7 @@ export function ehGanchoMarketing(frase: string) {
 }
 
 function pareceFato(frase: string) {
-  return /vagas?|bolsas?|gratuito|gratuitas|curso|bootcamp|estagio|edital|programa|conferencia|congresso|hackathon|semanas|meses|oferece|oferecendo|para (estudantes|alunos|jovens|quem)|mestrado|doutorado|remoto|presencial|online|on line|certificado|mentoria|pesquisa|palestras|inscricao/.test(
+  return /vagas?|bolsas?|bolsista|gratuito|gratuitas|curso|bootcamp|estagio|edital|programa|conferencia|congresso|hackathon|semanas|meses|oferece|oferecendo|para (estudantes|alunos|jovens|quem)|mestrado|doutorado|remoto|presencial|online|on line|certificado|mentoria|pesquisa|palestras|inscricao|acervo|parecer/.test(
     normalizarTexto(frase)
   );
 }
@@ -223,9 +225,59 @@ const RE_INSTITUICAO = /\binstitu(?:i)?tion\s*:/i;
 const RE_INSTITUICAO_PT = /\binstitui[cç][aã]o\s*:/i;
 const RE_CIDADE = /\b(?:city|cidade)\s*:/i;
 const RE_PRAZO = /\bdeadline(?:\s+for\s+submissions)?\s*:/i;
+const RE_INSCRICOES = /\binscri[cç][oõ]es até\s*:/i;
 const RE_PRAZO_CURTO = /\sdeadl[a-z]{0,10}$/i;
 const RE_CORTE_TITULO =
-  /\b(?:institu(?:i)?tion|institui[cç][aã]o|city|cidade|deadline)\s*:/i;
+  /\b(?:institu(?:i)?tion|institui[cç][aã]o|city|cidade|deadline|inscri[cç][oõ]es até)\s*:/i;
+
+const AREA_EN_PT: Record<string, string> = {
+  law: "Direito",
+  health: "Saúde",
+  "internet of things": "Internet das Coisas",
+  "plant physiology": "Fisiologia Vegetal",
+  "programmable networks": "Redes Programáveis",
+  "condensed matter physics": "Física da Matéria Condensada",
+  "cancer biology": "Biologia do Câncer",
+  "information organization": "Organização da Informação",
+  gerontology: "Gerontologia",
+  electromechanics: "Eletromecânica",
+  "animal genetics": "Genética Animal",
+  "plant ecology": "Ecologia Vegetal",
+  "molecular biology": "Biologia Molecular",
+  bioinformatics: "Bioinformática",
+};
+
+function traduzirAreaEn(area: string) {
+  const key = area.toLowerCase().replace(/\s+/g, " ").trim();
+  return AREA_EN_PT[key] ?? area.trim();
+}
+
+/** Títulos em inglês da listagem FAPESP → português. */
+export function traduzirTituloBolsaEn(titulo: string) {
+  const limpo = titulo.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+
+  const tt = limpo.match(
+    /^Level\s+(\d+[A]?)\s+(Technical Training|Scientific Journalism)\s+Fellowships?\s+(?:in\s+)?(.+)$/i
+  );
+  if (tt) {
+    const nivel = tt[1].toUpperCase().replace(/A$/, "-A");
+    const tipo = /journalism/i.test(tt[2])
+      ? "Jornalismo Científico"
+      : `Treinamento Técnico nível ${nivel}`;
+    return `Bolsa de ${tipo} em ${traduzirAreaEn(tt[3])}`;
+  }
+
+  const doutorado = limpo.match(/^Doctorate Fellowships? in (.+)$/i);
+  if (doutorado) return `Bolsa de Doutorado em ${traduzirAreaEn(doutorado[1])}`;
+
+  const mestrado = limpo.match(/^Master(?:'s)? Fellowships? in (.+)$/i);
+  if (mestrado) return `Bolsa de Mestrado em ${traduzirAreaEn(mestrado[1])}`;
+
+  const posdoc = limpo.match(/^Post-?Doctoral Fellowships? in (.+)$/i);
+  if (posdoc) return `Bolsa de Pós-Doutorado em ${traduzirAreaEn(posdoc[1])}`;
+
+  return titulo.replace(/\s+/g, " ").trim();
+}
 
 function capturaApos(texto: string, inicio: RegExp, fins: RegExp[]) {
   const found = texto.match(inicio);
@@ -251,10 +303,21 @@ const RE_INICIO_PROGRAMA =
 
 function extrairCampos(texto: string) {
   const instituicao =
-    capturaApos(texto, RE_INSTITUICAO, [RE_CIDADE, RE_PRAZO, RE_INSTITUICAO_PT]) ||
-    capturaApos(texto, RE_INSTITUICAO_PT, [RE_CIDADE, RE_PRAZO, RE_INSTITUICAO]);
+    capturaApos(texto, RE_INSTITUICAO, [
+      RE_CIDADE,
+      RE_PRAZO,
+      RE_INSCRICOES,
+      RE_INSTITUICAO_PT,
+    ]) ||
+    capturaApos(texto, RE_INSTITUICAO_PT, [
+      RE_CIDADE,
+      RE_PRAZO,
+      RE_INSCRICOES,
+      RE_INSTITUICAO,
+    ]);
   const cidade = capturaApos(texto, RE_CIDADE, [
     RE_PRAZO,
+    RE_INSCRICOES,
     RE_INSTITUICAO,
     RE_INSTITUICAO_PT,
     RE_INICIO_PROGRAMA,
@@ -280,6 +343,21 @@ function limparCidade(value: string | null) {
 
 function escolherCampo(primario: string | null, secundario: string | null) {
   return campoUtil(primario) || campoUtil(secundario);
+}
+
+function corpoDepoisDoPrazo(texto: string) {
+  const marcas = [
+    /\binscri[cç][oõ]es até\s*:\s*\S+/i,
+    /\bdeadline(?:\s+for\s+submissions)?\s*:\s*\S+/i,
+  ];
+  let melhor = "";
+  for (const marca of marcas) {
+    const found = texto.match(marca);
+    if (!found || found.index === undefined) continue;
+    const rest = texto.slice(found.index + found[0].length).replace(/\s+/g, " ").trim();
+    if (rest.length > melhor.length) melhor = rest;
+  }
+  return melhor;
 }
 
 export function ehNomeDeFonte(nome: string) {
@@ -312,7 +390,7 @@ export function enxugarFicha(titulo: string, descricao = ""): FichaEnxuta {
 
   if (!temMarcador) {
     return {
-      titulo: tituloNorm,
+      titulo: traduzirTituloBolsaEn(tituloNorm),
       descricao: descNorm,
       instituicao: null,
       cidade: null,
@@ -332,20 +410,39 @@ export function enxugarFicha(titulo: string, descricao = ""): FichaEnxuta {
     .trim();
 
   if (limpo.length < 8) limpo = tituloNorm.slice(0, 90).trim();
+  limpo = traduzirTituloBolsaEn(limpo);
 
-  const descCorta = descNorm
-    .replace(/\binstitu(?:i)?tion\s*:.+?(?=\s+(?:city|cidade|deadline|institui[cç][aã]o)\b|$)/gi, " ")
-    .replace(/\binstitui[cç][aã]o\s*:.+?(?=\s+(?:city|cidade|deadline|institu(?:i)?tion)\b|$)/gi, " ")
-    .replace(/\b(?:city|cidade)\s*:.+?(?=\s+deadline\b|$)/gi, " ")
+  const depoisDoPrazo = corpoDepoisDoPrazo(descNorm);
+  let descCorta = (depoisDoPrazo || descNorm)
+    .replace(
+      /\binstitu(?:i)?tion\s*:.+?(?=\s+(?:city|cidade|deadline|institui[cç][aã]o|inscri[cç][oõ]es)\b|$)/gi,
+      " "
+    )
+    .replace(
+      /\binstitui[cç][aã]o\s*:.+?(?=\s+(?:city|cidade|deadline|institu(?:i)?tion|inscri[cç][oõ]es)\b|$)/gi,
+      " "
+    )
+    .replace(/\b(?:city|cidade)\s*:.+?(?=\s+(?:deadline|inscri[cç][oõ]es)\b|$)/gi, " ")
     .replace(/\bdeadline(?:\s+for\s+submissions)?\s*:\s*\S+/gi, " ")
+    .replace(/\binscri[cç][oõ]es até\s*:\s*\S+/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+  if (descCorta && pareceTitulo(descCorta.slice(0, Math.min(descCorta.length, limpo.length + 8)), limpo)) {
+    descCorta = descCorta.slice(limpo.length).replace(/^[\s.,;:–—-]+/, "").trim();
+  }
+  if (descCorta && (pareceTitulo(descCorta, limpo) || descCorta.toLowerCase().startsWith(limpo.toLowerCase()))) {
+    descCorta = descCorta.slice(limpo.length).replace(/^[\s.,;:–—-]+/, "").trim();
+  }
+
   const ecoaTitulo =
-    !descCorta || pareceTitulo(descCorta, limpo) || pareceTitulo(descNorm, tituloNorm);
+    !descCorta ||
+    (pareceTitulo(descCorta, limpo) && descCorta.length < limpo.length + 40);
 
   let desc = descNorm;
-  if (instituicao || cidade) {
+  if (descCorta.length >= 60 && !ecoaTitulo) {
+    desc = descCorta;
+  } else if (instituicao || cidade) {
     const partes = [
       instituicao ? `Instituição: ${instituicao}` : "",
       cidade ? `Cidade: ${cidade}` : "",
@@ -359,7 +456,7 @@ export function enxugarFicha(titulo: string, descricao = ""): FichaEnxuta {
 
   return {
     titulo: limpo.slice(0, 140),
-    descricao: desc.slice(0, 800),
+    descricao: desc.slice(0, 1200),
     instituicao,
     cidade,
   };
@@ -422,6 +519,7 @@ export function subtituloVisivel(item: {
   if (!sub) return false;
   if (ehSubtituloMolde(sub)) return false;
   if (pareceTitulo(sub, item.titulo)) return false;
+  if (/^\s*institui[cç][aã]o\s*:/i.test(sub)) return false;
   if (soAnunciaInscricao(sub)) return false;
   if (ehGanchoMarketing(sub)) return false;
   if (/o post\s+.+\s+apareceu primeiro/i.test(sub)) return false;

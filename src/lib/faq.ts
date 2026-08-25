@@ -4,12 +4,12 @@ export const FAQ = [
     a: "A Trilha da Oportunidade é um mural público de bolsas de estudo, eventos, cursos, estágios, intercâmbios e concursos. Junta editais abertos num só lugar, com link para a inscrição oficial.",
   },
   {
-    q: "Preciso pagar ou criar conta para consultar?",
-    a: "Não. O mural no site é gratuito e sem cadastro. Só pede chave quem vai puxar a base por API, no próprio aplicativo.",
+    q: "Como acesso o mural?",
+    a: "O mural é aberto e gratuito. Entre, filtre e leia os resumos. Quem integra um app pede uma chave em /chave.",
   },
   {
     q: "De onde vêm as oportunidades?",
-    a: "De páginas e feeds oficiais que a Trilha da Oportunidade acompanha. Cada item passa por um filtro para não misturar artigo de blog com edital. O prazo e as regras valem no site da organização, não aqui.",
+    a: "De páginas e feeds oficiais que a Trilha da Oportunidade acompanha. Cada item é uma chamada com inscrição, prazo ou vaga. O resumo fica aqui; prazo e regras você confirma no site da organização.",
   },
   {
     q: "Como um app consulta a base?",

@@ -227,6 +227,9 @@
   [data-cover="hero"] video {
     display: none;
   }
+  [data-slot="skeleton"]::after {
+    display: none;
+  }
 }
 
 html.motion-pause .logo-ticker {
@@ -296,6 +299,38 @@ html.contrast [data-cover="card"] {
   to {
     transform: translate3d(0, 0, 0);
   }
+}
+
+@keyframes skeleton-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+[data-slot="skeleton"] {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-slot="skeleton"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--foreground) 16%, transparent) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shine 1.5s ease-in-out infinite;
+}
+
+html.motion-pause [data-slot="skeleton"]::after,
+html.contrast [data-slot="skeleton"]::after {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {

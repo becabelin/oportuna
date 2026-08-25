@@ -62,7 +62,7 @@ export function KeyRequestForm() {
         </CardHeader>
         <CardContent className="grid gap-3">
         <p className="text-sm text-foreground">
-          A chave só aparece esta vez. Sem ela o app não consulta a base. Limite:{" "}
+          A chave só aparece esta vez. Guarde para o app consultar a base. Limite:{" "}
           {result.limites.porMinuto} chamadas/minuto e {result.limites.porDia}/dia.
         </p>
         <pre className="mt-4 overflow-x-auto rounded-xl border border-border/20 bg-muted p-3 text-sm break-all">
@@ -108,10 +108,9 @@ export function KeyRequestForm() {
     <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
       <FieldGroup className="grid gap-4">
       <p id="chave-ajuda" className="text-sm text-foreground">
-        Sai na hora. Sem fila. Usamos o email só se a chave der problema. Não tem
-        newsletter escondida. Teto por chave: {LIMITES_API.porMinuto}/min e{" "}
-        {LIMITES_API.porDia}/dia. Por IP também tem teto, para o mural não virar
-        alvo.
+        Sai na hora. Usamos o email se a chave der problema. Teto por chave:{" "}
+        {LIMITES_API.porMinuto}/min e {LIMITES_API.porDia}/dia. Por IP também tem
+        teto, para o mural continuar rápido.
       </p>
       <Field>
         <FieldLabel htmlFor="nome">Seu nome</FieldLabel>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Filter, Search, SlidersHorizontal, Sticker, X } from "lucide-react";
@@ -34,7 +34,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CardSkeletonGrid } from "@/components/page-skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MODALIDADE_LABEL, NIVEL_LABEL, TIPO_LABEL } from "@/lib/taxonomia";
 import { TIPO_DOT } from "@/lib/tipo-visual";
@@ -132,6 +132,7 @@ export function OpportunityCatalog({
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const query = searchParams.toString();
+  const prevQuery = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -162,10 +163,21 @@ export function OpportunityCatalog({
         if (!cancelled) setLoading(false);
       }
     }
-    const sameFilters = Boolean(initialResult) && filterKey(query) === filterKey(initialQuery ?? "");
-    if (!sameFilters) {
+    const queryChanged = prevQuery.current !== null && prevQuery.current !== query;
+    prevQuery.current = query;
+
+    const serverMatchesQuery =
+      Boolean(initialResult) && filterKey(query) === filterKey(initialQuery ?? "");
+    if (!queryChanged && serverMatchesQuery && initialResult) {
+      setResult(initialResult);
+      setItems(initialResult.data);
+      if (initialTaxonomia) setTaxonomia(initialTaxonomia);
+      setLoading(false);
+      setError(null);
+    } else {
       void load();
     }
+
     const onUpdate = () => {
       if (!cancelled) void load();
     };
@@ -174,7 +186,7 @@ export function OpportunityCatalog({
       cancelled = true;
       window.removeEventListener("oportuna:atualizou", onUpdate);
     };
-  }, [query, initialQuery, initialResult, pageSize]);
+  }, [query, initialQuery, initialResult, initialTaxonomia, pageSize]);
 
   function updateParams(patch: Record<string, string | null>) {
     const next = new URLSearchParams(searchParams.toString());
@@ -317,7 +329,7 @@ export function OpportunityCatalog({
         aria-label="Tipo de oportunidade"
         value={selectedTipo ? [selectedTipo] : ["todas"]}
         onValueChange={(groupValue) => {
-          const next = groupValue[0];
+          const next = Array.isArray(groupValue) ? groupValue[0] : groupValue;
           if (!next || next === "todas") updateParams({ tipo: null });
           else updateParams({ tipo: next });
         }}
@@ -392,7 +404,7 @@ export function OpportunityCatalog({
             <SheetHeader className="border-b border-border">
               <SheetTitle className="font-heading text-2xl">Filtros do mural</SheetTitle>
               <SheetDescription>
-                Área, prazo, país e ordem. O que vale no edital oficial continua valendo.
+                Área, prazo, país e ordem. Cada ficha leva ao resumo e à inscrição.
               </SheetDescription>
             </SheetHeader>
             <div className="overflow-y-auto p-4">{filterFields("filtro-mobile")}</div>
@@ -440,19 +452,7 @@ export function OpportunityCatalog({
         </Alert>
       ) : null}
 
-      {loading ? (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="grid gap-2 rounded-2xl border border-border bg-card p-5 shadow-none sm:p-6">
-              <Skeleton className="h-3 w-2/5" />
-              <Skeleton className="h-6 w-11/12" />
-              <Skeleton className="h-6 w-4/5" />
-              <Skeleton className="mt-1 h-3 w-full" />
-              <Skeleton className="h-3 w-5/6" />
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {loading ? <CardSkeletonGrid /> : null}
 
       {!loading && result && items.length === 0 ? (
         <Empty className="rounded-2xl border border-dashed border-border bg-card py-16 shadow-none">

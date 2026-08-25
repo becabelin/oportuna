@@ -71,7 +71,7 @@ export function inferTipo(text: string, fallback: TipoOportunidade | null): Tipo
   const value = text.toLowerCase();
   if (/est[aá]gio|internship|jovem aprendiz|aprendizagem profissional/.test(value)) return "estagio";
   if (/interc[aâ]mbio|exchange|erasmus|mobilidade|pec-g|pec-pg/.test(value)) return "intercambio";
-  if (/hackathon|congresso|confer[eê]ncia|evento|summit|festival|workshop|webinar|design day|\bcamp\b/i.test(value)) {
+  if (/hackathon|congresso|confer[eê]ncia|evento|summit|festival|workshop|webinar|design day|\bcamp\b|meetup/i.test(value)) {
     return "evento";
   }
   if (/curso gratuito|curso com bolsa|certificate program|mooc|bootcamp|summer school|winter school/i.test(value)) {
@@ -94,7 +94,7 @@ export function inferNivel(text: string, fallback: Nivel = "todos"): Nivel {
     return "ensino-medio";
   }
   if (
-    /mestrado|doutorado|p[oó]s-?gradua|stricto sensu|lato sensu|mba\b|master'?s|phd\b|graduate school|demanda social/.test(
+    /mestrado|doutorado|p[oó]s-?gradua|stricto sensu|lato sensu|mba\b|master'?s|phd\b|doctorate|post-?doctoral|graduate school|demanda social/.test(
       value
     )
   ) {
@@ -135,7 +135,7 @@ export function inferArea(text: string, fallback: string): string {
     },
     {
       area: "Ciências Humanas",
-      re: /hist[oó]ria|sociologia|filosofia|letras|pedagogia|direito|ci[eê]ncias sociais|antropologia|geografia humana/,
+      re: /hist[oó]ria|sociologia|filosofia|letras|pedagogia|direito|\bin law\b|ci[eê]ncias sociais|antropologia|geografia humana/,
     },
     {
       area: "Negócios",
@@ -183,7 +183,8 @@ function cleanText(value: string) {
 }
 
 function decodeSnippet(html: string) {
-  const $ = cheerio.load(`<div>${html}</div>`);
+  const semCdata = html.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+  const $ = cheerio.load(`<div>${semCdata}</div>`);
   $("p, li, br, div, h1, h2, h3, h4").each((_, el) => {
     $(el).prepend(" ");
   });
@@ -213,6 +214,93 @@ export function ehFonteSantanderOpenAcademy(url: string) {
   } catch {
     return false;
   }
+}
+
+export function ehFonteMeetup(url: string) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    return host === "meetup.com" || host.endsWith(".meetup.com");
+  } catch {
+    return false;
+  }
+}
+
+const MEETUP_SLUG_RESERVADO = new Set([
+  "find",
+  "login",
+  "register",
+  "topics",
+  "cities",
+  "pro",
+  "home",
+  "account",
+  "messages",
+  "groups",
+]);
+
+function slugMeetup(url: string) {
+  try {
+    const parts = new URL(url).pathname.split("/").filter(Boolean);
+    const slug = parts[0]?.trim();
+    if (!slug || MEETUP_SLUG_RESERVADO.has(slug.toLowerCase())) return null;
+    return slug;
+  } catch {
+    return null;
+  }
+}
+
+function feedMeetupGrupo(url: string) {
+  const slug = slugMeetup(url);
+  return slug ? `https://www.meetup.com/${slug}/events/rss/` : null;
+}
+
+function organizacaoMeetup(channelTitle: string, slug: string) {
+  const limpo = cleanText(channelTitle.replace(/^events\s*[-–—:]\s*/i, ""));
+  if (limpo && !/^meetup$/i.test(limpo)) return limpo.slice(0, 160);
+  return slug.replace(/[-_]+/g, " ").slice(0, 160);
+}
+
+async function coletarMeetupGrupo(url: string): Promise<Candidato[]> {
+  const feed = feedMeetupGrupo(url);
+  const slug = slugMeetup(url);
+  if (!feed || !slug) return [];
+  const pagina = await fetchPublicPage(feed);
+  const $ = cheerio.load(pagina.body, { xml: true });
+  const organizacao = organizacaoMeetup($("channel > title").first().text(), slug);
+  const candidatos: Candidato[] = [];
+  for (const node of $("item").toArray().slice(0, MAX_ITEMS)) {
+    const el = $(node);
+    const titulo = cleanText(el.find("title").first().text());
+    const link =
+      cleanText(el.find("link").first().text()) ||
+      el.find("guid").first().text();
+    if (!titulo || !link) continue;
+    let itemUrl: string;
+    try {
+      itemUrl = new URL(link).toString();
+    } catch {
+      continue;
+    }
+    const descricao = decodeSnippet(
+      el.find("description").first().text() ||
+        el.find("description, content\\:encoded, content").first().html() ||
+        ""
+    );
+    const blob = `${titulo}\n${descricao}`;
+    candidatos.push({
+      titulo: titulo.slice(0, 140),
+      descricao: (descricao || titulo).slice(0, 2000),
+      url: itemUrl,
+      prazo: pickDeadline(blob),
+      tipo: "evento",
+      imagem: imagemNoItemFeed($, node, itemUrl),
+      organizacao,
+      pais: inferPais(blob, "Brasil"),
+      modalidade: inferModalidade(blob, "presencial"),
+      confiavel: true,
+    });
+  }
+  return candidatos;
 }
 
 function tipoSantander(resourceType: string, categories: string[], blob: string): TipoOportunidade {
@@ -331,7 +419,7 @@ async function coletarSantanderOpenAcademy(): Promise<Candidato[]> {
 const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
 const MAX_REDIRECTS = 3;
 
-async function fetchPublicPage(rawUrl: string, hops = 0): Promise<Pagina> {
+export async function fetchPublicPage(rawUrl: string, hops = 0): Promise<Pagina> {
   if (hops > MAX_REDIRECTS) {
     throw new Error("A fonte redirecionou vezes demais.");
   }
@@ -486,6 +574,40 @@ function isJsonFeed(contentType: string, body: string) {
   const trimmed = body.trim();
   return trimmed.startsWith("{") && /"items"\s*:/.test(trimmed.slice(0, 400));
 }
+
+function pesoPortugues(titulo: string, descricao: string) {
+  const blob = `${titulo}\n${descricao}`;
+  let peso = 0;
+  if (/[áàâãéêíóôõúç]/i.test(blob)) peso += 4;
+  if (/\b(bolsa|institui[cç][aã]o|inscri[cç][oõ]es até)\b/i.test(blob)) peso += 5;
+  if (/\b(fellowship|instituition|deadline for submissions)\b/i.test(blob)) peso -= 4;
+  if (descricao.length > 180) peso += 2;
+  return peso;
+}
+
+function candidatoHtmlMelhor(
+  atual: { score: number; candidato: Candidato },
+  score: number,
+  titulo: string,
+  descricao: string
+) {
+  if (atual.score > score) return true;
+  if (atual.score < score) return false;
+  return (
+    pesoPortugues(atual.candidato.titulo, atual.candidato.descricao) >=
+    pesoPortugues(titulo, descricao)
+  );
+}
+
+function recortePortuguesFapesp(url: URL, texto: string) {
+  if (!/fapesp\.br$/i.test(url.hostname.replace(/^www\./, ""))) return texto;
+  const corte = texto.search(
+    /\b(Level\s+\d|Instituition:|Field of knowledge:|Deadline for submissions:|Fellowship Opportunities)\b/i
+  );
+  if (corte > 50) return texto.slice(0, corte).replace(/\s+/g, " ").trim();
+  return texto;
+}
+
 function parseHtmlLinks(
   $: cheerio.CheerioAPI,
   baseUrl: string,
@@ -515,7 +637,10 @@ function parseHtmlLinks(
     ) {
       return;
     }
-    const context = cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || titulo);
+    const context = recortePortuguesFapesp(
+      url,
+      cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || titulo)
+    );
     const blob = `${titulo} ${url.pathname} ${context}`;
     const inArticle = el.closest("article, .post, h2, h3").length > 0;
     if (!KEYWORD.test(blob)) return;
@@ -525,12 +650,12 @@ function parseHtmlLinks(
       (KEYWORD.test(url.pathname) ? 2 : 0) +
       (inArticle ? 3 : 0);
     const current = scored.get(url.toString());
-    if (current && current.score >= score) return;
+    if (current && candidatoHtmlMelhor(current, score, titulo, context)) return;
     scored.set(url.toString(), {
       score,
       candidato: {
         titulo: titulo.slice(0, 140),
-        descricao: context.slice(0, 800),
+        descricao: context.slice(0, 1200),
         url: url.toString(),
         prazo: pickDeadline(context),
         tipo: inferTipo(blob, fallbackTipo),
@@ -601,7 +726,9 @@ function toOportunidade(
   const areaFallback = fonte.areaSugerida || "Multidisciplinar";
   const tagFonte = ehFonteSantanderOpenAcademy(fonte.url)
     ? "Santander Open Academy"
-    : (fonte.titulo ?? hostnameLabel(fonte.url));
+    : ehFonteMeetup(fonte.url)
+      ? (fonte.titulo ?? "Meetup")
+      : (fonte.titulo ?? hostnameLabel(fonte.url));
   return {
     titulo: enxugarTituloNoticia(ficha.titulo),
     subtitulo: gerarSubtitulo({
@@ -614,9 +741,14 @@ function toOportunidade(
     tipo,
     organizacao,
     descricao: limparTextoColetado(ficha.descricao),
-    area: inferArea(blob, areaFallback),
+    area: inferArea(ficha.titulo, inferArea(blob, areaFallback)),
     nivel: inferNivel(blob, "todos"),
-    modalidade: candidato.modalidade ?? inferModalidade(blob, "remoto"),
+    modalidade:
+      candidato.modalidade ??
+      inferModalidade(
+        blob,
+        /fapesp\.br\/oportunidades/i.test(candidato.url) ? "presencial" : "remoto"
+      ),
     pais: candidato.pais ?? inferPais(blob, /gov\.br|fapesp|faperj|fapemig|senac|senai|\.br\//i.test(fonte.url) ? "Brasil" : "Internacional"),
     cidade: ficha.cidade,
     beneficio: null,
@@ -631,6 +763,7 @@ function toOportunidade(
     fonteId: fonte.id,
     fonteUrl: fonte.url,
     imagemUrl: candidato.imagem,
+    enriquecidoEm: null,
   };
 }
 
@@ -711,6 +844,12 @@ export async function coletarFonte(fonteId: string) {
       } catch {
         candidatos = [];
       }
+    } else if (ehFonteMeetup(fonte.url)) {
+      try {
+        candidatos = await coletarMeetupGrupo(fonte.url);
+      } catch {
+        candidatos = [];
+      }
     }
 
     if (candidatos.length === 0) {
@@ -759,7 +898,7 @@ export async function coletarFonte(fonteId: string) {
               ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
             ];
           }
-          if (!ehFonteSantanderOpenAcademy(fonte.url)) {
+          if (!ehFonteSantanderOpenAcademy(fonte.url) && !ehFonteMeetup(fonte.url)) {
             const propria = candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido);
             if (propria) candidatos.push(propria);
           }
@@ -830,6 +969,12 @@ export async function coletarTodas() {
     resultados.push(await coletarFonte(fonte.id));
   }
   persistNow();
+  try {
+    const { enriquecerFichasPendentes } = await import("./enriquecer-ficha");
+    await enriquecerFichasPendentes({ limit: 10 });
+  } catch (error) {
+    console.warn("[trilha] escrita das fichas falhou", error);
+  }
   return resultados;
 }
 

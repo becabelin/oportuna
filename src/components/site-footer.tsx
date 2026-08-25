@@ -73,7 +73,7 @@ export function SiteFooter() {
         </div>
       </SiteContainer>
       <SiteContainer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 py-5 text-[12px] text-white/70 contrast:border-white contrast:text-white">
-        <p>Confirme sempre no edital oficial.</p>
+        <p>Prazo e inscrição no site de cada organização.</p>
         <p>© {new Date().getFullYear()} Trilha da Oportunidade</p>
       </SiteContainer>
     </footer>

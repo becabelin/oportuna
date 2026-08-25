@@ -27,12 +27,34 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaDedup3?: Store };
+const globalForStore = globalThis as unknown as { __trilhaFiapMeetup?: Store };
 
 function withOrigem(
-  item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl"> &
+  item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
     Partial<Oportunidade>
 ): Oportunidade {
+  const tags = capitalizeTags(
+    (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada")
+  );
+  const base = {
+    origem: item.origem ?? "manual",
+    fonteId: item.fonteId ?? null,
+    fonteUrl: item.fonteUrl ?? null,
+    imagemUrl: item.imagemUrl ?? null,
+    enriquecidoEm: item.enriquecidoEm ?? null,
+    tags,
+  };
+
+  if (item.enriquecidoEm) {
+    return {
+      ...item,
+      ...base,
+      titulo: item.titulo,
+      descricao: limparTextoColetado(item.descricao),
+      subtitulo: item.subtitulo?.trim() || "",
+    };
+  }
+
   const ficha = enxugarFicha(item.titulo, item.descricao);
   const organizacao =
     ehNomeDeFonte(item.organizacao) && ficha.instituicao
@@ -44,9 +66,6 @@ function withOrigem(
     (cidadeGuardada && !/\b(fellowship|level \d)\b/i.test(cidadeGuardada) ? cidadeGuardada : null);
   const titulo = enxugarTituloNoticia(ficha.titulo);
   const descricao = limparTextoColetado(ficha.descricao);
-  const tags = capitalizeTags(
-    (item.tags ?? []).filter((tag) => tag.toLowerCase() !== "coletada")
-  );
   const atual = item.subtitulo?.trim() ?? "";
   const manterAtual =
     Boolean(atual) &&
@@ -55,6 +74,7 @@ function withOrigem(
     !pareceTitulo(atual, item.titulo) &&
     !ehGanchoMarketing(atual) &&
     !/\binstitu(?:i)?tion\s*:/i.test(atual) &&
+    !/\binstitui[cç][aã]o\s*:/i.test(atual) &&
     !/\b(fellowship|level \d|doctorate|technical training)\b/i.test(atual) &&
     !/o post\s+.+\s+apareceu primeiro/i.test(atual);
   const resumoFicha = [ficha.instituicao, ficha.cidade].filter(Boolean).join(", ");
@@ -71,12 +91,8 @@ function withOrigem(
     descricao,
     organizacao,
     cidade,
-    tags,
-    subtitulo: manterAtual ? atual : resumoFicha || gerado,
-    origem: item.origem ?? "manual",
-    fonteId: item.fonteId ?? null,
-    fonteUrl: item.fonteUrl ?? null,
-    imagemUrl: item.imagemUrl ?? null,
+    subtitulo: manterAtual ? atual : gerado || resumoFicha,
+    ...base,
   };
 }
 
@@ -172,15 +188,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaDedup3) {
-    globalForStore.__trilhaDedup3 = createStore();
-    sanitizar(globalForStore.__trilhaDedup3);
+  if (!globalForStore.__trilhaFiapMeetup) {
+    globalForStore.__trilhaFiapMeetup = createStore();
+    sanitizar(globalForStore.__trilhaFiapMeetup);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaDedup3.items.get(item.id);
-      globalForStore.__trilhaDedup3.items.set(
+      const current = globalForStore.__trilhaFiapMeetup.items.get(item.id);
+      globalForStore.__trilhaFiapMeetup.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -189,17 +205,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaDedup3.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaFiapMeetup.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaDedup3.items.delete(id);
+        globalForStore.__trilhaFiapMeetup.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaDedup3)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaDedup3.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaFiapMeetup)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaFiapMeetup.items.values()]);
   }
-  return globalForStore.__trilhaDedup3;
+  return globalForStore.__trilhaFiapMeetup;
 }
 
 function allItems() {
@@ -354,6 +370,12 @@ export function findByUrlInscricao(url: string) {
   return [...getStore().items.values()].find((item) => item.urlInscricao === url) ?? null;
 }
 
+export function listFichasPendentesDeLeitura() {
+  return allItems()
+    .filter((item) => item.origem === "coleta" && !item.enriquecidoEm)
+    .sort((a, b) => (a.prazoInscricao ?? "9999").localeCompare(b.prazoInscricao ?? "9999"));
+}
+
 export function upsertColetada(input: NovaOportunidade): Oportunidade {
   const existing = findByUrlInscricao(input.urlInscricao);
   if (existing?.origem === "manual") {
@@ -364,6 +386,17 @@ export function upsertColetada(input: NovaOportunidade): Oportunidade {
   );
   if (rival?.origem === "manual") return rival;
   if (existing) {
+    if (existing.enriquecidoEm) {
+      return (
+        updateOportunidade(existing.id, {
+          prazoInscricao: input.prazoInscricao ?? existing.prazoInscricao,
+          imagemUrl: input.imagemUrl || existing.imagemUrl,
+          origem: "coleta",
+          fonteId: input.fonteId,
+          fonteUrl: input.fonteUrl,
+        }) ?? existing
+      );
+    }
     return (
       updateOportunidade(existing.id, {
         ...input,
@@ -371,6 +404,7 @@ export function upsertColetada(input: NovaOportunidade): Oportunidade {
         fonteId: input.fonteId,
         fonteUrl: input.fonteUrl,
         imagemUrl: input.imagemUrl || existing.imagemUrl,
+        enriquecidoEm: null,
       }) ?? existing
     );
   }
@@ -428,6 +462,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaDedup3 = createStore();
+  globalForStore.__trilhaFiapMeetup = createStore();
   touch();
 }

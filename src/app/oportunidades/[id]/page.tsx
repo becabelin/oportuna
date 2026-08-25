@@ -208,9 +208,18 @@ export default async function OpportunityPage({ params }: PageProps) {
                 <dt className="text-sm text-muted-foreground">Perfil</dt>
                 <dd className="mt-1 text-base">
                   {item.area} · {NIVEL_LABEL[item.nivel]}
-                  {item.vagas ? ` · ${item.vagas} vagas` : ""}
+                  {item.vagas ? ` · ${item.vagas} ${item.vagas === 1 ? "vaga" : "vagas"}` : ""}
                 </dd>
               </div>
+              {item.fonteId?.startsWith("fapesp") ? (
+                <div>
+                  <dt className="text-sm text-muted-foreground">O que é</dt>
+                  <dd className="mt-1 text-base">
+                    Bolsa de pesquisa da FAPESP. A seleção acontece na
+                    instituição do projeto.
+                  </dd>
+                </div>
+              ) : null}
               {item.dataInicio ? (
                 <div>
                   <dt className="text-sm text-muted-foreground">Início</dt>
@@ -247,7 +256,8 @@ export default async function OpportunityPage({ params }: PageProps) {
           <section id="inscricao" className="scroll-mt-28 py-10">
             <h2 className="font-heading text-2xl sm:text-[1.75rem]">Inscrição</h2>
             <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
-              Confirme datas, vagas e regras no site oficial. O prazo que vale é o do edital.
+              O site da organização tem o formulário, as datas e as regras. Siga
+              para a inscrição por lá.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
               <a

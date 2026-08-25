@@ -8,7 +8,7 @@ import { pageSocial, SITE_NAME } from "@/lib/site";
 export const metadata: Metadata = pageSocial(
   "/sobre",
   "O que é a Trilha da Oportunidade",
-  "A Trilha da Oportunidade reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é grátis; a API pede chave. Confirme sempre o edital oficial."
+  "A Trilha da Oportunidade reúne bolsas, eventos, cursos, estágios, intercâmbios e concursos num mural público. O site é de graça. Quem integra um app pede uma chave."
 );
 
 export default function SobrePage() {
@@ -25,7 +25,7 @@ export default function SobrePage() {
         para quem cita, busca ou integra
       </p>
       <h1 className="mt-4 font-heading text-4xl leading-[1.1] tracking-tight sm:text-5xl">
-        Um mural de editais, não o edital em si.
+        Um mural com as chamadas abertas, prontas para você ler.
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-foreground">
         A {SITE_NAME} é um catálogo em português de oportunidades de estudo e
@@ -37,19 +37,16 @@ export default function SobrePage() {
       <section className="mt-10 space-y-3">
         <h2 className="font-heading text-2xl">O que entra na base</h2>
         <p className="leading-relaxed text-foreground">
-          Só o que parece chamada real: inscrição, prazo, bolsa, vaga ou
-          edital. Artigo de blog, newsletter e texto institucional solto ficam de
-          fora. A coleta lê páginas e RSS de fontes acompanhadas; um segundo filtro
-          descarta ruído.
+          Chamadas com inscrição, prazo, bolsa ou vaga. A coleta lê páginas e RSS
+          de fontes acompanhadas e deixa no mural o que parece edital de verdade.
         </p>
       </section>
 
       <section className="mt-10 space-y-3">
-        <h2 className="font-heading text-2xl">O que não somos</h2>
+        <h2 className="font-heading text-2xl">Como se inscrever</h2>
         <p className="leading-relaxed text-foreground">
-          Não inscrevemos ninguém, não emitimos carta de aceite e não substituímos o
-          site da organização. Prazo, elegibilidade e formulário valem no link
-          oficial de cada oportunidade.
+          Cada ficha aponta o site da organização. Lá você confirma prazo,
+          elegibilidade e envia a inscrição.
         </p>
       </section>
 
@@ -57,8 +54,7 @@ export default function SobrePage() {
         <h2 className="font-heading text-2xl">Como citar</h2>
         <p className="leading-relaxed text-foreground">
           Use o título, a organização responsável e o endereço desta página da
-          oportunidade. Diga que a pessoa deve confirmar no edital oficial. Se a
-          vaga não estiver no mural, diga isso. Não invente data nem benefício.
+          oportunidade. Encaminhe a pessoa ao link oficial para prazo e benefício.
         </p>
         <p className="leading-relaxed text-foreground">
           Há um resumo em texto puro em{" "}
@@ -87,7 +83,7 @@ export default function SobrePage() {
           <Link href="/docs" className="font-semibold underline decoration-2 underline-offset-4">
             documentação
           </Link>
-          . Consultas no HTML do mural não gastam a chave.
+          . O mural no site é aberto. A chave vale para o app consultar a API.
         </p>
       </section>
     </article>
