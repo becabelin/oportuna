@@ -111,6 +111,21 @@ function ArticleToc({ items, minutos }: { items: TocItem[]; minutos: number }) {
   );
 }
 
+function InscricaoCta({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(buttonVariants(), "h-auto min-h-11 w-full whitespace-normal")}
+    >
+      Ir para a inscrição
+      <ArrowUpRight className="size-4" aria-hidden />
+      <span className="sr-only">(abre em nova aba)</span>
+    </a>
+  );
+}
+
 export default async function OpportunityPage({ params }: PageProps) {
   const { id } = await params;
   const item = getOportunidade(id);
@@ -177,8 +192,9 @@ export default async function OpportunityPage({ params }: PageProps) {
           </div>
 
           <div className="lg:hidden">
-            <div className="border-b border-border py-8 contrast:border-white">
+            <div className="grid gap-4 border-b border-border py-8 contrast:border-white">
               <ArticleToc items={toc} minutos={minutos} />
+              <InscricaoCta href={item.urlInscricao} />
             </div>
           </div>
 
@@ -257,7 +273,7 @@ export default async function OpportunityPage({ params }: PageProps) {
               O site da organização tem o formulário, as datas e as regras. Siga
               para a inscrição por lá.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <div className="mt-6">
               <a
                 href={item.urlInscricao}
                 target="_blank"
@@ -268,17 +284,6 @@ export default async function OpportunityPage({ params }: PageProps) {
                 <ArrowUpRight className="size-4" aria-hidden />
                 <span className="sr-only">(abre em nova aba)</span>
               </a>
-              <Link href="/chave" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                JSON via API (precisa de chave)
-              </Link>
-              {item.fonteId ? (
-                <Link
-                  href={`/?fonteId=${item.fonteId}`}
-                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                >
-                  Outras desta fonte
-                </Link>
-              ) : null}
             </div>
           </section>
 
@@ -290,8 +295,9 @@ export default async function OpportunityPage({ params }: PageProps) {
         </div>
 
         <aside className="hidden lg:block">
-          <div className="sticky top-28">
+          <div className="sticky top-28 grid gap-4">
             <ArticleToc items={toc} minutos={minutos} />
+            <InscricaoCta href={item.urlInscricao} />
           </div>
         </aside>
       </div>
