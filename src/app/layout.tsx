@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 import { A11yProvider } from "@/components/a11y-provider";
 import { JsonLd } from "@/components/json-ld";
@@ -106,6 +107,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SiteFooter />
           </TooltipProvider>
         </A11yProvider>
+        <Analytics />
       </body>
     </html>
   );

@@ -15,6 +15,7 @@
     "@ai-sdk/openai": "^4.0.47",
     "@base-ui/react": "^1.7.0",
     "@upstash/redis": "^1.38.2",
+    "@vercel/analytics": "^2.0.1",
     "ai": "^7.0.79",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
