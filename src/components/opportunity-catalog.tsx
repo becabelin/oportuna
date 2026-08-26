@@ -72,7 +72,6 @@ function useMuralPageSize() {
     };
     update();
     const medias = [
-      window.matchMedia("(min-width: 1280px)"),
       window.matchMedia("(min-width: 1024px)"),
       window.matchMedia("(min-width: 640px)"),
     ];

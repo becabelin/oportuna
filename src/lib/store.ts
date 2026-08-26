@@ -5,13 +5,15 @@ import {
   ehLixoDeColeta,
   ehNomeDeFonte,
   ehSubtituloMolde,
+  ehUrlDeMapa,
   enxugarFicha,
   enxugarTituloNoticia,
   gerarSubtitulo,
   limparTextoColetado,
   pareceOportunidade,
   pareceTitulo,
-  titulosParecidos,
+  tituloForaDoEndereco,
+  mesmaOportunidade,
 } from "./triagem";
 import { persistOportunidades, readSnapshot } from "./persist";
 import { SEED } from "./seed";
@@ -27,7 +29,7 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaGeminiEstudantes2026?: Store };
+const globalForStore = globalThis as unknown as { __trilhaTituloColetavel?: Store };
 
 function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
@@ -49,7 +51,7 @@ function withOrigem(
     return {
       ...item,
       ...base,
-      titulo: item.titulo,
+      titulo: tituloForaDoEndereco(item.titulo, item.descricao),
       descricao: limparTextoColetado(item.descricao),
       subtitulo: item.subtitulo?.trim() || "",
     };
@@ -110,6 +112,7 @@ function mesmaUrl(a: string, b: string) {
 
 function valeNoMural(item: Oportunidade) {
   if (ehHubSantanderOpenAcademy(item.urlInscricao)) return false;
+  if (ehUrlDeMapa(item.urlInscricao)) return false;
   if (item.origem !== "coleta") return true;
   if (item.fonteUrl && mesmaUrl(item.urlInscricao, item.fonteUrl)) return false;
   if (ehLixoDeColeta(item)) return false;
@@ -136,7 +139,7 @@ function removerDuplicatas(store: Store) {
   const kept: Oportunidade[] = [];
   let mudou = false;
   for (const item of ordered) {
-    if (kept.some((atual) => titulosParecidos(atual.titulo, item.titulo))) {
+    if (kept.some((atual) => mesmaOportunidade(atual, item))) {
       store.items.delete(item.id);
       mudou = true;
       continue;
@@ -188,15 +191,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaGeminiEstudantes2026) {
-    globalForStore.__trilhaGeminiEstudantes2026 = createStore();
-    sanitizar(globalForStore.__trilhaGeminiEstudantes2026);
+  if (!globalForStore.__trilhaTituloColetavel) {
+    globalForStore.__trilhaTituloColetavel = createStore();
+    sanitizar(globalForStore.__trilhaTituloColetavel);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaGeminiEstudantes2026.items.get(item.id);
-      globalForStore.__trilhaGeminiEstudantes2026.items.set(
+      const current = globalForStore.__trilhaTituloColetavel.items.get(item.id);
+      globalForStore.__trilhaTituloColetavel.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -205,17 +208,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaGeminiEstudantes2026.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaTituloColetavel.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaGeminiEstudantes2026.items.delete(id);
+        globalForStore.__trilhaTituloColetavel.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaGeminiEstudantes2026)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaGeminiEstudantes2026.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaTituloColetavel)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaTituloColetavel.items.values()]);
   }
-  return globalForStore.__trilhaGeminiEstudantes2026;
+  return globalForStore.__trilhaTituloColetavel;
 }
 
 function allItems() {
@@ -382,7 +385,7 @@ export function upsertColetada(input: NovaOportunidade): Oportunidade {
     return existing;
   }
   const rival = [...getStore().items.values()].find((item) =>
-    titulosParecidos(item.titulo, input.titulo)
+    mesmaOportunidade(item, input)
   );
   if (rival?.origem === "manual") return rival;
   if (existing) {
@@ -462,6 +465,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaGeminiEstudantes2026 = createStore();
+  globalForStore.__trilhaTituloColetavel = createStore();
   touch();
 }

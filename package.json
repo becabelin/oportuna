@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port ${PORT:-3000}",
     "lint": "eslint",
+    "test": "node --experimental-strip-types --test src/lib/triagem.test.ts",
     "enriquecer:capas": "npx tsx scripts/enriquecer-capas-eventos.ts",
     "enriquecer:fichas": "npx tsx scripts/enriquecer-fichas.ts"
   },

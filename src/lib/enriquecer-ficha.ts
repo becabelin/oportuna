@@ -11,6 +11,7 @@ import {
   updateOportunidade,
 } from "./store";
 import { AREAS } from "./taxonomia";
+import { tituloForaDoEndereco } from "./triagem";
 import type { Modalidade, Nivel, Oportunidade } from "./types";
 import { MODALIDADES, NIVEIS } from "./types";
 
@@ -126,6 +127,7 @@ Regras:
 - A primeira frase da descrição diz o que é a oportunidade (tipo, para quem, o que a pessoa vai fazer).
 - Depois explique atividades, benefício e como se inscrever, se o texto trouxer isso.
 - Título claro, em português. Nada de jargão em inglês se o edital tiver equivalente em português.
+- O título é o nome da oportunidade, nunca o endereço da rua, do teatro ou do mapa.
 - Área pelo que a pessoa faz, não pelo prédio (Direito num museu = Ciências Humanas).
 - Não use travessão. Não escreva como anúncio. Não peça para clicar. Lembre que a inscrição é no site da organização.
 - Confirme datas e regras no texto; se o valor da bolsa estiver lá, copie com honestidade.
@@ -147,7 +149,7 @@ ${edital}`,
   }
 
   return {
-    titulo: umaLinha(output.titulo).slice(0, 140),
+    titulo: tituloForaDoEndereco(umaLinha(output.titulo), item.descricao).slice(0, 140),
     subtitulo: umaLinha(output.subtitulo).slice(0, 220),
     descricao: semTravessao(output.descricao).replace(/\n{3,}/g, "\n\n").slice(0, 4000),
     organizacao: umaLinha(output.organizacao).slice(0, 160),

@@ -19,7 +19,17 @@ import {
 import { ehCapaInutil } from "./imagem-url";
 import { persistNow } from "./persist";
 import { assertPublicHttpUrl } from "./ssrf";
-import { ehNomeDeFonte, enxugarFicha, enxugarTituloNoticia, gerarSubtitulo, limparTextoColetado, pareceOportunidade, SINAL_OPORTUNIDADE } from "./triagem";
+import {
+  ehNomeDeFonte,
+  enxugarFicha,
+  enxugarTituloNoticia,
+  gerarSubtitulo,
+  limparTextoColetado,
+  mesmaOportunidade,
+  pareceOportunidade,
+  SINAL_OPORTUNIDADE,
+  tituloColetavel,
+} from "./triagem";
 import {
   deleteByFonte,
   listOportunidades,
@@ -37,7 +47,7 @@ const MAX_ITEMS = 30;
 const KEYWORD = SINAL_OPORTUNIDADE;
 
 const SKIP_HREF =
-  /login|signup|cart|facebook|twitter|instagram|linkedin|whatsapp|mailto:|javascript:|privacy|cookie|termos|wp-admin|#/i;
+  /login|signup|cart|facebook|twitter|instagram|linkedin|whatsapp|mailto:|javascript:|privacy|cookie|termos|wp-admin|#|maps\.google|maps\.app\.goo\.gl|google\.[^/]+\/maps|goo\.gl\/maps/i;
 
 type Pagina = {
   finalUrl: string;
@@ -510,10 +520,10 @@ function parseJsonLd($: cheerio.CheerioAPI, fallbackTipo: TipoOportunidade | nul
           const record = nodeItem as Record<string, unknown>;
           const type = String(record["@type"] ?? "");
           if (!/Event|Scholarship|JobPosting|Course|EducationEvent/i.test(type)) continue;
-          const titulo = String(record.name ?? "").trim();
           const url = String(record.url ?? "").trim();
+          const descricao = String(record.description ?? record.name ?? "");
+          const titulo = tituloColetavel(String(record.name ?? "").trim(), descricao, url);
           if (!titulo || !url) continue;
-          const descricao = String(record.description ?? titulo);
           const prazo =
             pickDeadline(
               [record.endDate, record.validThrough, record.applicationDeadline, descricao]
@@ -627,20 +637,22 @@ function parseHtmlLinks(
       return;
     }
     if (url.protocol !== "http:" && url.protocol !== "https:") return;
-    const titulo = cleanText(el.text());
-    if (titulo.length < 12 || titulo.length > 180) return;
+    const bruto = cleanText(el.text());
+    if (bruto.length < 12 || bruto.length > 180) return;
     if (
       modoBlog &&
       /^(ui\/ux design|brand guidelines|tutorials?|blog|stories|updates|product|pricing|docs|home|features)$/i.test(
-        titulo
+        bruto
       )
     ) {
       return;
     }
     const context = recortePortuguesFapesp(
       url,
-      cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || titulo)
+      cleanText(el.closest("article, li, tr, .post, .card, h2, h3").text() || bruto)
     );
+    const titulo = tituloColetavel(bruto, context, url.toString());
+    if (!titulo) return;
     const blob = `${titulo} ${url.pathname} ${context}`;
     const inArticle = el.closest("article, .post, h2, h3").length > 0;
     if (!KEYWORD.test(blob)) return;
@@ -689,15 +701,19 @@ function candidatoDaPagina(
   finalUrl: string,
   fallbackTipo: TipoOportunidade | null
 ): Candidato | null {
-  const titulo = cleanText(
-    $("meta[property='og:title']").attr("content") ||
-      $("h1").first().text() ||
-      $("title").first().text()
-  );
   const descricao = cleanText(
     $("meta[property='og:description']").attr("content") ||
       $("meta[name='description']").attr("content") ||
       $("article p, main p, p").first().text()
+  );
+  const titulo = tituloColetavel(
+    cleanText(
+      $("meta[property='og:title']").attr("content") ||
+        $("h1").first().text() ||
+        $("title").first().text()
+    ),
+    descricao,
+    finalUrl
   );
   const blob = `${titulo}\n${descricao}\n${finalUrl}`;
   if (!titulo || titulo.length < 12) return null;
@@ -893,32 +909,50 @@ export async function coletarFonte(fonteId: string) {
             }
           }
           if (candidatos.length === 0) {
-            candidatos = [
-              ...parseJsonLd(page$, fonte.tipoSugerido),
-              ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
-            ];
-          }
-          if (!ehFonteSantanderOpenAcademy(fonte.url) && !ehFonteMeetup(fonte.url)) {
-            const propria = candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido);
-            if (propria) candidatos.push(propria);
+            const propria =
+              !ehFonteSantanderOpenAcademy(fonte.url) && !ehFonteMeetup(fonte.url)
+                ? candidatoDaPagina(page$, pagina.finalUrl, fonte.tipoSugerido)
+                : null;
+            candidatos = propria
+              ? [...parseJsonLd(page$, fonte.tipoSugerido), propria]
+              : [
+                  ...parseJsonLd(page$, fonte.tipoSugerido),
+                  ...parseHtmlLinks(page$, pagina.finalUrl, fonte.tipoSugerido, modoBlog),
+                ];
           }
         }
       }
     }
 
     const unicos = new Map<string, Candidato>();
-    for (const candidato of candidatos) {
+    for (const bruto of candidatos) {
+      const titulo = tituloColetavel(bruto.titulo, bruto.descricao, bruto.url);
+      if (!titulo) continue;
+      const candidato = { ...bruto, titulo };
       if (
-        (candidato.confiavel ||
+        !(
+          candidato.confiavel ||
           pareceOportunidade({
             titulo: candidato.titulo,
             descricao: candidato.descricao,
             url: candidato.url,
-          })) &&
-        !unicos.has(candidato.url)
+          })
+        )
       ) {
-        unicos.set(candidato.url, candidato);
+        continue;
       }
+      if (unicos.has(candidato.url)) continue;
+      if (
+        [...unicos.values()].some((atual) =>
+          mesmaOportunidade(
+            { titulo: atual.titulo, descricao: atual.descricao },
+            { titulo: candidato.titulo, descricao: candidato.descricao }
+          )
+        )
+      ) {
+        continue;
+      }
+      unicos.set(candidato.url, candidato);
     }
 
     const hoje = new Date().toISOString().slice(0, 10);

@@ -567,7 +567,7 @@ export const SEED: Array<
   },
   {
     id: "dexconf-2026",
-    titulo: "DEXCONF 2026: Experiências conectadas",
+    titulo: "DEXCONF 2026: conferência de design e UX",
     tipo: "evento",
     organizacao: "Mergo Escola de Design",
     descricao:

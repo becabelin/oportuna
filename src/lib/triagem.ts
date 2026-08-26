@@ -98,7 +98,14 @@ export function ehLixoDeColeta(input: { titulo: string; descricao: string; url?:
   if (/\]\]>/.test(input.descricao)) return true;
   if (/\be-?books?\b/i.test(titulo) && /download|formul[aá]rio|materiais/i.test(blob)) return true;
   if (input.url && /\/(materiais(?:-[a-z]+)?|ebooks?)(\/|$)/i.test(input.url)) return true;
+  if (input.url && ehUrlDeMapa(input.url)) return true;
   if (/^awards overview$/i.test(titulo)) return true;
+  if (pareceEndereco(titulo) && pareceEndereco(tituloForaDoEndereco(titulo, input.descricao))) {
+    return true;
+  }
+  if (pareceNomeDeMarca(titulo) && pareceNomeDeMarca(tituloForaDoEndereco(titulo, input.descricao))) {
+    return true;
+  }
   return false;
 }
 
@@ -117,8 +124,132 @@ export function enxugarTituloNoticia(titulo: string) {
   return titulo
     .replace(/\s+est[aá] com inscri[cç][oõ]es abertas\.?$/i, "")
     .replace(/\s+inscri[cç][oõ]es abertas\.?$/i, "")
+    .replace(/(?:\s*[|·•]\s*lista de eventos)+$/i, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const VIA_ENDERECO =
+  /\b(avenida|alameda|travessa|rodovia|estrada|praça|praca|largo|rua)\b/i;
+
+/** Título que na verdade é o endereço do evento, não o nome. */
+export function pareceEndereco(texto: string) {
+  const t = texto.replace(/\s+/g, " ").trim();
+  if (t.length < 20 || t.length > 180) return false;
+  const n = normalizarTexto(t);
+  const via = VIA_ENDERECO.test(t);
+  const numero = /,\s*\d{1,5}\b/.test(t) || /\b(n[ºo°]?|n[uú]mero)\s*\d{1,5}\b/i.test(t);
+  const lugar =
+    /\b(brasil|brazil|\bsp\b|\brj\b|\bmg\b|\bcep\b)\b/.test(n) || t.split(",").length >= 4;
+  return via && numero && lugar;
+}
+
+export function ehUrlDeMapa(url?: string | null) {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    if (host === "maps.google.com" || host === "maps.app.goo.gl" || host === "goo.gl") {
+      return true;
+    }
+    if (host === "google.com" || host.endsWith(".google.com")) {
+      return parsed.pathname.startsWith("/maps");
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/** Título que é só o nome da escola/marca, não o da oportunidade. */
+export function pareceNomeDeMarca(texto: string) {
+  const t = texto.replace(/\s+/g, " ").trim();
+  if (t.length < 4 || t.length > 80) return false;
+  if (
+    /\b(20\d{2}|confer[eê]ncia|congresso|edital|bolsa|festival|encontro|summit|hackathon|workshop)\b/i.test(
+      t
+    )
+  ) {
+    return false;
+  }
+  if (/[|]/.test(t)) return true;
+  if (
+    /\b(escola de|studio|consultoria|ag[eê]ncia)\b/i.test(t) &&
+    !/\b(evento|curso|programa)\b/i.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function nomeNaDescricao(descricao: string) {
+  const fonte = descricao.replace(/\s+/g, " ").trim();
+  if (!fonte) return "";
+  const recorte = fonte
+    .replace(
+      /\s+\d{1,2}(?:\s+e\s+\d{1,2})?\s+de\s+[a-zçáàâãéêíóôõú]+(?:\s+de\s+20\d{2})?.*/i,
+      ""
+    )
+    .replace(/\s+\d{1,2}h.*$/i, "")
+    .trim();
+  const candidato = (recorte.length >= 12 ? recorte : fonte).slice(0, 140);
+  if (
+    !SINAL_OPORTUNIDADE.test(candidato) &&
+    !/\b[a-z]{3,}conf\b/i.test(candidato) &&
+    !/\b20\d{2}\b/.test(candidato)
+  ) {
+    return "";
+  }
+  return candidato;
+}
+
+/** Se o coletor pegou endereço ou marca, usa o nome que veio na descrição. */
+export function tituloForaDoEndereco(titulo: string, descricao = "") {
+  const limpo = enxugarTituloNoticia(titulo);
+  if (!pareceEndereco(limpo) && !pareceNomeDeMarca(limpo)) return limpo;
+  const candidato = nomeNaDescricao(descricao);
+  if (
+    candidato.length >= 12 &&
+    !pareceEndereco(candidato) &&
+    !pareceNomeDeMarca(candidato)
+  ) {
+    return enxugarTituloNoticia(candidato);
+  }
+  return limpo;
+}
+
+/** Título que pode ir para o mural: nome da oportunidade, nunca rua, marca ou mapa. */
+export function tituloColetavel(
+  titulo: string,
+  descricao = "",
+  url?: string | null
+): string | null {
+  if (ehUrlDeMapa(url)) return null;
+  const limpo = tituloForaDoEndereco(titulo, descricao);
+  if (pareceEndereco(limpo) || pareceNomeDeMarca(limpo)) return null;
+  return limpo;
+}
+
+function identidadeEvento(item: { titulo: string; descricao: string }) {
+  const titulo = tituloForaDoEndereco(item.titulo, item.descricao);
+  const blob = normalizarTexto(`${titulo} ${item.descricao.slice(0, 280)}`);
+  const conf = blob.match(/\b[a-z]{3,}conf\b/);
+  if (!conf) return null;
+  const ano = blob.match(/\b20\d{2}\b/);
+  return ano ? `${conf[0]}-${ano[0]}` : conf[0];
+}
+
+export function mesmaOportunidade(
+  a: { titulo: string; descricao: string },
+  b: { titulo: string; descricao: string }
+) {
+  if (titulosParecidos(a.titulo, b.titulo)) return true;
+  const ta = tituloForaDoEndereco(a.titulo, a.descricao);
+  const tb = tituloForaDoEndereco(b.titulo, b.descricao);
+  if (titulosParecidos(ta, tb)) return true;
+  const ia = identidadeEvento(a);
+  const ib = identidadeEvento(b);
+  return Boolean(ia && ib && ia === ib);
 }
 
 function nucleoDoTitulo(titulo: string) {
@@ -375,7 +506,7 @@ export type FichaEnxuta = {
 
 /** Separa título, instituição e cidade de fichas coladas (ex.: FAPESP). */
 export function enxugarFicha(titulo: string, descricao = ""): FichaEnxuta {
-  const tituloNorm = titulo.replace(/\s+/g, " ").trim();
+  const tituloNorm = tituloForaDoEndereco(titulo, descricao);
   const descNorm = descricao.replace(/\s+/g, " ").trim();
   const temMarcador =
     RE_INSTITUICAO.test(tituloNorm) ||
