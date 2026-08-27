@@ -22,6 +22,9 @@ async function executar(request: NextRequest) {
         total: item.oportunidades.length,
         erro: item.erro ?? null,
       })),
+      meta: {
+        fontesProcessadas: resultados.length,
+      },
     },
     { cors: "none" }
   );

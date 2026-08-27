@@ -68,10 +68,24 @@ export function FontesManager() {
 
   async function coletarTodas() {
     setColetandoTodas(true);
+    setError(null);
     try {
-      await fetch("/api/coletar", { method: "POST" });
+      const response = await fetch("/api/coletar", {
+        method: "POST",
+        signal: AbortSignal.timeout(50_000),
+      });
+      if (!response.ok) {
+        throw new Error("A coleta não concluiu. Tente de novo.");
+      }
       await load();
       window.dispatchEvent(new Event("oportuna:atualizou"));
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "";
+      setError(
+        /timeout|abort/i.test(raw)
+          ? "A coleta passou do tempo. Clique em Atualizar de novo para seguir nas fontes que faltaram."
+          : "Não foi possível atualizar a coleta. Tente de novo."
+      );
     } finally {
       setColetandoTodas(false);
     }

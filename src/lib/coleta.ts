@@ -391,7 +391,7 @@ async function fetchSantanderDiscovery(resourceType: "SOA_GRANT" | "SOA_COURSE")
     const parsed = await assertPublicHttpUrl(url);
     const response = await fetch(parsed, {
       redirect: "manual",
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(8_000),
       headers: {
         "User-Agent": USER_AGENT,
         Accept: "application/json",
@@ -436,7 +436,7 @@ export async function fetchPublicPage(rawUrl: string, hops = 0): Promise<Pagina>
   const url = await assertPublicHttpUrl(rawUrl);
   const response = await fetch(url, {
     redirect: "manual",
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(8_000),
     headers: {
       "User-Agent": USER_AGENT,
       Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html, application/json;q=0.9, */*;q=0.8",
@@ -984,7 +984,16 @@ export async function coletarFonte(fonteId: string) {
     persistNow();
     return { fonte: atualizada ?? fonte, oportunidades: salvos };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Falha ao coletar a fonte.";
+    const timedOut =
+      error instanceof Error &&
+      (error.name === "TimeoutError" ||
+        error.name === "AbortError" ||
+        /timeout|abort/i.test(error.message));
+    const message = timedOut
+      ? "A fonte demorou demais para responder."
+      : error instanceof Error
+        ? error.message
+        : "Falha ao coletar a fonte.";
     const atualizada = updateFonte(fonte.id, {
       status: "erro",
       ultimaColeta: new Date().toISOString(),
@@ -995,20 +1004,31 @@ export async function coletarFonte(fonteId: string) {
   }
 }
 
+const CONCORRENCIA_COLETA = 5;
+const ORCAMENTO_COLETA_MS = 45_000;
+
 export async function coletarTodas() {
   ensureSeedFontes();
-  const fontes = listFontes();
-  const resultados = [];
-  for (const fonte of fontes) {
-    resultados.push(await coletarFonte(fonte.id));
+  const fontes = listFontes().sort((a, b) =>
+    (a.ultimaColeta ?? "").localeCompare(b.ultimaColeta ?? "")
+  );
+  const inicio = Date.now();
+  const fila = [...fontes];
+  const resultados: Awaited<ReturnType<typeof coletarFonte>>[] = [];
+
+  async function worker() {
+    while (fila.length > 0) {
+      if (Date.now() - inicio > ORCAMENTO_COLETA_MS) break;
+      const fonte = fila.shift();
+      if (!fonte) break;
+      resultados.push(await coletarFonte(fonte.id));
+    }
   }
+
+  await Promise.all(
+    Array.from({ length: Math.min(CONCORRENCIA_COLETA, fontes.length) }, () => worker())
+  );
   persistNow();
-  try {
-    const { enriquecerFichasPendentes } = await import("./enriquecer-ficha");
-    await enriquecerFichasPendentes({ limit: 10 });
-  } catch (error) {
-    console.warn("[trilha] escrita das fichas falhou", error);
-  }
   return resultados;
 }
 
