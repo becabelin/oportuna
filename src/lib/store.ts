@@ -29,7 +29,7 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaPrepEstudar2027?: Store };
+const globalForStore = globalThis as unknown as { __trilhaSemNoticiaOlimpiada?: Store };
 
 function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
@@ -191,15 +191,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaPrepEstudar2027) {
-    globalForStore.__trilhaPrepEstudar2027 = createStore();
-    sanitizar(globalForStore.__trilhaPrepEstudar2027);
+  if (!globalForStore.__trilhaSemNoticiaOlimpiada) {
+    globalForStore.__trilhaSemNoticiaOlimpiada = createStore();
+    sanitizar(globalForStore.__trilhaSemNoticiaOlimpiada);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaPrepEstudar2027.items.get(item.id);
-      globalForStore.__trilhaPrepEstudar2027.items.set(
+      const current = globalForStore.__trilhaSemNoticiaOlimpiada.items.get(item.id);
+      globalForStore.__trilhaSemNoticiaOlimpiada.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -208,17 +208,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaPrepEstudar2027.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaSemNoticiaOlimpiada.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaPrepEstudar2027.items.delete(id);
+        globalForStore.__trilhaSemNoticiaOlimpiada.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaPrepEstudar2027)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaPrepEstudar2027.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaSemNoticiaOlimpiada)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaSemNoticiaOlimpiada.items.values()]);
   }
-  return globalForStore.__trilhaPrepEstudar2027;
+  return globalForStore.__trilhaSemNoticiaOlimpiada;
 }
 
 function allItems() {
@@ -465,6 +465,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaPrepEstudar2027 = createStore();
+  globalForStore.__trilhaSemNoticiaOlimpiada = createStore();
   touch();
 }

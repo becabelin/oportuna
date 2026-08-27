@@ -2,10 +2,10 @@ import type { TipoOportunidade } from "./types";
 
 /** Palavras que indicam edital, vaga ou chamada, não texto de blog. */
 export const SINAL_OPORTUNIDADE =
-  /bolsa|bolsas|scholarship|scholarships|fellow(?:s|ship)?|edital|editais|inscri[cç][oõ]es|inscri[cç][aã]o|candidat(?:ura|e-se|as)|prazo de inscri|application deadline|apply now|how to apply|grant\b|funding|internship|internships|est[aá]gio|est[aá]gios|trainee|interc[aâ]mbio|exchange program|erasmus|mobilidade acad|hackathon|hack ?day|congresso|confer[eê]ncia|meetup|call for (?:papers|entries|application|proposals)|open call|chamada|concurso|olimp[ií]ada|pr[eê]mio|award|prize|fully funded|tuition(?:-|\s)?free|summer school|winter school|bootcamp|processo seletivo|vagas? (?:abertas|remuneradas)|mentoria com inscri|programa de bolsas|programa de est[aá]gio|youth (?:summit|forum|program)|volunteer (?:program|opportunity)|curso(?:s)? gratuit|universidade(?:s)? gratuita|vagas? em cursos?|mestrado|doutorado|p[oó]s-?gradua[cç][aã]o|inicia[cç][aã]o cient[ií]fica|pibic|prouni|fies|jovem aprendiz|para jovens|juventude/i;
+  /bolsas?(?! fam)|scholarship|scholarships|fellow(?:s|ship)?|edital|editais|inscri[cç][oõ]es|inscri[cç][aã]o|candidat(?:ura|e-se|as)|prazo de inscri|application deadline|apply now|how to apply|grant\b|funding|internship|internships|est[aá]gio|est[aá]gios|trainee|interc[aâ]mbio|exchange program|erasmus|mobilidade acad|hackathon|hack ?day|congresso|confer[eê]ncia|meetup|call for (?:papers|entries|application|proposals)|open call|chamada|concurso|olimp[ií]ada|pr[eê]mio|award|prize|fully funded|tuition(?:-|\s)?free|summer school|winter school|bootcamp|processo seletivo|vagas? (?:abertas|remuneradas)|mentoria com inscri|programa de bolsas|programa de est[aá]gio|youth (?:summit|forum|program)|volunteer (?:program|opportunity)|curso(?:s)? gratuit|universidade(?:s)? gratuita|vagas? em cursos?|mestrado|doutorado|p[oó]s-?gradua[cç][aã]o|inicia[cç][aã]o cient[ií]fica|pibic|prouni|fies|jovem aprendiz|para jovens|juventude/i;
 
 const SINAL_FORTE =
-  /bolsa|scholarship|fellowship|edital|inscri[cç]|fully funded|internship|est[aá]gio|interc[aâ]mbio|exchange program|hackathon|call for applications|processo seletivo|candidat|open call|chamada p[uú]blica|programa de bolsas|youth program|curso(?:s)? gratuit|universidade(?:s)? gratuita|mestrado|doutorado|olimp[ií]ada/i;
+  /bolsas?(?! fam)|scholarship|fellowship|edital|inscri[cç]|fully funded|internship|est[aá]gio|interc[aâ]mbio|exchange program|hackathon|call for applications|processo seletivo|candidat|open call|chamada p[uú]blica|programa de bolsas|youth program|curso(?:s)? gratuit|universidade(?:s)? gratuita|mestrado|doutorado|olimp[ií]ada/i;
 
 const CHEIRO_ARTIGO =
   /newsletter|podcast|case study|estudo de caso|opini[aã]o|opinion piece|thoughts on|what we learned|behind the (?:design|scenes)|cheat sheet|design system|figma plugin|ui kit|tutorial de|how we redesigned|a week in (?:the )?life|our latest (?:release|update)|product update|changelog/i;
@@ -100,6 +100,14 @@ export function ehLixoDeColeta(input: { titulo: string; descricao: string; url?:
   if (input.url && /\/(materiais(?:-[a-z]+)?|ebooks?)(\/|$)/i.test(input.url)) return true;
   if (input.url && ehUrlDeMapa(input.url)) return true;
   if (/^awards overview$/i.test(titulo)) return true;
+  if (
+    /\b(apostas?|bets)\b/i.test(blob) &&
+    /(bloqueio|restringe|pro[ií]be|cadastro bloqueado|impede o acesso)/i.test(blob)
+  ) {
+    return true;
+  }
+  if (/se trata de uma not[ií]cia/i.test(blob)) return true;
+  if (ehNoticiaSemChamada(titulo, input.descricao)) return true;
   if (pareceEndereco(titulo) && pareceEndereco(tituloForaDoEndereco(titulo, input.descricao))) {
     return true;
   }
@@ -107,6 +115,17 @@ export function ehLixoDeColeta(input: { titulo: string; descricao: string; url?:
     return true;
   }
   return false;
+}
+
+const TITULO_NOTICIA =
+  /divulga (os )?classificados|classificados para a \d|destaca trajet[oó]ria|impacto da olimp[ií]ada na forma[cç]|hist[oó]ria de .{2,80} mostra|anuncia o resultado|divulga (o )?resultado|resultado preliminar|lista preliminar de/i;
+
+function ehNoticiaSemChamada(titulo: string, descricao: string) {
+  if (/sem chamada de inscri[cç][aã]o/i.test(descricao)) return true;
+  if (!TITULO_NOTICIA.test(titulo)) return false;
+  return !/inscri[cç]|edital|vagas? (ol[ií]mpicas|abertas)|declara[cç][aã]o de interesse|como se inscrever/i.test(
+    titulo
+  );
 }
 
 export function limparTextoColetado(texto: string) {

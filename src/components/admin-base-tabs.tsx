@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export function AdminBaseTabs() {
   return (
     <Tabs defaultValue="fontes" className="mt-8 min-w-0 gap-6">
-      <TabsList className="h-auto w-full min-w-0">
-        <TabsTrigger value="fontes" className="min-h-11 flex-1 px-3">
+      <TabsList className="grid h-12 w-full min-w-0 grid-cols-2 items-stretch">
+        <TabsTrigger value="fontes" className="h-full px-3">
           Fontes
         </TabsTrigger>
-        <TabsTrigger value="chaves" className="min-h-11 flex-1 px-3">
+        <TabsTrigger value="chaves" className="h-full px-3">
           Chaves da API
         </TabsTrigger>
       </TabsList>
