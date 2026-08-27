@@ -95,7 +95,7 @@ export function ChavesAdmin() {
         {(chaves ?? []).map((item) => (
           <li
             key={item.id}
-            className="flex flex-col gap-3 rounded-2xl border bg-card/80 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex min-w-0 flex-col gap-3 rounded-2xl border bg-card/80 p-4"
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">

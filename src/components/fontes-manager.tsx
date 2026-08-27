@@ -89,8 +89,8 @@ export function FontesManager() {
   }
 
   return (
-    <div className="grid gap-8">
-      <div className="rounded-2xl border bg-card/80 p-5">
+    <div className="grid min-w-0 gap-8">
+      <div className="min-w-0 rounded-2xl border bg-card/80 p-5">
         <h2 className="font-heading text-xl">Incluir fonte na base</h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
           RSS e páginas de editais que a Trilha da Oportunidade passa a monitorar. Não aparece para
@@ -99,7 +99,7 @@ export function FontesManager() {
         <AddSourceForm />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
           {fontes
             ? `${fontes.length} ${fontes.length === 1 ? "fonte" : "fontes"} monitoradas`
@@ -108,11 +108,12 @@ export function FontesManager() {
         <Button
           variant="outline"
           size="sm"
+          className="w-full shrink-0 sm:w-auto"
           onClick={() => void coletarTodas()}
           disabled={coletandoTodas}
         >
           <RefreshCw aria-hidden className={coletandoTodas ? "size-3.5 animate-spin" : "size-3.5"} />
-          Atualizar todas agora
+          Atualizar
         </Button>
       </div>
 
@@ -128,15 +129,17 @@ export function FontesManager() {
         </p>
       ) : null}
 
-      <ul className="grid gap-3">
+      <ul className="grid min-w-0 gap-3">
         {(fontes ?? []).map((fonte) => (
           <li
             key={fonte.id}
-            className="flex flex-col gap-3 rounded-2xl border bg-card/80 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex min-w-0 flex-col gap-3 rounded-2xl border bg-card/80 p-4"
           >
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-medium">{fonte.titulo || new URL(fonte.url).hostname}</p>
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <p className="min-w-0 truncate font-medium">
+                  {fonte.titulo || new URL(fonte.url).hostname}
+                </p>
                 <Badge variant="outline">
                   {fonte.status === "ok"
                     ? "atualizada"
@@ -154,12 +157,12 @@ export function FontesManager() {
                 {fonte.url}
                 <span className="sr-only">(abre em nova aba)</span>
               </a>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 break-words text-xs text-muted-foreground">
                 {fonte.itensAbertos} abertas · última coleta {formatWhen(fonte.ultimaColeta)}
                 {fonte.erro ? ` · ${fonte.erro}` : ""}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex min-w-0 flex-wrap gap-2">
               <Link href={`/?fonteId=${fonte.id}`}>
                 <Button variant="outline" size="sm">
                   Ver no catálogo

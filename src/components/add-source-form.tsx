@@ -61,8 +61,8 @@ export function AddSourceForm({ compact = false }: { compact?: boolean }) {
     <form onSubmit={onSubmit} className={compact ? "grid gap-2" : "grid gap-3"}>
       <Field>
         <FieldLabel htmlFor="fonte-url">URL da fonte</FieldLabel>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
             <Link2 aria-hidden className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="fonte-url"
@@ -73,13 +73,13 @@ export function AddSourceForm({ compact = false }: { compact?: boolean }) {
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://site-de-bolsas.edu/editais"
-              className="pl-8"
+              className="min-w-0 w-full pl-8"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? "fonte-erro" : message ? "fonte-ok" : undefined}
             />
           </div>
-          <Button type="submit" disabled={pending}>
-            {pending ? "Coletando…" : "Adicionar e coletar"}
+          <Button type="submit" disabled={pending} className="w-full shrink-0 sm:w-auto">
+            {pending ? "Coletando…" : "Adicionar"}
           </Button>
         </div>
       </Field>
