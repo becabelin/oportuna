@@ -29,7 +29,7 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaTituloColetavel?: Store };
+const globalForStore = globalThis as unknown as { __trilhaPrepEstudar2027?: Store };
 
 function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
@@ -191,15 +191,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaTituloColetavel) {
-    globalForStore.__trilhaTituloColetavel = createStore();
-    sanitizar(globalForStore.__trilhaTituloColetavel);
+  if (!globalForStore.__trilhaPrepEstudar2027) {
+    globalForStore.__trilhaPrepEstudar2027 = createStore();
+    sanitizar(globalForStore.__trilhaPrepEstudar2027);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaTituloColetavel.items.get(item.id);
-      globalForStore.__trilhaTituloColetavel.items.set(
+      const current = globalForStore.__trilhaPrepEstudar2027.items.get(item.id);
+      globalForStore.__trilhaPrepEstudar2027.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -208,17 +208,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaTituloColetavel.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilhaPrepEstudar2027.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaTituloColetavel.items.delete(id);
+        globalForStore.__trilhaPrepEstudar2027.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaTituloColetavel)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaTituloColetavel.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilhaPrepEstudar2027)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilhaPrepEstudar2027.items.values()]);
   }
-  return globalForStore.__trilhaTituloColetavel;
+  return globalForStore.__trilhaPrepEstudar2027;
 }
 
 function allItems() {
@@ -465,6 +465,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaTituloColetavel = createStore();
+  globalForStore.__trilhaPrepEstudar2027 = createStore();
   touch();
 }
