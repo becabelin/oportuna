@@ -29,7 +29,7 @@ type Store = {
   items: Map<string, Oportunidade>;
 };
 
-const globalForStore = globalThis as unknown as { __trilhaEstagiosTech2026?: Store };
+const globalForStore = globalThis as unknown as { __trilha1000devs2026?: Store };
 
 function withOrigem(
   item: Omit<Oportunidade, "origem" | "fonteId" | "fonteUrl" | "subtitulo" | "imagemUrl" | "enriquecidoEm"> &
@@ -191,15 +191,15 @@ function sanitizar(store: Store) {
 }
 
 function getStore(): Store {
-  if (!globalForStore.__trilhaEstagiosTech2026) {
-    globalForStore.__trilhaEstagiosTech2026 = createStore();
-    sanitizar(globalForStore.__trilhaEstagiosTech2026);
+  if (!globalForStore.__trilha1000devs2026) {
+    globalForStore.__trilha1000devs2026 = createStore();
+    sanitizar(globalForStore.__trilha1000devs2026);
     const seedIds = new Set(SEED.map((item) => item.id));
     const seedUrls = new Set(SEED.map((item) => item.urlInscricao));
     let added = false;
     for (const item of SEED) {
-      const current = globalForStore.__trilhaEstagiosTech2026.items.get(item.id);
-      globalForStore.__trilhaEstagiosTech2026.items.set(
+      const current = globalForStore.__trilha1000devs2026.items.get(item.id);
+      globalForStore.__trilha1000devs2026.items.set(
         item.id,
         withOrigem({
           ...item,
@@ -208,17 +208,17 @@ function getStore(): Store {
       );
       added = true;
     }
-    for (const [id, item] of [...globalForStore.__trilhaEstagiosTech2026.items.entries()]) {
+    for (const [id, item] of [...globalForStore.__trilha1000devs2026.items.entries()]) {
       if (seedIds.has(id)) continue;
       if (seedUrls.has(item.urlInscricao)) {
-        globalForStore.__trilhaEstagiosTech2026.items.delete(id);
+        globalForStore.__trilha1000devs2026.items.delete(id);
         added = true;
       }
     }
-    if (removerDuplicatas(globalForStore.__trilhaEstagiosTech2026)) added = true;
-    if (added) persistOportunidades([...globalForStore.__trilhaEstagiosTech2026.items.values()]);
+    if (removerDuplicatas(globalForStore.__trilha1000devs2026)) added = true;
+    if (added) persistOportunidades([...globalForStore.__trilha1000devs2026.items.values()]);
   }
-  return globalForStore.__trilhaEstagiosTech2026;
+  return globalForStore.__trilha1000devs2026;
 }
 
 function allItems() {
@@ -465,6 +465,6 @@ export function taxonomia() {
 }
 
 export function resetStore() {
-  globalForStore.__trilhaEstagiosTech2026 = createStore();
+  globalForStore.__trilha1000devs2026 = createStore();
   touch();
 }

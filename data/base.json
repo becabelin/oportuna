@@ -14024,6 +14024,44 @@
       "enriquecidoEm": null
     },
     {
+      "id": "1000devs-talentos-para-o-bem-2026",
+      "titulo": "1000DEVs – Talentos para o Bem: 6ª turma",
+      "tipo": "curso",
+      "organizacao": "SoulCode Academy",
+      "descricao": "O 1000DEVs – Talentos para o Bem abre a 6ª turma com formação gratuita, 100% online e ao vivo para quem quer começar ou avançar na tecnologia. A iniciativa é da Johnson & Johnson e Einstein Hospital Israelita, em parceria com a SoulCode Academy.\n\nHá duas trilhas: Start, para quem ainda não programa, e Aceleração, para quem já tem conhecimentos em programação. São 240 horas em 12 semanas, com aulas de segunda a sexta das 18h30 às 22h30, mentorias, soft skills, Tech English e projetos práticos.\n\nA inscrição é em soulcode.com/1000devs até 14 de setembro de 2026, com início previsto para 21 de setembro. Critérios, trilhas e o formulário estão no site da organização: a inscrição acontece lá, não nesta trilha.",
+      "area": "Ciência da Computação",
+      "nivel": "todos",
+      "modalidade": "remoto",
+      "pais": "Brasil",
+      "cidade": null,
+      "beneficio": "Gratuito",
+      "prazoInscricao": "2026-09-14",
+      "dataInicio": "2026-09-21",
+      "dataFim": null,
+      "urlInscricao": "https://soulcode.com/1000devs",
+      "requisitos": [
+        "Ter 18 anos ou mais",
+        "Renda familiar de até dois salários mínimos",
+        "Ensino médio completo, preferencialmente em escola pública ou particular com bolsa integral",
+        "Disponibilidade para aulas online ao vivo durante todo o programa"
+      ],
+      "tags": [
+        "SoulCode",
+        "Programação",
+        "Johnson & Johnson",
+        "Einstein"
+      ],
+      "vagas": null,
+      "criadoEm": "2026-08-28T19:45:00.000Z",
+      "atualizadoEm": "2026-08-28T19:45:00.000Z",
+      "imagemUrl": null,
+      "subtitulo": "O 1000DEVs oferece 240 horas de formação gratuita em tecnologia, online e ao vivo, com trilhas Start e Aceleração.",
+      "origem": "manual",
+      "fonteId": null,
+      "fonteUrl": null,
+      "enriquecidoEm": null
+    },
+    {
       "titulo": "Top 25 Scholarships in USA for International Students",
       "subtitulo": "",
       "tipo": "bolsa",
