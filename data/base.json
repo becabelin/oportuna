@@ -14990,6 +14990,42 @@
       "id": "meetup-fiap-rio-human-skills-ai-gen-z-millennial",
       "criadoEm": "2026-08-26T02:43:45.524Z",
       "atualizadoEm": "2026-08-26T02:43:49.424Z"
+    },
+    {
+      "id": "gci-world-2026-tokyo",
+      "titulo": "GCI World 2026 September - Universidade de Tóquio",
+      "tipo": "programa",
+      "organizacao": "Universidade de Tóquio - Matsuo-Iwasawa Laboratory",
+      "descricao": "Programa gratuito de Inteligência Artificial e Ciência de Dados oferecido pelo Matsuo-Iwasawa Laboratory da Universidade de Tóquio. Oportunidade para aprender tecnologias de ponta e adquirir conhecimentos avançados em Ciência de Dados com uma das melhores universidades do mundo.",
+      "area": "Inteligência Artificial e Ciência de Dados",
+      "nivel": "todos",
+      "modalidade": "online",
+      "pais": "Japão",
+      "cidade": "Tóquio",
+      "beneficio": "Programa gratuito",
+      "prazoInscricao": "2026-09-10",
+      "dataInicio": "2026-09-01",
+      "dataFim": null,
+      "urlInscricao": "https://omnicampus.org/",
+      "requisitos": [
+        "Interessado em IA e Ciência de Dados",
+        "Usar código de inscrição: MFEWR2"
+      ],
+      "tags": [
+        "Inteligência Artificial",
+        "Ciência de Dados",
+        "Programa gratuito",
+        "Universidade de Tóquio"
+      ],
+      "vagas": null,
+      "criadoEm": "2026-08-31T12:00:00.000Z",
+      "atualizadoEm": "2026-08-31T12:00:00.000Z",
+      "imagemUrl": null,
+      "subtitulo": "Programa gratuito de Inteligência Artificial e Ciência de Dados da Universidade de Tóquio",
+      "origem": "manual",
+      "fonteId": null,
+      "fonteUrl": "https://lnkd.in/d6BQEXyV",
+      "enriquecidoEm": null
     }
   ],
   "fontes": [
