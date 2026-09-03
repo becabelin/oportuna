@@ -15026,6 +15026,45 @@
       "fonteId": null,
       "fonteUrl": "https://lnkd.in/d6BQEXyV",
       "enriquecidoEm": null
+    },
+    {
+      "id": "if-design-student-award-2027",
+      "titulo": "iF DESIGN STUDENT AWARD 2027",
+      "tipo": "concurso",
+      "organizacao": "iF Design",
+      "descricao": "Concurso internacional para estudantes e jovens profissionais apresentarem seus projetos de design. Escolha entre 15 categorias inspiradas nos Objetivos de Desenvolvimento Sustentável das Nações Unidas. Compita por uma parte de EUR 50.000 em prêmios. Beneficie-se de uma campanha internacional de PR e mídia social para vencedores. Cerimônia de premiação em Nova York em junho de 2027.",
+      "area": "Design",
+      "nivel": "graduacao",
+      "modalidade": "online",
+      "pais": "Internacional",
+      "cidade": null,
+      "beneficio": "EUR 50.000 em prêmios + PR e campanha de mídia social internacional",
+      "prazoInscricao": "2027-02-03",
+      "dataInicio": null,
+      "dataFim": null,
+      "urlInscricao": "https://www.ifdesign.com/en/design-competition/if-design-student-award",
+      "requisitos": [
+        "Ser estudante ou jovem profissional de design",
+        "Envio de projeto sem custo",
+        "Selecionar uma das 15 categorias inspiradas nos SDGs"
+      ],
+      "tags": [
+        "Design",
+        "Concurso",
+        "Prêmios",
+        "ODS",
+        "Jovens Profissionais",
+        "Internacional"
+      ],
+      "vagas": null,
+      "criadoEm": "2026-09-03T12:00:00.000Z",
+      "atualizadoEm": "2026-09-03T12:00:00.000Z",
+      "imagemUrl": null,
+      "subtitulo": "Concurso internacional para estudantes de design alinhado com os Objetivos de Desenvolvimento Sustentável",
+      "origem": "manual",
+      "fonteId": null,
+      "fonteUrl": null,
+      "enriquecidoEm": null
     }
   ],
   "fontes": [
